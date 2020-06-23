@@ -1,25 +1,17 @@
-import React, { Fragment } from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import Feed from './components/feed/Feed'
-import Routes from './components/routing/Routes'
+import React from 'react'
+import Dashboard from './components/dashboard/Dashboard'
 
 // Redux
 import { Provider } from 'react-redux'
 import store from './store'
 
-import './App.scss'
+import './bootstrap.scss'
+import './my.scss'
 
 const App = () => {
   return (
     <Provider store={store}>
-      <Router>
-        <Fragment>
-          <Switch>
-            <Route exact path='/' component={Feed} />
-            <Route component={Routes} />
-          </Switch>
-        </Fragment>
-      </Router>
+      <Dashboard />
     </Provider>
   )
 }

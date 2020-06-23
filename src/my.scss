@@ -1,0 +1,62 @@
+// MAIN
+a {
+  text-decoration: none;
+  color: black;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  overflow: hidden;
+  min-width: 320px;
+  padding: 0;
+  margin: 0;
+  font-family: 'Arimo', sans-serif;
+  color: #3f3f3f;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.my-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  min-height: 100vh;
+}
+
+// ALERT
+.my-alert {
+  width: 100vw;
+  height: 45px;
+  min-height: 45px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.my-alert-danger {
+  background-color: red;
+}
+.my-alert-success {
+  background-color: green;
+}
+
+.my-alert-button {
+  border: 1px solid rgb(175, 175, 175);
+  padding: 7px;
+  cursor: pointer;
+  margin-top: 30vh;
+  border-radius: 5px;
+}
