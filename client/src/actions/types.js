@@ -1,4 +1,5 @@
 export const SET_ALERT = 'SET_ALERT'
 export const REMOVE_ALERT = 'REMOVE_ALERT'
-export const GET_ASSESSMENTS = 'GET_ASSESSMENTS'
+export const UPDATE_JOB = 'UPDATE_JOB'
+export const JOB_ERROR = 'JOB_ERROR'
 export const SET_ACTIVE = 'SET_ACTIVE'

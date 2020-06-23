@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import alert from './alert'
-import misc from './misc'
+import jobs from './jobs'
 
 export default combineReducers({
   alert,
-  misc,
+  jobs,
 })
