@@ -14,17 +14,14 @@ export default function (state = initialState, action) {
         ...state,
         [payload.jobnum]: {
           ...state[payload.jobnum],
-          linelist: payload.job.spools,
+          spools: payload.job.spools,
         },
         loading: false,
       }
     case JOB_ERROR:
       return {
         ...state,
-        [payload.jobnum]: {
-          ...state[payload.jobnum],
-          linelist: {},
-        },
+        [payload.jobnum]: {},
         loading: false,
       }
     default:

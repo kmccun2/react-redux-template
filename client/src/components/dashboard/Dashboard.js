@@ -4,7 +4,7 @@ import { setAlert } from '../../actions/alert'
 import { connect } from 'react-redux'
 import { updateJob } from '../../actions/jobs'
 
-const Dashboard = ({ setAlert, updateJob }) => {
+const Dashboard = ({ setAlert, updateJob, loading }) => {
   return (
     <Fragment>
       <Alert />
@@ -19,16 +19,21 @@ const Dashboard = ({ setAlert, updateJob }) => {
           ></input>
         </div>
         <div className='my-subheader'>
-          <div className='subheader-item' onClick={() => updateJob('6973')}>
+          <div className='subheader-item' onClick={() => updateJob('6951')}>
             Reports
           </div>
           <div className='subheader-item'>Update Info</div>
           <div className='subheader-item'>Descrepancies</div>
           <div className='subheader-item'>Support Comparison</div>
         </div>
+        {loading ? <div>Loading...</div> : null}
       </div>
     </Fragment>
   )
 }
 
-export default connect(null, { setAlert, updateJob })(Dashboard)
+const mapStateToProps = (state) => ({
+  loading: state.jobs.loading,
+})
+
+export default connect(mapStateToProps, { setAlert, updateJob })(Dashboard)
