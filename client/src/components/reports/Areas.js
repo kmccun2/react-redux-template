@@ -56,8 +56,8 @@ const AreasSummary = ({ job, header }) => {
           </div>
         ))}
         {/* TOTALS */}
-        <div className='totals-row table-row'>
-          <div className='col1'></div>
+        <div className='table-row totals-row'>
+          <div className='col1'>TOTAL</div>
           <div className='col2'></div>
           <div className='col3'>{job.total_spools}</div>
           <div className='col4'>{job.on_hold}</div>

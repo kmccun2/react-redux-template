@@ -7,21 +7,23 @@ import {
   UPDATE_SHORTS,
 } from './types'
 
-// Set loading to true
+// SET LOADING TO TRUE
 export const setJobLoading = () => async (dispatch) => {
   dispatch({
     type: SET_JOB_LOADING,
   })
 }
 
-// Update the line list and store in state
+// UPDATE THE LINE LIST AND STORE IN STATE
 export const updateJob = (jobnum, filtered) => async (dispatch) => {
   try {
     // CREATE LINE LIST OBJECT
     let job = {
+      number: jobnum,
       spools: [],
       areas: [],
       materials: [],
+      shorts: [],
     }
 
     // TO CHECK IF SPOOL ALREADY EXISTS
@@ -577,10 +579,39 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
   }
 }
 
-// Set loading to true
+// SET LOADING TO TRUE
 export const updateShorts = (job) => async (dispatch) => {
-  console.log('test')
-  // dispatch({
-  //   type: UPDATE_SHORTS,
-  // })
+  try {
+    // INTERATE THROUGH SHORTS
+    job.spools.map((spool) => {
+      spool.items.map((item) => {
+        if (item.status !== 'Complete') {
+          // SET SCOPE
+          // 6951
+          if (job.number === '6951') {
+            if (spool.material === 'Chrome') {
+              item.scope = 'Client'
+            } else {
+              item.scope = 'Performance'
+            }
+          }
+          job.shorts.push(item)
+        }
+
+        return item
+      })
+      return spool
+    })
+
+    dispatch({
+      type: UPDATE_SHORTS,
+      payload: job.shorts,
+    })
+  } catch (err) {
+    console.log(err)
+    dispatch({
+      type: JOB_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status },
+    })
+  }
 }

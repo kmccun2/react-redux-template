@@ -1,6 +1,7 @@
 import {
   UPDATE_JOB,
   UPDATE_JOB_MATS,
+  UPDATE_SHORTS,
   JOB_ERROR,
   SET_JOB_LOADING,
 } from '../actions/types'
@@ -24,6 +25,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         job: payload.job,
+        job_mats: [],
         loading: false,
       }
     case UPDATE_JOB_MATS:
@@ -31,6 +33,12 @@ export default function (state = initialState, action) {
         ...state,
         loading: false,
         job_mats: [...state.job_mats, payload],
+      }
+    case UPDATE_SHORTS:
+      return {
+        ...state,
+        job: { ...state.job, shorts: payload },
+        loading: false,
       }
     case JOB_ERROR:
       return {

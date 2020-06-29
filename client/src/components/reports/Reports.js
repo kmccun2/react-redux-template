@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { setJobLoading, updateJob, updateShorts } from '../../actions/jobs'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
-import { Link } from 'react-router-dom'
+import Shorts from './Shorts'
 
 const Reports = ({
   match,
@@ -18,6 +18,11 @@ const Reports = ({
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
 
+  // GO BACK TO AREAS ON NEW JOB
+  useEffect(() => {
+    setjsActive(1)
+  }, [jobnum])
+
   // MAIN CALCULATIONS
   useEffect(() => {
     setJobLoading()
@@ -26,7 +31,7 @@ const Reports = ({
 
   // CREATE MATERIAL FILTERED JOBS
   useEffect(() => {
-    if (job) {
+    if (job && job_mats.length === 0) {
       job.materials.map((material) => {
         setMatJobs([
           ...matJobs,
@@ -35,7 +40,6 @@ const Reports = ({
             job.spools.filter((spool) => spool.material === material)
           ),
         ])
-        console.log(matJobs)
       })
     }
   }, [job, jobnum])
@@ -57,7 +61,9 @@ const Reports = ({
           {/* SUMMARY TABS */}
           <div className='js-tabs'>
             <div
-              onClick={() => setjsActive(1)}
+              onClick={() => {
+                setjsActive(1)
+              }}
               className={jsActive === 1 ? 'js-tab js-active' : 'js-tab'}
             >
               Areas
@@ -65,7 +71,10 @@ const Reports = ({
             <div
               onClick={() => {
                 setjsActive(2)
-                updateShorts(job)
+                if (job.shorts.length === 0) {
+                  setJobLoading(true)
+                  updateShorts(job)
+                }
               }}
               className={
                 jsActive === 2
@@ -106,11 +115,26 @@ const Reports = ({
               {/*  FOR EACH MATERIAL */}
               {job_mats.map((job) => (
                 <Areas
-                  key={Math.random()}
+                  key={job.materials[0]}
                   job={job}
                   header={job.materials[0]}
                 />
               ))}
+            </Fragment>
+          )}
+          {/* SHORTS SUMMARIES */}
+          {jsActive === 2 && (
+            <Fragment>
+              {/* ENTIRE JOB */}
+              <Shorts
+                job={job}
+                header='Total Shorts'
+                filtered='Purchased No Material'
+              />
+              {/* TOTAL PURCHASED */}
+              <Shorts job={job} header='Total Shorts' filtered='Purchased' />
+              {/* TOTAL NO MATERIAL */}
+              <Shorts job={job} header='Total Shorts' filtered='No Material' />
             </Fragment>
           )}
         </Fragment>
