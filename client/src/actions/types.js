@@ -1,6 +1,7 @@
 export const SET_ALERT = 'SET_ALERT'
 export const REMOVE_ALERT = 'REMOVE_ALERT'
 export const UPDATE_JOB = 'UPDATE_JOB'
+export const UPDATE_DORMANT = 'UPDATE_DORMANT'
 export const UPDATE_JOB_MATS = 'UPDATE_JOB_MATS'
 export const JOB_ERROR = 'JOB_ERROR'
 export const SET_ACTIVE = 'SET_ACTIVE'

@@ -4,6 +4,7 @@ import {
   UPDATE_SHORTS,
   JOB_ERROR,
   SET_JOB_LOADING,
+  UPDATE_DORMANT,
 } from '../actions/types'
 
 const initialState = {
@@ -38,6 +39,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         job: { ...state.job, shorts: payload },
+        loading: false,
+      }
+    case UPDATE_DORMANT:
+      return {
+        ...state,
+        dormant: payload,
         loading: false,
       }
     case JOB_ERROR:

@@ -2,14 +2,12 @@ import React, { Fragment, useState } from 'react'
 import Dashboard from './components/dashboard/Dashboard'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Routes from '../src/components/routes/Routes'
-
-// Redux
 import { Provider } from 'react-redux'
 import store from './store'
-
 import './bootstrap.scss'
 import './my.scss'
 import ReportsDD from './components/misc/ReportsDD'
+import Search from './components/search/Search'
 
 const App = () => {
   const [showJobs, setShowJobs] = useState(false)
@@ -30,10 +28,7 @@ const App = () => {
               <span className='header-item company-name'>
                 Performance Contractors
               </span>
-              <input
-                className='header-item spool-search'
-                placeholder='Search spools...'
-              ></input>
+              <Search />
             </div>
             <div className='my-subheader'>
               <div

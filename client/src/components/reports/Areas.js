@@ -59,31 +59,31 @@ const AreasSummary = ({ job, header }) => {
         <div className='table-row totals-row'>
           <div className='col1'>TOTAL</div>
           <div className='col2'></div>
-          <div className='col3'>{job.total_spools}</div>
+          <div className='col3'>{job.total}</div>
           <div className='col4'>{job.on_hold}</div>
           <div className='col5'>{job.workable}</div>
-          <div className='col6'>{job.total_spools - job.workable}</div>
+          <div className='col6'>{job.total - job.workable}</div>
           <div className='col7'>{job.weldout}</div>
-          <div className='col8'>{job.total_spools - job.weldout}</div>
+          <div className='col8'>{job.total - job.weldout}</div>
           <div className='col9'>{job.stc}</div>
           <div className='col10'>{job.delivered}</div>
-          <div className='col11'>{job.total_spools - job.delivered}</div>
+          <div className='col11'>{job.total - job.delivered}</div>
           <div className='col12'>
-            {job.workable / job.total_spools === 1
-              ? (job.workable / job.total_spools) * 100
-              : ((job.workable / job.total_spools) * 100).toFixed(2)}
+            {job.workable / job.total === 1
+              ? (job.workable / job.total) * 100
+              : ((job.workable / job.total) * 100).toFixed(2)}
             %
           </div>
           <div className='col13'>
-            {job.weldout / job.total_spools === 1
-              ? (job.weldout / job.total_spools) * 100
-              : ((job.weldout / job.total_spools) * 100).toFixed(2)}
+            {job.weldout / job.total === 1
+              ? (job.weldout / job.total) * 100
+              : ((job.weldout / job.total) * 100).toFixed(2)}
             %
           </div>
           <div className='col14'>
-            {job.delivered / job.total_spools === 1
-              ? (job.delivered / job.total_spools) * 100
-              : ((job.delivered / job.total_spools) * 100).toFixed(2)}
+            {job.delivered / job.total === 1
+              ? (job.delivered / job.total) * 100
+              : ((job.delivered / job.total) * 100).toFixed(2)}
             %
           </div>
         </div>

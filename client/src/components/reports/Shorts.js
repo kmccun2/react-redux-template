@@ -15,7 +15,7 @@ const Shorts = ({ header, job, filtered }) => {
           <div className='sh-col5'>TOTAL</div>
         </div>
         <div className='table-row'>
-          <div className='sh-col1 sh-subheader'>Valves</div>
+          <div className='sh-col1 table-subheader'>Valves</div>
           <div className='sh-col2'>
             {
               job.shorts.filter(
@@ -59,7 +59,7 @@ const Shorts = ({ header, job, filtered }) => {
           </div>
         </div>
         <div className='table-row'>
-          <div className='sh-col1 sh-subheader'>Flanges</div>
+          <div className='sh-col1 table-subheader'>Flanges</div>
           <div className='sh-col2'>
             {
               job.shorts.filter(
@@ -101,7 +101,7 @@ const Shorts = ({ header, job, filtered }) => {
           </div>
         </div>
         <div className='table-row'>
-          <div className='sh-col1 sh-subheader'>Fittings</div>
+          <div className='sh-col1 table-subheader'>Fittings</div>
           <div className='sh-col2'>
             {
               job.shorts.filter(
@@ -143,7 +143,7 @@ const Shorts = ({ header, job, filtered }) => {
           </div>
         </div>
         <div className='table-row'>
-          <div className='sh-col1 sh-subheader'>Supports</div>
+          <div className='sh-col1 table-subheader'>Supports</div>
           <div className='sh-col2'>
             {
               job.shorts.filter(
@@ -219,7 +219,7 @@ const Shorts = ({ header, job, filtered }) => {
           </div>
         </div>
         <div className='table-row pipe-row'>
-          <div className='sh-col1 sh-subheader'>Pipe</div>
+          <div className='sh-col1 table-subheader'>Pipe</div>
           <div className='sh-col2'>
             {
               job.shorts.filter(

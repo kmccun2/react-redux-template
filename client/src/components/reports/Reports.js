@@ -1,9 +1,15 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { setJobLoading, updateJob, updateShorts } from '../../actions/jobs'
+import {
+  setJobLoading,
+  updateJob,
+  updateShorts,
+  updateDormant,
+} from '../../actions/jobs'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
+import Dormant from './Dormant'
 
 const Reports = ({
   match,
@@ -13,6 +19,7 @@ const Reports = ({
   setJobLoading,
   updateJob,
   updateShorts,
+  updateDormant,
 }) => {
   const [matJobs, setMatJobs] = useState([])
   const [jsActive, setjsActive] = useState(1)
@@ -40,8 +47,10 @@ const Reports = ({
             job.spools.filter((spool) => spool.material === material)
           ),
         ])
+        return material
       })
     }
+    // eslint-disable-next-line
   }, [job, jobnum])
 
   return (
@@ -54,7 +63,7 @@ const Reports = ({
           </div>
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
-            <div className='js-highlight-item'>{job.total_spools} Spools</div>
+            <div className='js-highlight-item'>{job.total} Spools</div>
             <div className='js-highlight-item'>{job.workable} Workable</div>
             <div className='js-highlight-item'>{job.issued} Issued</div>
           </div>
@@ -85,7 +94,13 @@ const Reports = ({
               Shorts
             </div>
             <div
-              onClick={() => setjsActive(3)}
+              onClick={() => {
+                setjsActive(3)
+                if (job.shorts.length === 0) {
+                  setJobLoading(true)
+                  updateDormant(job.spools)
+                }
+              }}
               className={jsActive === 3 ? 'js-tab js-active' : 'js-tab'}
             >
               Dormant
@@ -132,11 +147,17 @@ const Reports = ({
                 filtered='Purchased No Material'
               />
               {/* TOTAL PURCHASED */}
-              <Shorts job={job} header='Total Shorts' filtered='Purchased' />
+              <Shorts job={job} header='Total Purchased' filtered='Purchased' />
               {/* TOTAL NO MATERIAL */}
-              <Shorts job={job} header='Total Shorts' filtered='No Material' />
+              <Shorts
+                job={job}
+                header='Total No Material'
+                filtered='No Material'
+              />
             </Fragment>
           )}
+          {/* SHORTS SUMMARIES */}
+          {jsActive === 3 && <Dormant header='Overall Averages' />}
         </Fragment>
       ) : (
         <Loading message='Fetching data from database...' />
@@ -154,4 +175,5 @@ export default connect(mapStateToProps, {
   setJobLoading,
   updateJob,
   updateShorts,
+  updateDormant,
 })(Reports)

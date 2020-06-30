@@ -275,7 +275,7 @@ body {
   text-align: center;
   overflow: hidden;
 }
-.sh-subheader {
+.table-subheader {
   font-weight: bold;
   background-color: #f4edff;
 }
@@ -284,4 +284,23 @@ body {
 }
 .pipe-row {
   margin-top: 30px;
+}
+
+// DORMANT
+.d-col1,
+.d-col2,
+.d-col3,
+.d-col4,
+.d-col5,
+.d-col6,
+.d-col7,
+.d-col8,
+.d-col9,
+.d-col10,
+.d-col11,
+.d-col12 {
+  padding: 4px 5px;
+  width: 125px;
+  text-align: center;
+  overflow: hidden;
 }
