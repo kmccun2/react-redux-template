@@ -15,6 +15,7 @@ const Reports = ({
   match,
   loading,
   job,
+  jobs,
   job_mats,
   setJobLoading,
   updateJob,
@@ -98,7 +99,7 @@ const Reports = ({
                 setjsActive(3)
                 if (job.shorts.length === 0) {
                   setJobLoading(true)
-                  updateDormant(job.spools)
+                  updateDormant(jobs)
                 }
               }}
               className={jsActive === 3 ? 'js-tab js-active' : 'js-tab'}
@@ -122,42 +123,48 @@ const Reports = ({
               Location
             </div>
           </div>
-          {/* AREA SUMMARIES */}
-          {jsActive === 1 && (
-            <Fragment>
-              {/* ENTIRE JOB */}
-              <Areas job={job} header='All Spools' />
-              {/*  FOR EACH MATERIAL */}
-              {job_mats.map((job) => (
-                <Areas
-                  key={job.materials[0]}
+          <div className='reports-content'>
+            {/* AREA SUMMARIES */}
+            {jsActive === 1 && (
+              <Fragment>
+                {/* ENTIRE JOB */}
+                <Areas job={job} header='All Spools' />
+                {/*  FOR EACH MATERIAL */}
+                {job_mats.map((job) => (
+                  <Areas
+                    key={job.materials[0]}
+                    job={job}
+                    header={job.materials[0]}
+                  />
+                ))}
+              </Fragment>
+            )}
+            {/* SHORTS SUMMARIES */}
+            {jsActive === 2 && (
+              <Fragment>
+                {/* ENTIRE JOB */}
+                <Shorts
                   job={job}
-                  header={job.materials[0]}
+                  header='Total Shorts'
+                  filtered='Purchased No Material'
                 />
-              ))}
-            </Fragment>
-          )}
-          {/* SHORTS SUMMARIES */}
-          {jsActive === 2 && (
-            <Fragment>
-              {/* ENTIRE JOB */}
-              <Shorts
-                job={job}
-                header='Total Shorts'
-                filtered='Purchased No Material'
-              />
-              {/* TOTAL PURCHASED */}
-              <Shorts job={job} header='Total Purchased' filtered='Purchased' />
-              {/* TOTAL NO MATERIAL */}
-              <Shorts
-                job={job}
-                header='Total No Material'
-                filtered='No Material'
-              />
-            </Fragment>
-          )}
-          {/* SHORTS SUMMARIES */}
-          {jsActive === 3 && <Dormant header='Overall Averages' />}
+                {/* TOTAL PURCHASED */}
+                <Shorts
+                  job={job}
+                  header='Total Purchased'
+                  filtered='Purchased'
+                />
+                {/* TOTAL NO MATERIAL */}
+                <Shorts
+                  job={job}
+                  header='Total No Material'
+                  filtered='No Material'
+                />
+              </Fragment>
+            )}
+            {/* DORMANT SUMMARIES */}
+            {jsActive === 3 && <Dormant />}
+          </div>
         </Fragment>
       ) : (
         <Loading message='Fetching data from database...' />
@@ -170,6 +177,7 @@ const mapStateToProps = (state) => ({
   loading: state.jobs.loading,
   job: state.jobs.job,
   job_mats: state.jobs.job_mats,
+  jobs: state.jobs.jobs,
 })
 export default connect(mapStateToProps, {
   setJobLoading,

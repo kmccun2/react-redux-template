@@ -5,10 +5,12 @@ import {
   JOB_ERROR,
   SET_JOB_LOADING,
   UPDATE_DORMANT,
+  SORT_AREAS,
 } from '../actions/types'
 
 const initialState = {
   loading: false,
+  jobs: [],
   job_mats: [],
   error: {},
 }
@@ -26,7 +28,9 @@ export default function (state = initialState, action) {
       return {
         ...state,
         job: payload.job,
+        jobs: [payload.job],
         job_mats: [],
+        dormant: undefined,
         loading: false,
       }
     case UPDATE_JOB_MATS:

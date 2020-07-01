@@ -3,8 +3,8 @@ import React, { Fragment } from 'react'
 const Shorts = ({ header, job, filtered }) => {
   return (
     <Fragment>
-      <div className='table-row table-label'>{header}</div>
       <div className='table-container'>
+        <div className='table-row table-label'>{header}</div>
         <div className='table-header table-row'>
           <div className='sh-col1' style={{ fontWeight: 'normal' }}>
             ITEMS

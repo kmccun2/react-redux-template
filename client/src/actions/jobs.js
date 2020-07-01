@@ -16,6 +16,67 @@ export const setJobLoading = () => async (dispatch) => {
   })
 }
 
+// // SORT
+// export const sortAreas = (object, key, type, lastsort) => async (dispatch) => {
+//   try {
+//     let newlastsort = undefined
+//     if (type === 'value') {
+//       // SORT BY VALUE
+//       // ASCENDING
+//       if (lastsort !== key + 'asc') {
+//         newlastsort = key + 'asc'
+//         object.sort(function (a, b) {
+//           return a[key] - b[key]
+//         })
+//       } else {
+//         // DESCENDING
+//         object.sort(function (b, a) {
+//           newlastsort = key + 'desc'
+//           return a[key] - b[key]
+//         })
+//       }
+//     } else if (type === 'name') {
+//       // SORT BY NAME
+//       object.sort(function (a, b) {
+//         var nameA = a[key].toUpperCase() // ignore upper and lowercase
+//         var nameB = b[key].toUpperCase() // ignore upper and lowercase
+
+//         // ASCENDING
+//         if (lastsort !== key + 'asc') {
+//           newlastsort = key + 'asc'
+//           if (nameA < nameB) {
+//             return -1
+//           }
+//           if (nameA > nameB) {
+//             return 1
+//           }
+//         } else {
+//           // DESCENDING
+//           newlastsort = key + 'desc'
+//           if (nameA < nameB) {
+//             return 1
+//           }
+//           if (nameA > nameB) {
+//             return -1
+//           }
+//         }
+
+//         // names must be equal
+//         return 0
+//       })
+//     }
+
+//     dispatch({
+//       type: SORT_AREAS,
+//       payload: { object: object, lastsort: newlastsort },
+//     })
+//   } catch {
+//     dispatch({
+//       type: SORT_ERROR,
+//     })
+//   }
+// }
+
 // UPDATE THE LINE LIST AND STORE IN STATE
 export const updateJob = (jobnum, filtered) => async (dispatch) => {
   try {
@@ -26,6 +87,7 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
       areas: [],
       materials: [],
       shorts: [],
+      lastsort: 'areadesc',
     }
 
     // TO CHECK IF SPOOL ALREADY EXISTS
@@ -197,10 +259,10 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
 
       // ASSIGN COLUMN NUMBER TO EACH HEADER
       let sr_piecemark_col = undefined
-      let date_pull_col = undefined
-      let weld_out_col = undefined
-      let ready_to_ship_col = undefined
-      let ready_stc_col = undefined
+      let pulled_col = undefined
+      let weldout_col = undefined
+      let rts_col = undefined
+      let rtsc_col = undefined
       let stc_col = undefined
       let delivered_col = undefined
       let sr_on_hold_col = undefined
@@ -211,15 +273,15 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
         if (header === 'PIECE MARK' || header === 'PIECEMARK') {
           sr_piecemark_col = count
         } else if (header === 'DATE PULL') {
-          date_pull_col = count
+          pulled_col = count
         } else if (header === 'WELD OUT') {
-          weld_out_col = count
+          weldout_col = count
         } else if (header === 'SPOOL') {
           spool_col = count
         } else if (header === 'READY TO SHIP') {
-          ready_to_ship_col = count
+          rts_col = count
         } else if (header === 'READY TO SHIP COATING') {
-          ready_stc_col = count
+          rtsc_col = count
         } else if (
           header === 'SHIP TO COATING' ||
           header === 'DATE TO PAINTER'
@@ -246,10 +308,10 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
           job.spools.map((each) => {
             // ASSIGN STATUS REPORT INFORMATION
             if (line.split(',')[sr_piecemark_col] === each.piecemark) {
-              each.pulled = line.split(',')[date_pull_col]
-              each.weldout = line.split(',')[weld_out_col]
-              each.ready_to_ship = line.split(',')[ready_to_ship_col]
-              each.ready_stc = line.split(',')[ready_stc_col]
+              each.pulled = line.split(',')[pulled_col]
+              each.weldout = line.split(',')[weldout_col]
+              each.rts = line.split(',')[rts_col]
+              each.rtsc = line.split(',')[rtsc_col]
               each.stc = line.split(',')[stc_col]
               each.delivered = line.split(',')[delivered_col]
               each.on_hold = line.split(',')[sr_on_hold_col]
@@ -383,8 +445,6 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
 
       // ASSIGN COLUMN NUMBER TO EACH HEADER
       let bom_path_col = undefined
-      // eslint-disable-next-line
-      let fc_piecemark_col = undefined
       let tag_col = undefined
       let position_col = undefined
       let item_col = undefined
@@ -399,8 +459,6 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
       headers.map((header) => {
         if (header === 'BOM PATH') {
           bom_path_col = count
-        } else if (header === ' SKETCH') {
-          fc_piecemark_col = count
         } else if (header === ' TAG NUMBER') {
           tag_col = count
         } else if (header === ' POS') {
@@ -490,7 +548,7 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
       // TOTAL SPOOLS
       job.total += each.multiplier
       // TOTAL ISSUED
-      if (each.issued !== '') {
+      if (each.issued !== '' && each.issued !== undefined) {
         job.issued += each.multiplier
       }
       // TOTAL WORKABLE
@@ -498,19 +556,19 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
         job.workable += each.multiplier
       }
       // TOTAL ON HOLD
-      if (each.on_hold !== '') {
+      if (each.on_hold !== '' && each.on_hold !== undefined) {
         job.on_hold += each.multiplier
       }
       // TOTAL WELDED OUT
-      if (each.weldout !== '') {
+      if (each.weldout !== '' && each.weldout !== undefined) {
         job.weldout += each.multiplier
       }
       // TOTAL STC
-      if (each.stc !== '') {
+      if (each.stc !== '' && each.stc !== undefined) {
         job.stc += each.multiplier
       }
       // TOTAL DELIVERED
-      if (each.delivered !== '') {
+      if (each.delivered !== '' && each.delivered !== undefined) {
         job.delivered += each.multiplier
       }
       // AREAS
@@ -535,14 +593,14 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
       return each
     })
     //ADD INFO TO AREAS
-    job.spools.map((spool) => {
-      job.areas.map((area) => {
+    job.areas.map((area) => {
+      job.spools.map((spool) => {
         // FIND SPOOLS WITH CERTAIN AREA
         if (spool.area === area.area) {
           // TOTAL SPOOLS
           area.spools += spool.multiplier
           // TOTAL ON HOLD
-          if (spool.on_hold !== '') {
+          if (spool.on_hold !== '' && spool.on_hold !== undefined) {
             area.on_hold += spool.multiplier
           }
           // WORKABLE
@@ -550,22 +608,57 @@ export const updateJob = (jobnum, filtered) => async (dispatch) => {
             area.workable += spool.multiplier
           }
           // TOTAL SHIPPED TO PAINT
-          if (spool.stc !== '') {
+          if (spool.stc !== '' && spool.stc !== undefined) {
             area.stc += spool.multiplier
           }
           // TOTAL WELDED OUT
-          if (spool.weldout !== '') {
+          if (spool.weldout !== '' && spool.weldout !== undefined) {
             area.weldout += spool.multiplier
           }
           // TOTAL DELIVERED
-          if (spool.delivered !== '') {
+          if (spool.delivered !== '' && spool.delivered !== undefined) {
             area.delivered += spool.multiplier
           }
         }
-        return area
+        return spool
       })
-      return spool
+      // ASSIGN OTHER AREA VALUES
+      area.not_workable = area.spools - area.workable
+      area.not_delivered = area.spools - area.delivered
+      area.not_weldout = area.spools - area.weldout
+      // WORKABLE PERCENTAGE
+      if (area.workable / area.spools === 1) {
+        area.workable_perc = (area.workable / area.spools) * 100
+      } else {
+        area.workable_perc = ((area.workable / area.spools) * 100).toFixed(2)
+      }
+      // WELDOUT PERCENTAGE
+      if (area.weldout / area.spools === 1) {
+        area.weldout_perc = (area.weldout / area.spools) * 100
+      } else {
+        area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(2)
+      }
+      // DELIVERED PERCENTAGE
+      if (area.delivered / area.spools === 1) {
+        area.delivered_perc = (area.delivered / area.spools) * 100
+      } else {
+        area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(2)
+      }
+      return area
     })
+
+    // SORT BY NAME
+    job.areas.sort(function (a, b) {
+      var nameA = a.priority.toUpperCase() // ignore upper and lowercase
+      var nameB = b.priority.toUpperCase() // ignore upper and lowercase
+
+      if (nameA < nameB) {
+        return -1
+      } else if (nameA > nameB) {
+        return 1
+      } else return 0
+    })
+
     if (filtered === null) {
       dispatch({
         type: UPDATE_JOB,
@@ -624,229 +717,247 @@ export const updateShorts = (job) => async (dispatch) => {
 }
 
 // UPDATE INFO FOR FOR DORMANCY TABLES
-export const updateDormant = (spools, filtered) => async (dispatch) => {
-  let dormant = {
-    jobs: [],
-    shops: [],
-    materials: [],
-  }
+export const updateDormant = (jobs) => async (dispatch) => {
   try {
-    spools.map((spool) => {
-      // LIFESPAN
-      if (spool.issued !== '' && spool.delivered !== '') {
-        let lf = moment(spool.delivered).diff(moment(spool.issued), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.lifespan = moment(spool.delivered).diff(
-            moment(spool.issued),
-            'days'
-          )
+    // SET UP DORMANT OBJECT
+    let dormant = {
+      overall: {
+        lifespan: { total: 0, spools: 0, avg: 0 },
+        i_p: { total: 0, spools: 0, avg: 0 },
+        p_w: { total: 0, spools: 0, avg: 0 },
+        w_rtsc: { total: 0, spools: 0, avg: 0 },
+        rtsc_stc: { total: 0, spools: 0, avg: 0 },
+        w_stc: { total: 0, spools: 0, avg: 0 },
+        stc_rts: { total: 0, spools: 0, avg: 0 },
+        rts_d_p: { total: 0, spools: 0, avg: 0 },
+        w_d_p: { total: 0, spools: 0, avg: 0 },
+        w_rts: { total: 0, spools: 0, avg: 0 },
+        rts_d_np: { total: 0, spools: 0, avg: 0 },
+        w_d_np: { total: 0, spools: 0, avg: 0 },
+      },
+      jobs: [],
+      shops: [],
+      materials: [],
+    }
+    let shop_list = []
+    let material_list = []
+
+    jobs.map((job) => {
+      // ADD JOB OBJECT TO DORMANT JOBS
+      dormant.jobs.push({
+        number: job.number,
+        lifespan: { total: 0, spools: 0, avg: 0 },
+        i_p: { total: 0, spools: 0, avg: 0 },
+        p_w: { total: 0, spools: 0, avg: 0 },
+        w_rtsc: { total: 0, spools: 0, avg: 0 },
+        rtsc_stc: { total: 0, spools: 0, avg: 0 },
+        w_stc: { total: 0, spools: 0, avg: 0 },
+        stc_rts: { total: 0, spools: 0, avg: 0 },
+        rts_d_p: { total: 0, spools: 0, avg: 0 },
+        w_d_p: { total: 0, spools: 0, avg: 0 },
+        w_rts: { total: 0, spools: 0, avg: 0 },
+        rts_d_np: { total: 0, spools: 0, avg: 0 },
+        w_d_np: { total: 0, spools: 0, avg: 0 },
+      })
+
+      job.spools.map((spool) => {
+        if (spool.rtsc !== '' || spool.rtsc !== undefined) {
         }
-      }
-      // ISSUE TO PULL
-      if (spool.pulled !== '' && spool.issued !== '') {
-        let lf = moment(spool.pulled).diff(moment(spool.issued), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.i_p = moment(spool.pulled).diff(moment(spool.issued), 'days')
+
+        // ADD SHOP OBJECT TO DORMANT JOBS
+        if (shop_list.includes(spool.shop) === false) {
+          shop_list.push(spool.shop)
+          dormant.shops.push({
+            shop: spool.shop,
+            lifespan: { total: 0, spools: 0, avg: 0 },
+            i_p: { total: 0, spools: 0, avg: 0 },
+            p_w: { total: 0, spools: 0, avg: 0 },
+            w_rtsc: { total: 0, spools: 0, avg: 0 },
+            rtsc_stc: { total: 0, spools: 0, avg: 0 },
+            w_stc: { total: 0, spools: 0, avg: 0 },
+            stc_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_p: { total: 0, spools: 0, avg: 0 },
+            w_d_p: { total: 0, spools: 0, avg: 0 },
+            w_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_np: { total: 0, spools: 0, avg: 0 },
+            w_d_np: { total: 0, spools: 0, avg: 0 },
+          })
         }
-      }
-      // PULL TO WELD
-      if (spool.weldout !== '' && spool.pulled !== '') {
-        let lf = moment(spool.weldout).diff(moment(spool.pulled), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.p_w = moment(spool.weldout).diff(moment(spool.pulled), 'days')
+
+        // ADD MATERIAL OBJECT TO DORMANT JOBS
+        if (material_list.includes(spool.material) === false) {
+          material_list.push(spool.material)
+          dormant.materials.push({
+            material: spool.material,
+            lifespan: { total: 0, spools: 0, avg: 0 },
+            i_p: { total: 0, spools: 0, avg: 0 },
+            p_w: { total: 0, spools: 0, avg: 0 },
+            w_rtsc: { total: 0, spools: 0, avg: 0 },
+            rtsc_stc: { total: 0, spools: 0, avg: 0 },
+            w_stc: { total: 0, spools: 0, avg: 0 },
+            stc_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_p: { total: 0, spools: 0, avg: 0 },
+            w_d_p: { total: 0, spools: 0, avg: 0 },
+            w_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_np: { total: 0, spools: 0, avg: 0 },
+            w_d_np: { total: 0, spools: 0, avg: 0 },
+          })
         }
-      }
-      // WELD TO RST COATING
-      if (spool.ready_stc !== '' && spool.weldout !== '') {
-        let lf = moment(spool.ready_stc).diff(moment(spool.weldout), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.w_rtsc = moment(spool.ready_stc).diff(
-            moment(spool.weldout),
-            'days'
-          )
+
+        let findDays = (start, finish, phase, coating) => {
+          if (coating === true) {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              spool.stc !== '' &&
+              start !== undefined &&
+              finish !== undefined &&
+              spool.stc !== undefined
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          } else if (coating === false) {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              start !== undefined &&
+              finish !== undefined &&
+              (spool.stc === undefined || spool.stc === '')
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          } else {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              start !== undefined &&
+              finish !== undefined
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          }
         }
-      }
-      // RTS COATING TO STC
-      if (spool.stc !== '' && spool.ready_stc !== '') {
-        let lf = moment(spool.stc).diff(moment(spool.ready_stc), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.rtsc_stc = moment(spool.stc).diff(
-            moment(spool.ready_stc),
-            'days'
-          )
+
+        findDays(spool.issued, spool.delivered, 'lifespan')
+        findDays(spool.issued, spool.pulled, 'i_p')
+        findDays(spool.pulled, spool.weldout, 'p_w')
+        findDays(spool.weldout, spool.rtsc, 'w_rtsc')
+        findDays(spool.rtsc, spool.stc, 'rtsc_stc')
+        findDays(spool.weldout, spool.stc, 'w_stc')
+        findDays(spool.stc, spool.rts, 'stc_rts')
+        findDays(spool.rts, spool.delivered, 'rts_d_p', true)
+        findDays(spool.weldout, spool.delivered, 'w_d_p', true)
+        findDays(spool.weldout, spool.rts, 'w_rts', false)
+        findDays(spool.rts, spool.delivered, 'rts_d_np', false)
+        findDays(spool.weldout, spool.delivered, 'w_d_np', false)
+
+        return spool
+      })
+      return job
+    })
+
+    // OVERALL TOTALS
+    jobs.map((job) => {
+      job.spools.map((spool) => {
+        let totalAndSpools = (phase) => {
+          if (spool[phase] !== undefined) {
+            dormant.overall[phase].total += spool[phase]
+            dormant.overall[phase].spools += 1
+            // ADD OVERALL TOTALS FOR JOB
+            dormant.jobs.map((each) => {
+              if (each.number === job.number) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+            // ADD OVERALL TOTALS FOR SHOPS
+            dormant.shops.map((each) => {
+              if (each.shop === spool.shop) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+            // ADD OVERALL TOTALS FOR MATERIALS
+            dormant.materials.map((each) => {
+              if (each.material === spool.material) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+          }
         }
-      }
-      // WELD TO STC
-      if (spool.stc !== '' && spool.weldout !== '') {
-        let lf = moment(spool.stc).diff(moment(spool.weldout), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.w_stc = moment(spool.stc).diff(moment(spool.weldout), 'days')
-        }
-      }
-      // STC TO RTS
-      if (spool.ready_to_ship !== '' && spool.stc !== '') {
-        let lf = moment(spool.ready_to_ship).diff(moment(spool.stc), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.stc_rts = moment(spool.ready_to_ship).diff(
-            moment(spool.stc),
-            'days'
-          )
-        }
-      }
-      // RTS TO DELIVERED ( PAINTED SPOOLS ONLY )
-      if (
-        spool.delivered !== '' &&
-        spool.ready_to_ship !== '' &&
-        spool.stc !== ''
-      ) {
-        let lf = moment(spool.delivered).diff(
-          moment(spool.ready_to_ship),
-          'days'
-        )
-        if (lf > -1 && lf < 1000) {
-          spool.rts_d_p = moment(spool.delivered).diff(
-            moment(spool.ready_to_ship),
-            'days'
-          )
-        }
-      }
-      // WELD TO RTS ( NON-PAINTED SPOOLS ONLY )
-      if (
-        spool.ready_to_ship !== '' &&
-        spool.weldout !== '' &&
-        spool.stc === ''
-      ) {
-        let lf = moment(spool.ready_to_ship).diff(moment(spool.weldout), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.w_rts = moment(spool.ready_to_ship).diff(
-            moment(spool.weldout),
-            'days'
-          )
-        }
-      }
-      // RTS TO DELIVERED ( NON-PAINTED SPOOLS ONLY )
-      if (
-        spool.delivered !== '' &&
-        spool.ready_to_ship !== '' &&
-        spool.stc === ''
-      ) {
-        let lf = moment(spool.delivered).diff(
-          moment(spool.ready_to_ship),
-          'days'
-        )
-        if (lf > -1 && lf < 1000) {
-          spool.rts_d_np = moment(spool.delivered).diff(
-            moment(spool.ready_to_ship),
-            'days'
-          )
-        }
-      }
-      // WELD TO DELIVERED
-      if (spool.delivered !== '' && spool.weldout !== '') {
-        let lf = moment(spool.delivered).diff(moment(spool.weldout), 'days')
-        if (lf > -1 && lf < 1000) {
-          spool.w_d = moment(spool.delivered).diff(
-            moment(spool.weldout),
-            'days'
-          )
-        }
-      }
-      return spool
+        totalAndSpools('lifespan')
+        totalAndSpools('i_p')
+        totalAndSpools('p_w')
+        totalAndSpools('w_rtsc')
+        totalAndSpools('rtsc_stc')
+        totalAndSpools('w_stc')
+        totalAndSpools('stc_rts')
+        totalAndSpools('rts_d_p')
+        totalAndSpools('w_d_p')
+        totalAndSpools('w_rts')
+        totalAndSpools('rts_d_np')
+        totalAndSpools('w_d_np')
+
+        return spool
+      })
+      return job
     })
 
     // OVERALL AVERAGES
-    let ls_tot = 0
-    let ls_spools = 0
-    let i_p_tot = 0
-    let i_p_spools = 0
-    let p_w_tot = 0
-    let p_w_spools = 0
-    let w_d_tot = 0
-    let w_d_spools = 0
-    let w_rtsc_tot = 0
-    let w_rtsc_spools = 0
-    let rtsc_stc_tot = 0
-    let rtsc_stc_spools = 0
-    let w_stc_tot = 0
-    let w_stc_spools = 0
-    let stc_rts_tot = 0
-    let stc_rts_spools = 0
-    let rts_d_p_tot = 0
-    let rts_d_p_spools = 0
-    let w_rts_tot = 0
-    let w_rts_spools = 0
-    let rts_d_np_tot = 0
-    let rts_d_np_spools = 0
+    let findAvg = (phase) => {
+      if (dormant.overall[phase].spools !== 0) {
+        dormant.overall[phase].avg = (
+          dormant.overall[phase].total / dormant.overall[phase].spools
+        ).toFixed(0)
+      }
+      // ADD OVERALL AVERAGES FOR JOB
+      dormant.jobs.map((each) => {
+        if (each[phase].spools !== 0) {
+          each[phase].avg = (each[phase].total / each[phase].spools).toFixed(0)
+        }
+        return each
+      })
+      // ADD OVERALL AVERAGES FOR SHOPS
+      dormant.shops.map((each) => {
+        if (each[phase].spools !== 0) {
+          each[phase].avg = (each[phase].total / each[phase].spools).toFixed(0)
+        }
+        return each
+      })
+      // ADD OVERALL AVERAGES FOR MATERIALS
+      dormant.materials.map((each) => {
+        if (each[phase].spools !== 0) {
+          each[phase].avg = (each[phase].total / each[phase].spools).toFixed(0)
+        }
+        return each
+      })
+    }
 
-    spools.map((spool) => {
-      // LIFESPAN
-      if (spool.lifespan !== undefined) {
-        ls_tot += spool.lifespan
-        ls_spools += 1
-      }
-      // ISSUE TO PULL
-      if (spool.i_p !== undefined) {
-        i_p_tot += spool.i_p
-        i_p_spools += 1
-      }
-      // PULL TO WELD
-      if (spool.p_w !== undefined) {
-        p_w_tot += spool.p_w
-        p_w_spools += 1
-      }
-      // WELD TO SITE
-      if (spool.w_d !== undefined) {
-        w_d_tot += spool.w_d
-        w_d_spools += 1
-      }
-      // WELD TO RTS COATING
-      if (spool.w_rtsc !== undefined) {
-        w_rtsc_tot += spool.w_rtsc
-        w_rtsc_spools += 1
-      }
-      // RTS COATING TO STC
-      if (spool.rtsc_stc !== undefined) {
-        rtsc_stc_tot += spool.rtsc_stc
-        rtsc_stc_spools += 1
-      }
-      // WELD TO STC
-      if (spool.w_stc !== undefined) {
-        w_stc_tot += spool.w_stc
-        w_stc_spools += 1
-      }
-      // STC TO RTS
-      if (spool.stc_rts !== undefined) {
-        stc_rts_tot += spool.stc_rts
-        stc_rts_spools += 1
-      }
-      // RTS TO DELIVERED ( PAINTED SPOOLS ONLY )
-      if (spool.rts_d_p !== undefined) {
-        rts_d_p_tot += spool.rts_d_p
-        rts_d_p_spools += 1
-      }
-      // WELD TO RTS ( NON-PAINTED SPOOLS ONLY )
-      if (spool.w_rts !== undefined) {
-        w_rts_tot += spool.w_rts
-        w_rts_spools += 1
-      }
-      // RTS TO DELIVERED ( NON-PAINTED SPOOLS ONLY )
-      if (spool.rts_d_np !== undefined) {
-        rts_d_np_tot += spool.rts_d_np
-        rts_d_np_spools += 1
-      }
-      return spool
-    })
-    dormant.lifespan = (ls_tot / ls_spools).toFixed(0)
-    dormant.i_p = (i_p_tot / i_p_spools).toFixed(0)
-    dormant.p_w = (p_w_tot / p_w_spools).toFixed(0)
-    dormant.w_d = (w_d_tot / w_d_spools).toFixed(0)
-    dormant.w_rtsc = (w_rtsc_tot / w_rtsc_spools).toFixed(0)
-    dormant.rtsc_stc = (rtsc_stc_tot / rtsc_stc_spools).toFixed(0)
-    dormant.w_stc = (w_stc_tot / w_stc_spools).toFixed(0)
-    dormant.stc_rts = (stc_rts_tot / stc_rts_spools).toFixed(0)
-    dormant.rts_d_p = (rts_d_p_tot / rts_d_p_spools).toFixed(0)
-    dormant.w_rts = (w_rts_tot / w_rts_spools).toFixed(0)
-    dormant.rts_d_np = (rts_d_np_tot / rts_d_np_spools).toFixed(0)
+    findAvg('lifespan')
+    findAvg('i_p')
+    findAvg('p_w')
+    findAvg('w_rtsc')
+    findAvg('rtsc_stc')
+    findAvg('w_stc')
+    findAvg('stc_rts')
+    findAvg('rts_d_p')
+    findAvg('w_d_p')
+    findAvg('w_rts')
+    findAvg('rts_d_np')
+    findAvg('w_d_np')
 
     // ASSIGN VARIABLES
     dispatch({
