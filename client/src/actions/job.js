@@ -1,10 +1,8 @@
 import axios from 'axios'
-import moment from 'moment'
 import {
   UPDATE_JOB,
   UPDATE_JOB_MATS,
   JOB_ERROR,
-  UPDATE_DORMANT,
   SET_JOB_LOADING,
 } from './types'
 

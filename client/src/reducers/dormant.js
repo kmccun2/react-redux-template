@@ -1,13 +1,15 @@
 import {
-  UPDATE_JOB,
-  UPDATE_JOB_MATS,
-  JOB_ERROR,
-  SET_JOB_LOADING,
+  JOBS_ERROR,
+  SET_JOBS_LOADING,
+  UPDATE_JOB_SPOOLS,
+  UPDATE_DORMANT,
 } from '../actions/types'
 
 const initialState = {
   loading: false,
-  job_mats: [],
+  jobnums: ['6951', '6973'],
+  all_spools: [],
+  dormant: undefined,
   error: {},
 }
 
@@ -15,29 +17,27 @@ export default function (state = initialState, action) {
   const { type, payload } = action
 
   switch (type) {
-    case SET_JOB_LOADING:
+    case SET_JOBS_LOADING:
       return {
         ...state,
         loading: true,
       }
-    case UPDATE_JOB:
+    case UPDATE_JOB_SPOOLS:
       return {
         ...state,
-        job: payload.job,
-        job_mats: [],
-        dormant: undefined,
+        dormant: payload.dormant,
+        all_spools: state.all_spools.concat(payload.all_spools),
+      }
+    case UPDATE_DORMANT:
+      return {
+        ...state,
+        dormant: payload.dormant,
         loading: false,
       }
-    case UPDATE_JOB_MATS:
+    case JOBS_ERROR:
       return {
         ...state,
-        job_mats: [...state.job_mats, payload],
-        loading: false,
-      }
-    case JOB_ERROR:
-      return {
-        ...state,
-        [payload.jobnum]: {},
+        jobs: [],
         loading: false,
       }
     default:

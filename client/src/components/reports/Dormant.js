@@ -251,7 +251,7 @@ const Dormant = ({
 }
 
 const mapStateToProps = (state) => ({
-  dormant: state.job.dormant,
+  dormant: state.dormant.dormant,
 })
 
 export default connect(mapStateToProps)(Dormant)

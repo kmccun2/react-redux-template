@@ -8,6 +8,7 @@ import './bootstrap.scss'
 import './my.scss'
 import ReportsDD from './components/misc/ReportsDD'
 import Search from './components/search/Search'
+import Navlinks from './components/misc/Navlinks'
 
 const App = () => {
   const [showJobs, setShowJobs] = useState(false)
@@ -38,9 +39,7 @@ const App = () => {
                 <span>Job Reports</span>
                 <ReportsDD show={showJobs} />
               </div>
-              <div className='subheader-item'>Dormant Data</div>
-              <div className='subheader-item'>Descrepancies</div>
-              <div className='subheader-item'>Support Comparison</div>
+              <Navlinks />
             </div>
             <Switch>
               <Route exact path='/' component={Dashboard} />

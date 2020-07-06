@@ -3,9 +3,7 @@ import { updateJob, setJobLoading } from '../../actions/job'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
-const Reports = ({ show, updateJob, setJobLoading }) => {
-  const jobnums = ['6951', '6973']
-
+const Reports = ({ show, updateJob, setJobLoading, jobnums }) => {
   const handleJobClick = (job) => {
     setJobLoading()
     updateJob(job, null)
@@ -24,4 +22,8 @@ const Reports = ({ show, updateJob, setJobLoading }) => {
   )
 }
 
-export default connect(null, { updateJob, setJobLoading })(Reports)
+const mapStateToProps = (state) => ({
+  jobnums: state.dormant.jobnums,
+})
+
+export default connect(mapStateToProps, { updateJob, setJobLoading })(Reports)

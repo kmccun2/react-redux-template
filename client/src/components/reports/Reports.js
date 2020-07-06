@@ -29,7 +29,7 @@ const Reports = ({
   useEffect(() => {
     setJobLoading()
     updateJob(jobnum, null, false)
-  }, [jobnum, updateJob, setJobLoading])
+  }, [updateJob, setJobLoading, jobnum])
 
   // CREATE MATERIAL FILTERED JOBS
   useEffect(() => {
