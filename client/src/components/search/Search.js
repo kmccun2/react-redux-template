@@ -10,7 +10,7 @@ const Search = () => {
   )
 }
 const mapStateToProps = (state) => ({
-  job: state.jobs.job,
+  job: state.job.job,
 })
 
 export default connect(mapStateToProps)(Search)

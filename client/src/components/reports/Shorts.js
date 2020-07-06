@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-const Shorts = ({ header, job, filtered }) => {
+const Shorts = ({ header, missing }) => {
   return (
     <Fragment>
       <div className='table-container'>
@@ -18,245 +18,100 @@ const Shorts = ({ header, job, filtered }) => {
           <div className='sh-col1 table-subheader'>Valves</div>
           <div className='sh-col2'>
             {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance' &&
-                  (short.item === 'VALVES' || short.item === 'INSTRUMENTS')
-              ).length
+              missing.filter((each) => each.includes('Performance-VALVE'))
+                .length
             }
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Client' &&
-                  (short.item === 'VALVES' || short.item === 'INSTRUMENTS')
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client-VALVE')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Other' &&
-                  (short.item === 'VALVES' || short.item === 'INSTRUMENTS')
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other-VALVE')).length}
           </div>
           <div className='sh-col5 total-subheader'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  (short.item === 'VALVES' ||
-                    short.item === 'VALVE' ||
-                    short.item === 'INSTRUMENTS') &&
-                  filtered.includes(short.status)
-              ).length
-            }
+            {missing.filter((each) => each.includes('VALVE')).length}
           </div>
         </div>
         <div className='table-row'>
           <div className='sh-col1 table-subheader'>Flanges</div>
           <div className='sh-col2'>
             {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance' &&
-                  short.item === 'FLANGES'
-              ).length
+              missing.filter((each) => each.includes('Performance-FLANGE'))
+                .length
             }
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Client' &&
-                  short.item === 'FLANGES'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client-FLANGE')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Other' &&
-                  short.item === 'FLANGES'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other-FLANGE')).length}
           </div>
           <div className='sh-col5 total-subheader'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  (short.item === 'FLANGES' || short.item === 'FLANGE') &&
-                  filtered.includes(short.status)
-              ).length
-            }
+            {missing.filter((each) => each.includes('FLANGE')).length}
           </div>
         </div>
         <div className='table-row'>
           <div className='sh-col1 table-subheader'>Fittings</div>
           <div className='sh-col2'>
             {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance' &&
-                  short.item === 'FITTINGS'
-              ).length
+              missing.filter((each) => each.includes('Performance-FITTING'))
+                .length
             }
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Client' &&
-                  short.item === 'FITTINGS'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client-FITTING')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Other' &&
-                  short.item === 'FITTINGS'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other-FITTING')).length}
           </div>
           <div className='sh-col5 total-subheader'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  (short.item === 'FITTINGS' || short.item === 'FITTING') &&
-                  filtered.includes(short.status)
-              ).length
-            }
+            {missing.filter((each) => each.includes('FITTING')).length}
           </div>
         </div>
         <div className='table-row'>
           <div className='sh-col1 table-subheader'>Supports</div>
           <div className='sh-col2'>
             {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance' &&
-                  short.item === 'SUPPORTS'
-              ).length
+              missing.filter((each) => each.includes('Performance-SUPPORT'))
+                .length
             }
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Client' &&
-                  short.item === 'SUPPORTS'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client-SUPPORT')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Other' &&
-                  short.item === 'SUPPORTS'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other-SUPPORT')).length}
           </div>
           <div className='sh-col5 total-subheader'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  (short.item === 'SUPPORTS' || short.item === 'SUPPORT') &&
-                  filtered.includes(short.status)
-              ).length
-            }
+            {missing.filter((each) => each.includes('SUPPORT')).length}
           </div>
         </div>
         <div className='totals-row table-row'>
           <div className='sh-col1'>TOTAL</div>
           <div className='sh-col2'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Performance')).length}
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) && short.scope === 'Client'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) && short.scope === 'Other'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other')).length}
           </div>
-          <div className='sh-col5'>
-            {
-              job.shorts.filter((short) => filtered.includes(short.status))
-                .length
-            }
-          </div>
+          <div className='sh-col5'>{missing.length}</div>
         </div>
         <div className='table-row pipe-row'>
           <div className='sh-col1 table-subheader'>Pipe</div>
           <div className='sh-col2'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Performance' &&
-                  short.item === 'PIPE'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Performance-PIPE')).length}
           </div>
           <div className='sh-col3'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Client' &&
-                  short.item === 'PIPE'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Client-PIPE')).length}
           </div>
           <div className='sh-col4'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  filtered.includes(short.status) &&
-                  short.scope === 'Other' &&
-                  short.item === 'PIPE'
-              ).length
-            }
+            {missing.filter((each) => each.includes('Other-PIPE')).length}
           </div>
           <div className='sh-col5 total-subheader'>
-            {
-              job.shorts.filter(
-                (short) =>
-                  short.item === 'PIPE' && filtered.includes(short.status)
-              ).length
-            }
+            {missing.filter((each) => each.includes('PIPE')).length}
           </div>
         </div>
       </div>

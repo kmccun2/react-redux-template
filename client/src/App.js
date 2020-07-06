@@ -38,7 +38,7 @@ const App = () => {
                 <span>Job Reports</span>
                 <ReportsDD show={showJobs} />
               </div>
-              <div className='subheader-item'>Update Info</div>
+              <div className='subheader-item'>Dormant Data</div>
               <div className='subheader-item'>Descrepancies</div>
               <div className='subheader-item'>Support Comparison</div>
             </div>

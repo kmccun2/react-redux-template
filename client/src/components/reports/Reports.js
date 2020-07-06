@@ -1,15 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import {
-  setJobLoading,
-  updateJob,
-  updateShorts,
-  updateDormant,
-} from '../../actions/jobs'
+import { setJobLoading, updateJob } from '../../actions/job'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
 import Dormant from './Dormant'
+import SpoolShorts from './SpoolShorts'
 
 const Reports = ({
   match,
@@ -19,8 +15,6 @@ const Reports = ({
   job_mats,
   setJobLoading,
   updateJob,
-  updateShorts,
-  updateDormant,
 }) => {
   const [matJobs, setMatJobs] = useState([])
   const [jsActive, setjsActive] = useState(1)
@@ -34,7 +28,7 @@ const Reports = ({
   // MAIN CALCULATIONS
   useEffect(() => {
     setJobLoading()
-    updateJob(jobnum, null)
+    updateJob(jobnum, null, false)
   }, [jobnum, updateJob, setJobLoading])
 
   // CREATE MATERIAL FILTERED JOBS
@@ -45,7 +39,8 @@ const Reports = ({
           ...matJobs,
           updateJob(
             jobnum,
-            job.spools.filter((spool) => spool.material === material)
+            job.spools.filter((spool) => spool.material === material),
+            true
           ),
         ])
         return material
@@ -81,10 +76,6 @@ const Reports = ({
             <div
               onClick={() => {
                 setjsActive(2)
-                if (job.shorts.length === 0) {
-                  setJobLoading(true)
-                  updateShorts(job)
-                }
               }}
               className={
                 jsActive === 2
@@ -97,10 +88,6 @@ const Reports = ({
             <div
               onClick={() => {
                 setjsActive(3)
-                if (job.shorts.length === 0) {
-                  setJobLoading(true)
-                  updateDormant(jobs)
-                }
               }}
               className={jsActive === 3 ? 'js-tab js-active' : 'js-tab'}
             >
@@ -142,28 +129,28 @@ const Reports = ({
             {/* SHORTS SUMMARIES */}
             {jsActive === 2 && (
               <Fragment>
+                {/* SPOOLS MISSING ITEMS (BY SCOPE) */}
+                <SpoolShorts job={job} />
                 {/* ENTIRE JOB */}
-                <Shorts
-                  job={job}
-                  header='Total Shorts'
-                  filtered='Purchased No Material'
-                />
+                <Shorts missing={job.missing} header='Total Shorts' />
                 {/* TOTAL PURCHASED */}
                 <Shorts
-                  job={job}
+                  missing={job.missing.filter((each) =>
+                    each.includes('Purchased')
+                  )}
                   header='Total Purchased'
-                  filtered='Purchased'
                 />
                 {/* TOTAL NO MATERIAL */}
                 <Shorts
-                  job={job}
+                  missing={job.missing.filter((each) =>
+                    each.includes('No Material')
+                  )}
                   header='Total No Material'
-                  filtered='No Material'
                 />
               </Fragment>
             )}
             {/* DORMANT SUMMARIES */}
-            {jsActive === 3 && <Dormant />}
+            {jsActive === 3 && <Dormant manyjobs={false} />}
           </div>
         </Fragment>
       ) : (
@@ -174,14 +161,12 @@ const Reports = ({
 }
 
 const mapStateToProps = (state) => ({
-  loading: state.jobs.loading,
-  job: state.jobs.job,
-  job_mats: state.jobs.job_mats,
-  jobs: state.jobs.jobs,
+  loading: state.job.loading,
+  job: state.job.job,
+  job_mats: state.job.job_mats,
+  jobs: state.job.jobs,
 })
 export default connect(mapStateToProps, {
   setJobLoading,
   updateJob,
-  updateShorts,
-  updateDormant,
 })(Reports)

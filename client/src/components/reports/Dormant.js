@@ -2,9 +2,7 @@ import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 
 const Dormant = ({
-  header,
-  dormant: { overall, jobs, shops, materials },
-  filtered,
+  dormant: { overall, jobs, shops, materials, manyjobs },
 }) => {
   return (
     <Fragment>
@@ -67,65 +65,67 @@ const Dormant = ({
         </div>
       </div>
       {/* BY JOB */}
-      <div className='table-container'>
-        <div className='table-row table-label'>By Job</div>
-        <div className='table-header table-row'>
-          <div className='d-col1'></div>
-          <div className='d-col2'>Lifespan</div>
-          <div className='d-col3'>Issue to Pull</div>
-          <div className='d-col4'>Pull to Weld</div>
-          <div className='d-col5'>Weld to RTS Coating</div>
-          <div className='d-col6'>RTS Coating to STC</div>
-          <div className='d-col7'>Weld to STC</div>
-          <div className='d-col8'>STC to RTS</div>
-          <div className='d-col9'>RTS to Site</div>
-          <div className='d-col10'>Weld to Site</div>
-          <div className='d-col11'>Weld to RTS</div>
-          <div className='d-col12'>RTS to Site</div>
-          <div className='d-col13'>Weld to Site</div>
-        </div>
-        {jobs.map((job) => (
-          <div className='table-row' key={job.number}>
-            <div className='d-col1 table-subheader'>{job.number}</div>
-            <div className='d-col2'>
-              {job.lifespan.avg !== 0 ? job.lifespan.avg : '-'}
-            </div>
-            <div className='d-col3'>
-              {job.i_p.avg !== 0 ? job.i_p.avg : '-'}
-            </div>
-            <div className='d-col4'>
-              {job.p_w.avg !== 0 ? job.p_w.avg : '-'}
-            </div>
-            <div className='d-col5'>
-              {job.w_rtsc.avg !== 0 ? job.w_rtsc.avg : '-'}
-            </div>
-            <div className='d-col6'>
-              {job.rtsc_stc.avg !== 0 ? job.rtsc_stc.avg : '-'}
-            </div>
-            <div className='d-col7'>
-              {job.w_stc.avg !== 0 ? job.w_stc.avg : '-'}
-            </div>
-            <div className='d-col8'>
-              {job.stc_rts.avg !== 0 ? job.stc_rts.avg : '-'}
-            </div>
-            <div className='d-col9'>
-              {job.rts_d_p.avg !== 0 ? job.rts_d_p.avg : '-'}
-            </div>
-            <div className='d-col10'>
-              {job.w_d_p.avg !== 0 ? job.w_d_p.avg : '-'}
-            </div>
-            <div className='d-col11'>
-              {job.w_rts.avg !== 0 ? job.w_rts.avg : '-'}
-            </div>
-            <div className='d-col12'>
-              {job.rts_d_np.avg !== 0 ? job.rts_d_np.avg : '-'}
-            </div>
-            <div className='d-col13'>
-              {job.w_d_np.avg !== 0 ? job.w_d_np.avg : '-'}
-            </div>
+      {manyjobs && (
+        <div className='table-container'>
+          <div className='table-row table-label'>By Job</div>
+          <div className='table-header table-row'>
+            <div className='d-col1'></div>
+            <div className='d-col2'>Lifespan</div>
+            <div className='d-col3'>Issue to Pull</div>
+            <div className='d-col4'>Pull to Weld</div>
+            <div className='d-col5'>Weld to RTS Coating</div>
+            <div className='d-col6'>RTS Coating to STC</div>
+            <div className='d-col7'>Weld to STC</div>
+            <div className='d-col8'>STC to RTS</div>
+            <div className='d-col9'>RTS to Site</div>
+            <div className='d-col10'>Weld to Site</div>
+            <div className='d-col11'>Weld to RTS</div>
+            <div className='d-col12'>RTS to Site</div>
+            <div className='d-col13'>Weld to Site</div>
           </div>
-        ))}
-      </div>
+          {jobs.map((job) => (
+            <div className='table-row' key={job.number}>
+              <div className='d-col1 table-subheader'>{job.number}</div>
+              <div className='d-col2'>
+                {job.lifespan.avg !== 0 ? job.lifespan.avg : '-'}
+              </div>
+              <div className='d-col3'>
+                {job.i_p.avg !== 0 ? job.i_p.avg : '-'}
+              </div>
+              <div className='d-col4'>
+                {job.p_w.avg !== 0 ? job.p_w.avg : '-'}
+              </div>
+              <div className='d-col5'>
+                {job.w_rtsc.avg !== 0 ? job.w_rtsc.avg : '-'}
+              </div>
+              <div className='d-col6'>
+                {job.rtsc_stc.avg !== 0 ? job.rtsc_stc.avg : '-'}
+              </div>
+              <div className='d-col7'>
+                {job.w_stc.avg !== 0 ? job.w_stc.avg : '-'}
+              </div>
+              <div className='d-col8'>
+                {job.stc_rts.avg !== 0 ? job.stc_rts.avg : '-'}
+              </div>
+              <div className='d-col9'>
+                {job.rts_d_p.avg !== 0 ? job.rts_d_p.avg : '-'}
+              </div>
+              <div className='d-col10'>
+                {job.w_d_p.avg !== 0 ? job.w_d_p.avg : '-'}
+              </div>
+              <div className='d-col11'>
+                {job.w_rts.avg !== 0 ? job.w_rts.avg : '-'}
+              </div>
+              <div className='d-col12'>
+                {job.rts_d_np.avg !== 0 ? job.rts_d_np.avg : '-'}
+              </div>
+              <div className='d-col13'>
+                {job.w_d_np.avg !== 0 ? job.w_d_np.avg : '-'}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {/* BY SHOP */}
       <div className='table-container'>
         <div className='table-row table-label'>By Shop</div>
@@ -251,7 +251,7 @@ const Dormant = ({
 }
 
 const mapStateToProps = (state) => ({
-  dormant: state.jobs.dormant,
+  dormant: state.job.dormant,
 })
 
 export default connect(mapStateToProps)(Dormant)

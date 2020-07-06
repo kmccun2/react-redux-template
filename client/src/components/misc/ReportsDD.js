@@ -1,5 +1,5 @@
 import React from 'react'
-import { updateJob, setJobLoading } from '../../actions/jobs'
+import { updateJob, setJobLoading } from '../../actions/job'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
