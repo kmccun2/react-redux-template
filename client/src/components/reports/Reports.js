@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { setJobLoading, updateJob } from '../../actions/job'
+import { updateDormant } from '../../actions/dormant'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
@@ -15,6 +16,8 @@ const Reports = ({
   job_mats,
   setJobLoading,
   updateJob,
+  jobnums,
+  updateDormant,
 }) => {
   const [matJobs, setMatJobs] = useState([])
   const [jsActive, setjsActive] = useState(1)
@@ -30,6 +33,13 @@ const Reports = ({
     setJobLoading()
     updateJob(jobnum, null, false)
   }, [updateJob, setJobLoading, jobnum])
+
+  // LOAD JOBS IF NOT LOADED
+  useEffect(() => {
+    if (jobnums === []) {
+      updateDormant(jobnums)
+    }
+  }, [])
 
   // CREATE MATERIAL FILTERED JOBS
   useEffect(() => {
@@ -156,7 +166,7 @@ const Reports = ({
           </div>
         </Fragment>
       ) : (
-        <Loading message='Fetching data from database...' />
+        <Loading message='Creating job reports...' />
       )}
     </Fragment>
   )
@@ -168,8 +178,10 @@ const mapStateToProps = (state) => ({
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
   dormant: state.job.dormant,
+  jobnums: state.dormant.jobnumbs,
 })
 export default connect(mapStateToProps, {
   setJobLoading,
   updateJob,
+  updateDormant,
 })(Reports)

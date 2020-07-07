@@ -1,27 +1,27 @@
 import React, { useEffect, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { setJobsLoading, updateDormant } from '../../actions/dormant'
-import Loading from '../misc/Loading'
+import { Redirect } from 'react-router-dom'
 import Dormant from '../reports/Dormant'
+import Loading from '../misc/Loading'
 
-const AllDormant = ({
-  dormant,
-  loading,
-  setJobsLoading,
-  jobnums,
-  updateDormant,
-}) => {
+const AllDormant = ({ dormant, jobnums, updateDormant }) => {
+  // LOAD JOBS IF NOT LOADED
   useEffect(() => {
-    setJobsLoading()
-    updateDormant(jobnums)
+    if (dormant === undefined) {
+      updateDormant(jobnums)
+    }
   }, [])
 
   return (
     <Fragment>
-      {dormant === undefined ? (
-        <Loading message='Fetching data from database...' />
+      {dormant !== undefined ? (
+        <Fragment>
+          <div style={{ marginTop: 30 }}></div>
+          <Dormant dormant={dormant} />
+        </Fragment>
       ) : (
-        <Dormant dormant={dormant} />
+        <Loading message='Loading dormant data...' />
       )}
     </Fragment>
   )
@@ -30,6 +30,7 @@ const mapStateToProps = (state) => ({
   jobnums: state.dormant.jobnums,
   loading: state.dormant.loading,
   dormant: state.dormant.dormant,
+  jobnums: state.dormant.jobnums,
 })
 
 export default connect(mapStateToProps, { setJobsLoading, updateDormant })(

@@ -1,15 +1,34 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import Alert from '../misc/Alert'
-import { setAlert } from '../../actions/alert'
+import { setJobsLoading, updateDormant } from '../../actions/dormant'
 import { connect } from 'react-redux'
+import Loading from '../misc/Loading'
 
-const Dashboard = () => {
+const Dashboard = ({ setJobsLoading, jobnums, updateDormant, dormant }) => {
+  useEffect(() => {
+    setJobsLoading()
+    updateDormant(jobnums)
+  }, [])
+
   return (
     <Fragment>
-      <Alert />
-      <div>Dashboard</div>
+      {dormant === undefined ? (
+        <Loading message='Data loading...' />
+      ) : (
+        <Fragment>
+          <div style={{ marginTop: 30 }}>Dashboard</div>
+        </Fragment>
+      )}
     </Fragment>
   )
 }
 
-export default connect(null, { setAlert })(Dashboard)
+const mapStateToProps = (state) => ({
+  jobnums: state.dormant.jobnums,
+  loading: state.dormant.loading,
+  dormant: state.dormant.dormant,
+})
+
+export default connect(mapStateToProps, { setJobsLoading, updateDormant })(
+  Dashboard
+)
