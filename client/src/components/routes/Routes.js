@@ -4,6 +4,7 @@ import { Switch, Route } from 'react-router-dom'
 import Reports from '../reports/Reports'
 import NotFound from '../misc/NotFound'
 import AllDormant from '../reports/AllDormant'
+import SpoolProf from '../spool/SpoolProf'
 
 const Routes = () => {
   return (
@@ -12,6 +13,7 @@ const Routes = () => {
         <Route exact path='/' component={Dashboard} />
         <Route exact path='/reports/:job' component={Reports} />
         <Route exact path='/dormant' component={AllDormant} />
+        <Route exact path='/spool/:id' component={SpoolProf} />
         <Route component={NotFound} />
       </Switch>
     </section>

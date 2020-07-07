@@ -388,3 +388,89 @@ body {
   font-weight: normal;
   font-style: italic;
 }
+.timeline {
+  display: flex;
+  justify-content: center;
+  z-index: -1;
+  margin: 10px 0 80px 0;
+}
+.milestone {
+  width: 39px;
+  display: flex;
+  line-height: 1.2;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.ms-header {
+  padding: 10px;
+  transform: rotate(-50deg);
+  width: 135px;
+  margin-left: 3px;
+  text-align: center;
+}
+.ms-graphic {
+  position: absolute;
+  margin-top: 65px;
+}
+.gap {
+  height: 30px;
+  margin-top: 136px;
+  text-align: center;
+  display: flex;
+  width: 65px;
+  background-color: #ffffff00;
+  align-items: center;
+  flex-direction: column;
+}
+.line {
+  background-color: #4ba8ff;
+  height: 5px;
+  width: calc(100% + 21px);
+  margin-top: 10px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.timeline-days {
+  background-color: white;
+  height: 20px;
+  font-size: 21px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #828282;
+  padding: 0 5px 1px 3px;
+}
+.sub-heading {
+  font-size: 18px;
+}
+.more-spool-info {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-evenly;
+}
+.sd-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.sd-col1 {
+  width: 300px;
+  min-width: 200px;
+  text-align: center;
+  font-weight: bold;
+  padding: 5px;
+}
+.sd-col2 {
+  width: 300px;
+  min-width: 200px;
+  text-align: center;
+  padding: 5px;
+}

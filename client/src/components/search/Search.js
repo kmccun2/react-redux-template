@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { MdCancel } from 'react-icons/md'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 const Search = ({ loading, jobnums, all_spools }) => {
   const [filteredSpools, setFilteredSpools] = useState([])
@@ -58,12 +59,18 @@ const Search = ({ loading, jobnums, all_spools }) => {
       {filteredSpools.length > 0 && (
         <div className='list-of-spools'>
           {filteredSpools.map((spool) => (
-            <div className='search-item'>
-              {spool.spool}
-              <div className='search-job'>
-                {spool.client} {spool.jobnum}
+            <Link to={'/spool/' + spool.piecemark}>
+              <div
+                onClick={() => setFormData({ ...formData, spoolname: '' })}
+                key={spool.piecemark}
+                className='search-item'
+              >
+                {spool.spool}
+                <div className='search-job'>
+                  {spool.client} {spool.jobnum}
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
