@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import Dashboard from './components/dashboard/Dashboard'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
 import Routes from '../src/components/routes/Routes'
 import { Provider } from 'react-redux'
 import store from './store'
@@ -26,9 +26,11 @@ const App = () => {
         <Fragment>
           <div className='my-container'>
             <div className='my-header'>
-              <span className='header-item company-name'>
-                Performance Contractors
-              </span>
+              <Link to='/'>
+                <span className='header-item company-name'>
+                  Performance Contractors
+                </span>
+              </Link>
               <Search />
             </div>
             <div className='my-subheader'>
