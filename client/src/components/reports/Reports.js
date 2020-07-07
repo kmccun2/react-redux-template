@@ -39,6 +39,7 @@ const Reports = ({
     if (jobnums === []) {
       updateDormant(jobnums)
     }
+    // eslint-disable-next-line
   }, [])
 
   // CREATE MATERIAL FILTERED JOBS

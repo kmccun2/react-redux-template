@@ -1,7 +1,6 @@
 import React, { useEffect, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { setJobsLoading, updateDormant } from '../../actions/dormant'
-import { Redirect } from 'react-router-dom'
 import Dormant from '../reports/Dormant'
 import Loading from '../misc/Loading'
 
@@ -11,6 +10,7 @@ const AllDormant = ({ dormant, jobnums, updateDormant }) => {
     if (dormant === undefined) {
       updateDormant(jobnums)
     }
+    // eslint-disable-next-line
   }, [])
 
   return (
@@ -27,7 +27,6 @@ const AllDormant = ({ dormant, jobnums, updateDormant }) => {
   )
 }
 const mapStateToProps = (state) => ({
-  jobnums: state.dormant.jobnums,
   loading: state.dormant.loading,
   dormant: state.dormant.dormant,
   jobnums: state.dormant.jobnums,

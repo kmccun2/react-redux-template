@@ -1,7 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
 import {
-  UPDATE_JOBS,
   JOBS_ERROR,
   SET_JOBS_LOADING,
   UPDATE_JOB_SPOOLS,
@@ -381,6 +380,7 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
             w_d_np: { total: 0, spools: 0, avg: 0 },
           })
         }
+        return shop
       })
 
       jobnums_list.map((jobnum) => {
@@ -399,6 +399,7 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
           rts_d_np: { total: 0, spools: 0, avg: 0 },
           w_d_np: { total: 0, spools: 0, avg: 0 },
         })
+        return jobnum
       })
 
       materials_list.map((material) => {
@@ -417,6 +418,7 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
           rts_d_np: { total: 0, spools: 0, avg: 0 },
           w_d_np: { total: 0, spools: 0, avg: 0 },
         })
+        return material
       })
 
       // ADD UP TOTALS AND SPOOLS FOR DORMANT OBJECTS

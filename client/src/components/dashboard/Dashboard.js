@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect } from 'react'
-import Alert from '../misc/Alert'
 import { setJobsLoading, updateDormant } from '../../actions/dormant'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
@@ -8,6 +7,7 @@ const Dashboard = ({ setJobsLoading, jobnums, updateDormant, dormant }) => {
   useEffect(() => {
     setJobsLoading()
     updateDormant(jobnums)
+    // eslint-disable-next-line
   }, [])
 
   return (

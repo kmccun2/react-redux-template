@@ -5,7 +5,6 @@ import {
   UPDATE_JOB_MATS,
   JOB_ERROR,
   SET_JOB_LOADING,
-  JOBS_ERROR,
 } from './types'
 
 // SET LOADING TO TRUE
@@ -952,6 +951,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
           w_d_np: { total: 0, spools: 0, avg: 0 },
         })
       }
+      return shop
     })
     materials_list.map((material) => {
       dormant.materials.push({
@@ -969,6 +969,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
         rts_d_np: { total: 0, spools: 0, avg: 0 },
         w_d_np: { total: 0, spools: 0, avg: 0 },
       })
+      return material
     })
 
     // ADD UP TOTALS AND SPOOLS FOR DORMANT OBJECTS
