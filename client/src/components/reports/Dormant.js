@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import { connect } from 'react-redux'
 
 const Dormant = ({
   dormant: { overall, jobs, shops, materials, manyjobs },
@@ -250,8 +249,4 @@ const Dormant = ({
   )
 }
 
-const mapStateToProps = (state) => ({
-  dormant: state.dormant.dormant,
-})
-
-export default connect(mapStateToProps)(Dormant)
+export default Dormant

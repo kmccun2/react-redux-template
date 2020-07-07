@@ -26,7 +26,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         dormant: payload.dormant,
-        all_spools: state.all_spools.concat(payload.all_spools),
+        all_spools: payload.all_spools,
       }
     case UPDATE_DORMANT:
       return {

@@ -280,10 +280,12 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
     })
     countupdates += 1
     all_spools = all_spools.concat(job_spools)
+
+    // IF LAST JOB IN JOBS
     if (countupdates === jobnums.length) {
       dispatch({
         type: UPDATE_JOB_SPOOLS,
-        payload: { job_spools: job_spools },
+        payload: { all_spools: all_spools },
       })
 
       let materials_list = []
@@ -301,35 +303,226 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
         if (jobnums_list.includes(spool.jobnum) === false) {
           jobnums_list.push(spool.jobnum)
         }
+        // CREATE FORMULA TO CALCULATE THE NUMBER OF DAYS BETWEEN TWO PHASES
+        let findDays = (start, finish, phase, coating) => {
+          if (coating === true) {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              spool.stc !== '' &&
+              start !== undefined &&
+              finish !== undefined &&
+              spool.stc !== undefined
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          } else if (coating === false) {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              start !== undefined &&
+              finish !== undefined &&
+              (spool.stc === undefined || spool.stc === '')
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          } else {
+            if (
+              start !== '' &&
+              finish !== '' &&
+              start !== undefined &&
+              finish !== undefined
+            ) {
+              let lf = moment(finish).diff(moment(start), 'days')
+              if (lf > -1 && lf < 1000) {
+                spool[phase] = moment(finish).diff(moment(start), 'days')
+              }
+            }
+          }
+        }
+
+        findDays(spool.issued, spool.delivered, 'lifespan')
+        findDays(spool.issued, spool.pulled, 'i_p')
+        findDays(spool.pulled, spool.weldout, 'p_w')
+        findDays(spool.weldout, spool.rtsc, 'w_rtsc')
+        findDays(spool.rtsc, spool.stc, 'rtsc_stc')
+        findDays(spool.weldout, spool.stc, 'w_stc')
+        findDays(spool.stc, spool.rts, 'stc_rts')
+        findDays(spool.rts, spool.delivered, 'rts_d_p', true)
+        findDays(spool.weldout, spool.delivered, 'w_d_p', true)
+        findDays(spool.weldout, spool.rts, 'w_rts', false)
+        findDays(spool.rts, spool.delivered, 'rts_d_np', false)
+        findDays(spool.weldout, spool.delivered, 'w_d_np', false)
         return spool
       })
-      console.log(jobnums_list)
 
-      // SIFT SPOOLS
-
-      // SIFT FORMULA
-      let addDormantObject = (variable, value, total, spools) => {
-        if (variable === value) {
-          total += value
-          spools += 1
+      // ADD SHOPS, JOBS AND MATERIALS TO DORMANT OBJECT
+      shops_list.map((shop) => {
+        if (shop !== '') {
+          dormant.shops.push({
+            shop: shop,
+            lifespan: { total: 0, spools: 0, avg: 0 },
+            i_p: { total: 0, spools: 0, avg: 0 },
+            p_w: { total: 0, spools: 0, avg: 0 },
+            w_rtsc: { total: 0, spools: 0, avg: 0 },
+            rtsc_stc: { total: 0, spools: 0, avg: 0 },
+            w_stc: { total: 0, spools: 0, avg: 0 },
+            stc_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_p: { total: 0, spools: 0, avg: 0 },
+            w_d_p: { total: 0, spools: 0, avg: 0 },
+            w_rts: { total: 0, spools: 0, avg: 0 },
+            rts_d_np: { total: 0, spools: 0, avg: 0 },
+            w_d_np: { total: 0, spools: 0, avg: 0 },
+          })
         }
-      }
-      all_spools.map((spool) => {
-        shops_list.map((shop) => {
-          addDormantObject(
-            spool.shop,
-            shop,
-            dormant.shops[shop].total,
-            dormant.shops[shop].spools
-          )
+      })
+
+      jobnums_list.map((jobnum) => {
+        dormant.jobs.push({
+          jobnum: jobnum,
+          lifespan: { total: 0, spools: 0, avg: 0 },
+          i_p: { total: 0, spools: 0, avg: 0 },
+          p_w: { total: 0, spools: 0, avg: 0 },
+          w_rtsc: { total: 0, spools: 0, avg: 0 },
+          rtsc_stc: { total: 0, spools: 0, avg: 0 },
+          w_stc: { total: 0, spools: 0, avg: 0 },
+          stc_rts: { total: 0, spools: 0, avg: 0 },
+          rts_d_p: { total: 0, spools: 0, avg: 0 },
+          w_d_p: { total: 0, spools: 0, avg: 0 },
+          w_rts: { total: 0, spools: 0, avg: 0 },
+          rts_d_np: { total: 0, spools: 0, avg: 0 },
+          w_d_np: { total: 0, spools: 0, avg: 0 },
         })
       })
+
+      materials_list.map((material) => {
+        dormant.materials.push({
+          material: material,
+          lifespan: { total: 0, spools: 0, avg: 0 },
+          i_p: { total: 0, spools: 0, avg: 0 },
+          p_w: { total: 0, spools: 0, avg: 0 },
+          w_rtsc: { total: 0, spools: 0, avg: 0 },
+          rtsc_stc: { total: 0, spools: 0, avg: 0 },
+          w_stc: { total: 0, spools: 0, avg: 0 },
+          stc_rts: { total: 0, spools: 0, avg: 0 },
+          rts_d_p: { total: 0, spools: 0, avg: 0 },
+          w_d_p: { total: 0, spools: 0, avg: 0 },
+          w_rts: { total: 0, spools: 0, avg: 0 },
+          rts_d_np: { total: 0, spools: 0, avg: 0 },
+          w_d_np: { total: 0, spools: 0, avg: 0 },
+        })
+      })
+
+      // ADD UP TOTALS AND SPOOLS FOR DORMANT OBJECTS
+      // OVERALL TOTALS
+      all_spools.map((spool) => {
+        let totalAndSpools = (phase) => {
+          if (spool[phase] !== undefined) {
+            dormant.overall[phase].total += spool[phase]
+            dormant.overall[phase].spools += 1
+            // ADD OVERALL TOTALS FOR JOB
+            dormant.jobs.map((each) => {
+              if (spool.jobnum === each.jobnum) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+            // ADD OVERALL TOTALS FOR SHOPS
+            dormant.shops.map((each) => {
+              if (each.shop === spool.shop) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+            // ADD OVERALL TOTALS FOR MATERIALS
+            dormant.materials.map((each) => {
+              if (each.material === spool.material) {
+                each[phase].total += spool[phase]
+                each[phase].spools += 1
+              }
+              return each
+            })
+          }
+        }
+        totalAndSpools('lifespan')
+        totalAndSpools('i_p')
+        totalAndSpools('p_w')
+        totalAndSpools('w_rtsc')
+        totalAndSpools('rtsc_stc')
+        totalAndSpools('w_stc')
+        totalAndSpools('stc_rts')
+        totalAndSpools('rts_d_p')
+        totalAndSpools('w_d_p')
+        totalAndSpools('w_rts')
+        totalAndSpools('rts_d_np')
+        totalAndSpools('w_d_np')
+
+        return spool
+      })
+
+      // USE TOTALS AND SPOOLS TO FIND AVERAGES FOR DORMANT OBJECTS
+      // OVERALL AVERAGES
+      let findAvg = (phase) => {
+        if (dormant.overall[phase].spools !== 0) {
+          dormant.overall[phase].avg = (
+            dormant.overall[phase].total / dormant.overall[phase].spools
+          ).toFixed(0)
+        }
+        // ADD OVERALL AVERAGES FOR JOB
+        dormant.jobs.map((each) => {
+          if (each[phase].spools !== 0) {
+            each[phase].avg = (each[phase].total / each[phase].spools).toFixed(
+              0
+            )
+          }
+          return each
+        })
+        // ADD OVERALL AVERAGES FOR SHOPS
+        dormant.shops.map((each) => {
+          if (each[phase].spools !== 0) {
+            each[phase].avg = (each[phase].total / each[phase].spools).toFixed(
+              0
+            )
+          }
+          return each
+        })
+        // ADD OVERALL AVERAGES FOR MATERIALS
+        dormant.materials.map((each) => {
+          if (each[phase].spools !== 0) {
+            each[phase].avg = (each[phase].total / each[phase].spools).toFixed(
+              0
+            )
+          }
+          return each
+        })
+      }
+
+      findAvg('lifespan')
+      findAvg('i_p')
+      findAvg('p_w')
+      findAvg('w_rtsc')
+      findAvg('rtsc_stc')
+      findAvg('w_stc')
+      findAvg('stc_rts')
+      findAvg('rts_d_p')
+      findAvg('w_d_p')
+      findAvg('w_rts')
+      findAvg('rts_d_np')
+      findAvg('w_d_np')
+
+      dispatch({
+        type: UPDATE_DORMANT,
+        payload: { dormant: dormant },
+      })
     }
-    console.log(dormant)
-    // dispatch({
-    //   type: UPDATE_DORMANT,
-    //   payload: { dormant: dormant },
-    // })
   } catch {
     dispatch({
       type: JOBS_ERROR,

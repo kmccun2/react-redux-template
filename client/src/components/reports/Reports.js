@@ -11,7 +11,7 @@ const Reports = ({
   match,
   loading,
   job,
-  jobs,
+  dormant,
   job_mats,
   setJobLoading,
   updateJob,
@@ -60,7 +60,9 @@ const Reports = ({
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
             <div className='js-highlight-item'>{job.total} Spools</div>
-            <div className='js-highlight-item'>{job.workable} Workable</div>
+            <div className='js-highlight-item'>
+              {job.workable + job.workable_not_issued} Workable
+            </div>
             <div className='js-highlight-item'>{job.issued} Issued</div>
           </div>
           {/* SUMMARY TABS */}
@@ -150,7 +152,7 @@ const Reports = ({
               </Fragment>
             )}
             {/* DORMANT SUMMARIES */}
-            {jsActive === 3 && <Dormant manyjobs={false} />}
+            {jsActive === 3 && <Dormant manyjobs={false} dormant={dormant} />}
           </div>
         </Fragment>
       ) : (
@@ -165,6 +167,7 @@ const mapStateToProps = (state) => ({
   job: state.job.job,
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
+  dormant: state.job.dormant,
 })
 export default connect(mapStateToProps, {
   setJobLoading,

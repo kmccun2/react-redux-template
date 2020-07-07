@@ -9,6 +9,7 @@ const initialState = {
   loading: false,
   job_mats: [],
   error: {},
+  dormant: undefined,
 }
 
 export default function (state = initialState, action) {
@@ -25,7 +26,7 @@ export default function (state = initialState, action) {
         ...state,
         job: payload.job,
         job_mats: [],
-        dormant: undefined,
+        dormant: payload.dormant,
         loading: false,
       }
     case UPDATE_JOB_MATS:
