@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux'
 import alert from './alert'
-import dormant from './dormant'
+import jobs from './jobs'
 import job from './job'
 
 export default combineReducers({
   alert,
-  dormant,
+  jobs,
   job,
 })

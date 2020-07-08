@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { setJobLoading, updateJob } from '../../actions/job'
-import { updateDormant } from '../../actions/dormant'
+import { updateDormant } from '../../actions/jobs'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
@@ -179,7 +179,7 @@ const mapStateToProps = (state) => ({
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
   dormant: state.job.dormant,
-  jobnums: state.dormant.jobnumbs,
+  jobnums: state.jobs.jobnumbs,
 })
 export default connect(mapStateToProps, {
   setJobLoading,

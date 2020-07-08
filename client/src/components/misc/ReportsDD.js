@@ -23,7 +23,7 @@ const Reports = ({ show, updateJob, setJobLoading, jobnums }) => {
 }
 
 const mapStateToProps = (state) => ({
-  jobnums: state.dormant.jobnums,
+  jobnums: state.jobs.jobnums,
 })
 
 export default connect(mapStateToProps, { updateJob, setJobLoading })(Reports)

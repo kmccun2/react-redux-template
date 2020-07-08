@@ -392,10 +392,11 @@ body {
   display: flex;
   justify-content: center;
   z-index: -1;
-  margin: 10px 0 80px 0;
+  margin: 70px 0 80px 0;
 }
 .milestone {
   width: 39px;
+  height: 100px;
   display: flex;
   line-height: 1.2;
   flex-direction: column;
@@ -404,18 +405,17 @@ body {
 }
 .ms-header {
   padding: 10px;
-  transform: rotate(-50deg);
-  width: 135px;
-  margin-left: 3px;
+  min-width: 110px;
   text-align: center;
 }
 .ms-graphic {
-  position: absolute;
-  margin-top: 65px;
+  display: flex;
+  height: 100px;
+  align-items: flex-end;
 }
 .gap {
   height: 30px;
-  margin-top: 136px;
+  margin-top: 78px;
   text-align: center;
   display: flex;
   width: 65px;
@@ -462,15 +462,37 @@ body {
   justify-content: center;
 }
 .sd-col1 {
-  width: 300px;
   min-width: 200px;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
-  padding: 5px;
+  padding: 9px;
+  line-height: 1.2;
 }
 .sd-col2 {
   width: 300px;
   min-width: 200px;
   text-align: center;
   padding: 5px;
+  min-width: 110px;
+  text-align: center;
+  padding: 5px;
+}
+.prof-info-cont {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 35px;
+}
+.prof-info {
+  max-width: 260px;
+}
+.prof-heading {
+  width: 100%;
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
 }

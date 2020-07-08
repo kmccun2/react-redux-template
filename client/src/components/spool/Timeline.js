@@ -47,8 +47,8 @@ const Timeline = ({ spool }) => {
                   : no_color,
             }}
           >
-            {spool.i_p && (
-              <span className='timeline-days'>{spool.i_p.toString()}</span>
+            {(spool.i_p || spool.i_p === 0) && (
+              <span className='timeline-days'>{spool.i_p}</span>
             )}
           </div>
         </div>
@@ -75,7 +75,9 @@ const Timeline = ({ spool }) => {
                   : no_color,
             }}
           >
-            {spool.p_w && <span className='timeline-days'>{spool.p_w}</span>}
+            {(spool.p_w || spool.p_w === 0) && (
+              <span className='timeline-days'>{spool.p_w}</span>
+            )}
           </div>
         </div>
         <div className='milestone'>

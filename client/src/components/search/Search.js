@@ -78,9 +78,9 @@ const Search = ({ loading, jobnums, all_spools }) => {
   )
 }
 const mapStateToProps = (state) => ({
-  loading: state.dormant.loading,
-  jobnums: state.dormant.jobnums,
-  all_spools: state.dormant.all_spools,
+  loading: state.jobs.loading,
+  jobnums: state.jobs.jobnums,
+  all_spools: state.jobs.all_spools,
 })
 
 export default connect(mapStateToProps)(Search)
