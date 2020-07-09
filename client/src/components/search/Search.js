@@ -26,8 +26,7 @@ const Search = ({ loading, jobnums, all_spools }) => {
         )
       )
     }
-    console.log(spoolname)
-  }, [spoolname])
+  }, [spoolname, all_spools])
 
   return (
     <Fragment>

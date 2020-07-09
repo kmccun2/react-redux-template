@@ -135,7 +135,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       let linelist_csv = res.data
 
       // FIND HEADERS FROM LINELIST CSV
-      var lines = linelist_csv.split('\n')
+      let lines = linelist_csv.split('\n')
       let header = lines.filter(
         (line) =>
           line.includes('ISO') ||

@@ -5,10 +5,16 @@ import {
   SET_JOBS_LOADING,
   UPDATE_JOB_SPOOLS,
   UPDATE_DORMANT,
+  GET_ITEMS,
 } from './types'
 
 let countupdates = 0
 let all_spools = []
+let all_materials_list = []
+let all_shops_list = []
+let all_jobnums_list = []
+let all_priorities_list = []
+let all_statuses_list = []
 
 let dormant = {
   overall: {
@@ -131,6 +137,79 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
       return headers
     })
 
+    if (piecemark_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Spool Id header should be titled "Spool ID".'
+      )
+    if (material_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Material header should be titled "Material".'
+      )
+    if (issued_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Issued header should be titled "Status".'
+      )
+    if (spool_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Spool/sketch header should be titled SPOOL.'
+      )
+    if (priority_group_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Priority Group header should be titled "Priority Group".'
+      )
+    if (priority_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Priority header should be titled "Individual Priority".'
+      )
+    if (area_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Area header should be titled "Area".'
+      )
+    if (iso_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Iso header should be titled "Iso".'
+      )
+    if (detailing_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Detailing header should be titled "Detailing".'
+      )
+    if (checking_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! header should be titled "Checking".'
+      )
+    if (shop_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! Shop header should be titled "Shop".'
+      )
+    if (on_hold_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' linelist CSV! On hold header should be titled "HOLD".'
+      )
+
     // ADD SPOOLS FROM LINELIST ALL SPOOLS
     count = 0
     lines.map((line) => {
@@ -157,6 +236,8 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
             shop: line.split(',')[shop_col],
             on_hold: line.split(',')[on_hold_col],
             multiplier: 1,
+            totalitems: 0,
+            totalpipe: 0,
             items: [],
             missing: [],
             missingsupports: { p: false, c: false, o: false },
@@ -302,6 +383,44 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
         if (jobnums_list.includes(spool.jobnum) === false) {
           jobnums_list.push(spool.jobnum)
         }
+
+        if (spool.delivered !== undefined && spool.delivered !== '') {
+          spool.status = 'Delivered'
+        } else if (spool.rts !== undefined && spool.rts !== '') {
+          spool.status = 'Ready to Ship'
+        } else if (spool.stc !== undefined && spool.stc !== '') {
+          spool.status = 'Shipped to Coating'
+        } else if (spool.rtsc !== undefined && spool.rtsc !== '') {
+          spool.status = 'Ready to Ship to Coating'
+        } else if (spool.weldout !== undefined && spool.weldout !== '') {
+          spool.status = 'Welded Out'
+        } else if (spool.pulled !== undefined && spool.pulled !== '') {
+          spool.status = 'Pulled'
+        } else if (spool.issued !== undefined && spool.issued !== '') {
+          spool.status = 'Issued'
+        } else if (spool.workable === true) {
+          spool.status = 'Workable'
+        } else {
+          spool.status = 'Not Workable'
+        }
+
+        // ADD TO 'ALL' LISTS
+        if (all_materials_list.includes(spool.material) === false) {
+          all_materials_list.push(spool.material)
+        }
+        if (all_shops_list.includes(spool.shop) === false) {
+          all_shops_list.push(spool.shop)
+        }
+        if (all_jobnums_list.includes(spool.jobnum) === false) {
+          all_jobnums_list.push(spool.jobnum)
+        }
+        if (all_priorities_list.includes(spool.priority) === false) {
+          all_priorities_list.push(spool.priority)
+        }
+        if (all_statuses_list.includes(spool.status) === false) {
+          all_statuses_list.push(spool.status)
+        }
+
         // CREATE FORMULA TO CALCULATE THE NUMBER OF DAYS BETWEEN TWO PHASES
         let findDays = (start, finish, phase, coating) => {
           if (coating === true) {
@@ -522,9 +641,232 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
 
       dispatch({
         type: UPDATE_DORMANT,
-        payload: { dormant: dormant },
+        payload: {
+          dormant: dormant,
+          all_shops: all_shops_list,
+          all_jobnums: all_jobnums_list,
+          all_materials: all_materials_list,
+          all_priorities: all_priorities_list,
+          all_statuses: all_statuses_list,
+        },
       })
     }
+  } catch {
+    dispatch({
+      type: JOBS_ERROR,
+      payload: { msg: 'Error' },
+    })
+  }
+}
+
+// SET LOADING TO TRUE
+export const getItems = (spool) => async (dispatch) => {
+  try {
+    /////  //////
+    //  // //
+    /////  /////
+    //  // //
+    /////  //////
+
+    // GRAB BOM CSV
+    const res_be = await axios.get('/api/csvs/bom_export/' + spool.jobnum)
+    let bom_export_csv = res_be.data
+
+    // FIND HEADERS FROM BOM CSV
+    let lines = bom_export_csv.split('\n')
+    let header = lines.filter((line) => line.includes('BOM PATH'))[0]
+    let headers = header.split(',')
+
+    // FIND FIRST ROW OF SPOOLS
+    let count = 1
+    let first_row = undefined
+    lines.map((line) => {
+      count += 1
+      if (line.includes('BOM PATH')) {
+        first_row = count
+      }
+      return lines
+    })
+
+    // ASSIGN COLUMN NUMBER TO EACH HEADER
+    let be_bom_path_col = undefined
+    // let be_piecemark_col = undefined
+    let be_tag_col = undefined
+    let be_position_col = undefined
+    let be_item_col = undefined
+    let be_quantity_col = undefined
+    let be_unit_col = undefined
+
+    count = 0
+
+    headers.map((header) => {
+      if (header === '﻿BOM PATH' || header === 'BOM PATH') {
+        be_bom_path_col = count
+        // } else if (header === ' SKETCH') {
+        //   be_piecemark_col = count
+      } else if (header === ' TAG NUMBER') {
+        be_tag_col = count
+      } else if (header === ' POS') {
+        be_position_col = count
+      } else if (header === ' GROUP-PERF') {
+        be_item_col = count
+      } else if (header === ' LIST QUANTITY') {
+        be_quantity_col = count
+      } else if (header === ' UNIT') {
+        be_unit_col = count
+      }
+      count += 1
+      return header
+    })
+
+    // ADD INFORMATION FROM BOM EXPORT TO JOB
+    count = lines.map((line) => {
+      count += 1
+      if (
+        line.split(',')[be_bom_path_col] !== '' &&
+        line.split(',')[be_bom_path_col] !== undefined &&
+        count >= first_row
+      ) {
+        if (
+          line.split(',')[be_bom_path_col].split('/').slice(-1)[0] ===
+          spool.spool
+        ) {
+          spool.items.push({
+            tag: line.split(',')[be_tag_col],
+            item: line.split(',')[be_item_col],
+            quantity: line.split(',')[be_quantity_col],
+            unit: line.split(',')[be_unit_col],
+            pos: line.split(',')[be_position_col],
+            status: 'Complete',
+          })
+        }
+      }
+      return line
+    })
+
+    // ////// //////
+    // //     //
+    // ////// //
+    // //     //
+    // //     //////
+
+    // GRAB FORECAST CSV
+    const res_fc = await axios.get('/api/csvs/forecast/' + spool.jobnum)
+    let forecast_csv = res_fc.data
+
+    // FIND HEADERS FROM FORECAST CSV
+    lines = forecast_csv.split('\n')
+    header = lines.filter((line) => line.includes('BOM PATH'))[0]
+    headers = header.split(',')
+
+    // FIND FIRST ROW OF SPOOLS
+    count = 1
+    first_row = undefined
+    lines.map((line) => {
+      count += 1
+      if (line.includes('BOM PATH')) {
+        first_row = count
+      }
+      return lines
+    })
+
+    // ASSIGN COLUMN NUMBER TO EACH HEADER
+    let bom_path_col = undefined
+    let tag_col = undefined
+    let position_col = undefined
+    let item_col = undefined
+    let quantity_col = undefined
+    let status_col = undefined
+    let po_col = undefined
+    let perc_comp_col = undefined
+    let unit_col = undefined
+
+    count = 0
+
+    headers.map((header) => {
+      if (header === 'BOM PATH') {
+        bom_path_col = count
+      } else if (header === ' TAG NUMBER') {
+        tag_col = count
+      } else if (header === ' POS') {
+        position_col = count
+      } else if (header === ' GROUP-PERF') {
+        item_col = count
+      } else if (header === ' LIST QUANTITY') {
+        quantity_col = count
+      } else if (header === ' STATUS' && count > 4) {
+        status_col = count
+      } else if (header === ' PO NUMBER') {
+        po_col = count
+      } else if (header === 'PERCENTAGE COMPLETE') {
+        perc_comp_col = count
+      } else if (header === ' UNIT') {
+        unit_col = count
+      }
+      count += 1
+      return headers
+    })
+
+    // ADD INFORMATION FROM FORECAST TO JOB
+    count = 0
+    lines.map((line) => {
+      count += 1
+      if (
+        line.split(',')[bom_path_col] !== '' &&
+        line.split(',')[bom_path_col] !== undefined &&
+        count >= first_row
+      ) {
+        // FIND SPOOL BY MATCHING BOM PATH TO SPOOL NAME
+        if (
+          line.split(',')[bom_path_col].split('/').slice(-1)[0] === spool.spool
+        ) {
+          // IF ALL ITEMS ON FORECAST ARE COMPLETE, MARK SPOOL AS WORKABLE
+          if (
+            line.split(',')[perc_comp_col].split('/').slice(-1)[0] === '100%'
+          ) {
+            spool.workable = true
+          }
+          // ITERATE THROUGH ITEMS AND ADD INFO
+          let in_items = false
+          spool.items.map((item) => {
+            if (item.pos === line.split(',')[position_col]) {
+              item.status = line.split(',')[status_col]
+              item.po = line.split(',')[po_col]
+              in_items = true
+            }
+            return item
+          })
+          // IF ITEM NOT IN ITEMS ALREADY, ADD IT
+          if (in_items === false) {
+            spool.items.push({
+              tag: line.split(',')[tag_col],
+              item: line.split(',')[item_col],
+              quantity: line.split(',')[quantity_col],
+              unit: line.split(',')[unit_col],
+              pos: line.split(',')[position_col],
+              po: line.split(',')[po_col],
+              status: line.split(',')[status_col],
+            })
+          }
+        }
+      }
+      return line
+    })
+
+    // ADD UP QUANTITY OF COMPONENTS
+    spool.items.map((item) => {
+      if (item.item.includes('PIPE')) {
+        spool.totalpipe += parseFloat(item.quantity)
+      } else {
+        spool.totalitems += parseInt(item.quantity)
+      }
+      return item
+    })
+
+    dispatch({
+      type: GET_ITEMS,
+      payload: spool,
+    })
   } catch {
     dispatch({
       type: JOBS_ERROR,

@@ -18,7 +18,7 @@ const AllDormant = ({ dormant, jobnums, updateDormant }) => {
       {dormant !== undefined ? (
         <Fragment>
           <div style={{ marginTop: 30 }}></div>
-          <Dormant dormant={dormant} />
+          <Dormant dormant={dormant} manyjobs={true} />
         </Fragment>
       ) : (
         <Loading message='Loading dormant data...' />

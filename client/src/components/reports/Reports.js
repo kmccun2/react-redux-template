@@ -7,6 +7,7 @@ import Loading from '../misc/Loading'
 import Shorts from './Shorts'
 import Dormant from './Dormant'
 import SpoolShorts from './SpoolShorts'
+import { CSVLink } from 'react-csv'
 
 const Reports = ({
   match,
@@ -27,6 +28,14 @@ const Reports = ({
   useEffect(() => {
     setjsActive(1)
   }, [jobnum])
+
+  // LOAD JOBS IF NOT LOADED
+  useEffect(() => {
+    if (dormant === undefined) {
+      updateDormant(jobnums)
+    }
+    // eslint-disable-next-line
+  }, [])
 
   // MAIN CALCULATIONS
   useEffect(() => {
@@ -68,6 +77,9 @@ const Reports = ({
           <div className='js-heading'>
             {job.client}: {jobnum}
           </div>
+          <CSVLink className='filter-btn' data={job.spools}>
+            Download CSV
+          </CSVLink>
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
             <div className='js-highlight-item'>{job.total} Spools</div>
@@ -179,7 +191,7 @@ const mapStateToProps = (state) => ({
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
   dormant: state.job.dormant,
-  jobnums: state.jobs.jobnumbs,
+  jobnums: state.jobs.jobnums,
 })
 export default connect(mapStateToProps, {
   setJobLoading,

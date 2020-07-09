@@ -5,6 +5,7 @@ import Reports from '../reports/Reports'
 import NotFound from '../misc/NotFound'
 import AllDormant from '../reports/AllDormant'
 import SpoolProf from '../spool/SpoolProf'
+import Filters from '../filters/Filters'
 
 const Routes = () => {
   return (
@@ -14,6 +15,7 @@ const Routes = () => {
         <Route exact path='/reports/:job' component={Reports} />
         <Route exact path='/dormant' component={AllDormant} />
         <Route exact path='/spool/:id' component={SpoolProf} />
+        <Route exact path='/filters' component={Filters} />
         <Route component={NotFound} />
       </Switch>
     </section>

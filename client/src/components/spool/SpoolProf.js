@@ -1,12 +1,18 @@
-import React, { useState, useEffect, Fragment } from 'react'
-import { updateDormant } from '../../actions/jobs'
+import React, { useEffect, Fragment } from 'react'
+import { updateDormant, getItems } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 import Timeline from './Timeline'
 
-const SpoolProf = ({ match, all_spools, dormant, jobnums, updateDormant }) => {
-  const [spool, setSpool] = useState()
-
+const SpoolProf = ({
+  match,
+  all_spools,
+  dormant,
+  jobnums,
+  updateDormant,
+  getItems,
+  spool,
+}) => {
   // LOAD JOBS IF NOT LOADED
   useEffect(() => {
     if (dormant === undefined) {
@@ -16,8 +22,8 @@ const SpoolProf = ({ match, all_spools, dormant, jobnums, updateDormant }) => {
   }, [])
 
   useEffect(() => {
-    setSpool(all_spools.filter((each) => each.piecemark === match.params.id)[0])
-  }, [match.params.id, all_spools])
+    getItems(all_spools.filter((each) => each.piecemark === match.params.id)[0])
+  }, [match.params.id, all_spools, getItems])
 
   return (
     <Fragment>
@@ -112,16 +118,79 @@ const SpoolProf = ({ match, all_spools, dormant, jobnums, updateDormant }) => {
                         : spool.on_hold}
                     </div>
                   </div>
+                  <div className='sd-row'>
+                    <div className='sd-col1'>Total Items</div>
+                    <div className='sd-col2'>
+                      {spool.totalitems && spool.totalitems}
+                    </div>
+                  </div>
+                  <div className='sd-row'>
+                    <div className='sd-col1'>Total Pipe</div>
+                    <div className='sd-col2'>
+                      {spool.totalpipe && spool.totalpipe}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           {/* ITEMS */}
-          <div className='prof-heading'>Items</div>
+          <div className='prof-heading'>Components</div>
           <div className='spool-items'>
-            {spool.items.map((item) => (
-              <div>{item.item}</div>
-            ))}
+            {spool.items.map((item) => {
+              if (item.item.includes('PIPE')) {
+                return (
+                  <div
+                    className={
+                      item.status === 'Complete'
+                        ? 'spool-item pipe'
+                        : 'spool-item pipe missing'
+                    }
+                  ></div>
+                )
+              } else if (item.item.includes('SUPPORT')) {
+                return (
+                  <div
+                    className={
+                      item.status === 'Complete'
+                        ? 'spool-item support'
+                        : 'spool-item support missing'
+                    }
+                  ></div>
+                )
+              } else if (item.item.includes('VALVE')) {
+                return (
+                  <div
+                    className={
+                      item.status === 'Complete'
+                        ? 'spool-item valve'
+                        : 'spool-item valve missing'
+                    }
+                  ></div>
+                )
+              } else if (item.item.includes('FITTING')) {
+                return (
+                  <div
+                    className={
+                      item.status === 'Complete'
+                        ? 'spool-item fitting'
+                        : 'spool-item fitting missing'
+                    }
+                  ></div>
+                )
+              } else if (item.item.includes('FLANGE')) {
+                return (
+                  <div
+                    className={
+                      item.status === 'Complete'
+                        ? 'spool-item flange'
+                        : 'spool-item flange missing'
+                    }
+                  ></div>
+                )
+              }
+              return item
+            })}
           </div>
         </Fragment>
       ) : (
@@ -135,6 +204,7 @@ const mapStateToProps = (state) => ({
   all_spools: state.jobs.all_spools,
   dormant: state.jobs.dormant,
   jobnums: state.jobs.jobnums,
+  spool: state.jobs.profspool,
 })
 
-export default connect(mapStateToProps, { updateDormant })(SpoolProf)
+export default connect(mapStateToProps, { updateDormant, getItems })(SpoolProf)
