@@ -128,9 +128,12 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
         detailing_col = count
       } else if (header === 'In Checking' || header === 'Checking') {
         checking_col = count
-      } else if (header === 'SHOP' || (header === 'Fab. Location') === 'Shop') {
+      } else if (
+        header.toUpperCase() === 'SHOP' ||
+        header === 'Fab. Location'
+      ) {
         shop_col = count
-      } else if (header === 'HOLD' || header === 'HOLD Status') {
+      } else if (header.toUpperCase() === 'HOLD' || header === 'HOLD Status') {
         on_hold_col = count
       }
       count += 1
@@ -141,73 +144,65 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Spool Id header should be titled "Spool ID".'
+          ' linelist! Spool Id header should be titled "Spool ID".'
       )
     if (material_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Material header should be titled "Material".'
+          ' linelist! Material header should be titled "Material".'
       )
     if (issued_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Issued header should be titled "Status".'
+          ' linelist! Issued header should be titled "Status".'
       )
     if (spool_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Spool/sketch header should be titled SPOOL.'
+          ' linelist! Spool/sketch header should be titled SPOOL.'
       )
     if (priority_group_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Priority Group header should be titled "Priority Group".'
+          ' linelist! Priority Group header should be titled "Priority Group".'
       )
     if (priority_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Priority header should be titled "Individual Priority".'
+          ' linelist! Priority header should be titled "Individual Priority".'
       )
     if (area_col === undefined)
       alert(
-        'Error on ' +
-          jobnum +
-          ' linelist CSV! Area header should be titled "Area".'
+        'Error on ' + jobnum + ' linelist! Area header should be titled "Area".'
       )
     if (iso_col === undefined)
       alert(
-        'Error on ' +
-          jobnum +
-          ' linelist CSV! Iso header should be titled "Iso".'
+        'Error on ' + jobnum + ' linelist! Iso header should be titled "Iso".'
       )
     if (detailing_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! Detailing header should be titled "Detailing".'
+          ' linelist! Detailing header should be titled "Detailing".'
       )
     if (checking_col === undefined)
       alert(
-        'Error on ' +
-          jobnum +
-          ' linelist CSV! header should be titled "Checking".'
+        'Error on ' + jobnum + ' linelist! header should be titled "Checking".'
       )
     if (shop_col === undefined)
       alert(
-        'Error on ' +
-          jobnum +
-          ' linelist CSV! Shop header should be titled "Shop".'
+        'Error on ' + jobnum + ' linelist! Shop header should be titled "Shop".'
       )
     if (on_hold_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' linelist CSV! On hold header should be titled "HOLD".'
+          ' linelist! On hold header should be titled "HOLD".'
       )
 
     // ADD SPOOLS FROM LINELIST ALL SPOOLS
@@ -307,8 +302,6 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
         pulled_col = count
       } else if (header === 'WELD OUT') {
         weldout_col = count
-      } else if (header === 'SPOOL') {
-        spool_col = count
       } else if (header === 'READY TO SHIP') {
         rts_col = count
       } else if (header === 'READY TO SHIP COATING') {
@@ -323,6 +316,55 @@ const updateJobSpools = (jobnum, jobnums) => async (dispatch) => {
       count += 1
       return headers
     })
+    // SET ALERTS FOR MISNAMED COLUMNS
+    if (sr_piecemark_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "PIECEMARK".'
+      )
+    if (pulled_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "DATE PULL".'
+      )
+    if (weldout_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "WELD OUT".'
+      )
+    if (rts_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "READY TO SHIP".'
+      )
+    if (rtsc_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "READY TO SHIP COATING".'
+      )
+    if (stc_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "SHIP TO COATING".'
+      )
+    if (delivered_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "TO SITE".'
+      )
+    if (sr_on_hold_col === undefined)
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Piecemark header should be titled "ON HOLD".'
+      )
 
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0

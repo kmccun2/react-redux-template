@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 
 const Dashboard = ({ setJobsLoading, jobnums, updateDormant, dormant }) => {
-  useEffect(() => {
-    setJobsLoading()
-    updateDormant(jobnums)
-    // eslint-disable-next-line
-  }, [])
+  // useEffect(() => {
+  //   setJobsLoading()
+  //   updateDormant(jobnums)
+  //   // eslint-disable-next-line
+  // }, [])
 
   return (
     <Fragment>

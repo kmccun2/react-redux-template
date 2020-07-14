@@ -5,6 +5,7 @@ import {
   UPDATE_JOB_MATS,
   JOB_ERROR,
   SET_JOB_LOADING,
+  SET_JOB,
 } from './types'
 
 // SET LOADING TO TRUE
@@ -1050,6 +1051,47 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     findAvg('rts_d_np')
     findAvg('w_d_np')
 
+    let obj = { job: job, jobnum: jobnum, dormant: dormant }
+    let str = JSON.stringify(obj)
+
+    let encode = function (s) {
+      let out = []
+      for (let i = 0; i < s.length; i++) {
+        out[i] = s.charCodeAt(i)
+      }
+      return new Uint8Array(out)
+    }
+
+    let data = encode(str)
+
+    let blob = new Blob([data], {
+      type: 'application/octet-stream',
+    })
+
+    let url = URL.createObjectURL(blob)
+    let link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'data.json')
+    let event = document.createEvent('MouseEvents')
+    event.initMouseEvent(
+      'click',
+      true,
+      true,
+      window,
+      1,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    )
+    link.dispatchEvent(event)
+
     // DISPATCH TO REDUCER
     if (filtered === null) {
       dispatch({
@@ -1067,6 +1109,23 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     dispatch({
       type: JOB_ERROR,
       payload: { msg: err.response.statusText, status: err.response.status },
+    })
+  }
+}
+
+export const setJob = (jobnum) => async (dispatch) => {
+  try {
+    // GRAB JOB OBJECT
+    const res = await axios.get('/api/json/import/' + jobnum)
+    let job = JSON.parse(res.data)
+
+    dispatch({
+      type: SET_JOB,
+      payload: { job: job.job, dormant: job.dormant, jobnum: job.jobnum },
+    })
+  } catch {
+    dispatch({
+      type: JOB_ERROR,
     })
   }
 }

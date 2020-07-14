@@ -1,5 +1,5 @@
 import {
-  UPDATE_JOB,
+  SET_JOB,
   UPDATE_JOB_MATS,
   JOB_ERROR,
   SET_JOB_LOADING,
@@ -21,11 +21,11 @@ export default function (state = initialState, action) {
         ...state,
         loading: true,
       }
-    case UPDATE_JOB:
+    case SET_JOB:
       return {
         ...state,
+        jobnum: payload.jobnum,
         job: payload.job,
-        job_mats: [],
         dormant: payload.dormant,
         loading: false,
       }
@@ -38,8 +38,7 @@ export default function (state = initialState, action) {
     case JOB_ERROR:
       return {
         ...state,
-        [payload.jobnum]: {},
-        loading: false,
+        job: [],
       }
     default:
       return state

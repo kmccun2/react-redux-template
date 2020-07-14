@@ -1,13 +1,23 @@
 const express = require('express')
 const path = require('path')
+const bodyParser = require('body-parser')
 
 const app = express()
 
 // Init Middleware
 app.use(express.json({ extended: false }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(
+  bodyParser.urlencoded({
+    limit: '1000mb',
+    extended: true,
+    parameterLimit: 50000,
+  })
+)
 
 // Define Routes
 app.use('/api/csvs', require('./routes/api/csvs'))
+app.use('/api/json', require('./routes/api/json'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

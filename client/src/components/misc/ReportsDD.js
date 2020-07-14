@@ -1,22 +1,45 @@
-import React from 'react'
-import { updateJob, setJobLoading } from '../../actions/job'
+import React, { Fragment } from 'react'
+import { updateJob, setJobLoading, setJob } from '../../actions/job'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
-const Reports = ({ show, updateJob, setJobLoading, jobnums }) => {
-  const handleJobClick = (job) => {
+const Reports = ({
+  show,
+  updateJob,
+  setJob,
+  setJobLoading,
+  jobnums,
+  download,
+}) => {
+  const handleJobClick = (job, needupdate) => {
     setJobLoading()
-    updateJob(job, null)
+    if (needupdate) {
+      updateJob(job, null)
+    } else {
+      setJob(job)
+      console.log('Job set.')
+    }
   }
 
   return (
     <div className={show ? 'reports-dropdown' : 'reports-dropdown hide'}>
       {jobnums.map((job) => (
-        <Link key={job} to={'/reports/' + job}>
-          <div className='reports-job' onClick={() => handleJobClick(job)}>
-            {job}
-          </div>
-        </Link>
+        <Fragment key={job}>
+          {download ? (
+            <div
+              className='reports-job'
+              onClick={() => handleJobClick(job, true)}
+            >
+              {job}
+            </div>
+          ) : (
+            <Link to={'/reports/' + job}>
+              <div className='reports-job' onClick={() => handleJobClick(job)}>
+                {job}
+              </div>
+            </Link>
+          )}
+        </Fragment>
       ))}
     </div>
   )
@@ -26,4 +49,6 @@ const mapStateToProps = (state) => ({
   jobnums: state.jobs.jobnums,
 })
 
-export default connect(mapStateToProps, { updateJob, setJobLoading })(Reports)
+export default connect(mapStateToProps, { updateJob, setJob, setJobLoading })(
+  Reports
+)

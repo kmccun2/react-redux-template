@@ -9,18 +9,7 @@ import Dormant from './Dormant'
 import SpoolShorts from './SpoolShorts'
 import { CSVLink } from 'react-csv'
 
-const Reports = ({
-  match,
-  loading,
-  job,
-  dormant,
-  job_mats,
-  setJobLoading,
-  updateJob,
-  jobnums,
-  updateDormant,
-}) => {
-  const [matJobs, setMatJobs] = useState([])
+const Reports = ({ match, loading, job, dormant, job_mats }) => {
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
 
@@ -28,46 +17,6 @@ const Reports = ({
   useEffect(() => {
     setjsActive(1)
   }, [jobnum])
-
-  // LOAD JOBS IF NOT LOADED
-  useEffect(() => {
-    if (dormant === undefined) {
-      updateDormant(jobnums)
-    }
-    // eslint-disable-next-line
-  }, [])
-
-  // MAIN CALCULATIONS
-  useEffect(() => {
-    setJobLoading()
-    updateJob(jobnum, null, false)
-  }, [updateJob, setJobLoading, jobnum])
-
-  // LOAD JOBS IF NOT LOADED
-  useEffect(() => {
-    if (jobnums === []) {
-      updateDormant(jobnums)
-    }
-    // eslint-disable-next-line
-  }, [])
-
-  // CREATE MATERIAL FILTERED JOBS
-  useEffect(() => {
-    if (job && job_mats.length === 0) {
-      job.materials.map((material) => {
-        setMatJobs([
-          ...matJobs,
-          updateJob(
-            jobnum,
-            job.spools.filter((spool) => spool.material === material),
-            true
-          ),
-        ])
-        return material
-      })
-    }
-    // eslint-disable-next-line
-  }, [job, jobnum])
 
   return (
     <Fragment>
@@ -77,9 +26,11 @@ const Reports = ({
           <div className='js-heading'>
             {job.client}: {jobnum}
           </div>
-          <CSVLink className='filter-btn' data={job.spools}>
-            Download CSV
-          </CSVLink>
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <CSVLink className='filter-btn' data={job.spools}>
+              Download CSV
+            </CSVLink>
+          </div>
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
             <div className='js-highlight-item'>{job.total} Spools</div>
