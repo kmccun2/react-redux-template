@@ -1,10 +1,12 @@
 import React, { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ReportsDD from './ReportsDD'
+import MoreDD from './MoreDD'
 
 const Navlinks = () => {
   const [showReportJobs, setShowReportJobs] = useState(false)
   const [showUpdateJobs, setShowUpdateJobs] = useState(false)
+  const [showMoreDD, setShowMoreDD] = useState(false)
 
   const handleTab = (tab) => {
     if (tab === 'update') {
@@ -13,6 +15,7 @@ const Navlinks = () => {
       } else {
         setShowUpdateJobs(true)
         setShowReportJobs(false)
+        setShowMoreDD(false)
       }
     }
     if (tab === 'reports') {
@@ -21,6 +24,16 @@ const Navlinks = () => {
       } else {
         setShowReportJobs(true)
         setShowUpdateJobs(false)
+        setShowMoreDD(false)
+      }
+    }
+    if (tab === 'more') {
+      if (showMoreDD) {
+        setShowMoreDD(false)
+      } else {
+        setShowMoreDD(true)
+        setShowUpdateJobs(false)
+        setShowReportJobs(false)
       }
     }
   }
@@ -41,7 +54,10 @@ const Navlinks = () => {
         <Link to={'/filters'}>
           <div className='subheader-item'>Filters</div>
         </Link>
-        <div className='subheader-item'>More</div>
+        <div className='subheader-item' onClick={() => handleTab('more')}>
+          <span>More</span>
+          <MoreDD show={showMoreDD} />
+        </div>
       </div>
     </Fragment>
   )

@@ -3,14 +3,7 @@ import { updateJob, setJobLoading, setJob } from '../../actions/job'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
-const Reports = ({
-  show,
-  updateJob,
-  setJob,
-  setJobLoading,
-  jobnums,
-  download,
-}) => {
+const Reports = ({ show, updateJob, setJobLoading, jobnums, download }) => {
   const handleJobClick = (job, needupdate) => {
     setJobLoading()
     if (needupdate) {
@@ -19,7 +12,10 @@ const Reports = ({
   }
 
   return (
-    <div className={show ? 'reports-dropdown' : 'reports-dropdown hide'}>
+    <div
+      style={download && { marginLeft: -42 }}
+      className={show ? 'reports-dropdown' : 'reports-dropdown hide'}
+    >
       {jobnums.map((job) => (
         <Fragment key={job}>
           {download ? (

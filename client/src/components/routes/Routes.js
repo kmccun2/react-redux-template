@@ -9,6 +9,7 @@ import Filters from '../filters/Filters'
 import Download from '../misc/Download'
 import { updateJobs } from '../../actions/jobs'
 import { connect } from 'react-redux'
+import Discrepancies from '../discrepancies/Discrepancies'
 
 const Routes = ({ jobnums, updateJobs }) => {
   useEffect(() => {
@@ -23,6 +24,7 @@ const Routes = ({ jobnums, updateJobs }) => {
         <Route exact path='/spool/:id' component={SpoolProf} />
         <Route exact path='/filters' component={Filters} />
         <Route exact path='/download' component={Download} />
+        <Route exact path='/discrepancies' component={Discrepancies} />
         <Route component={NotFound} />
       </Switch>
     </section>

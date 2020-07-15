@@ -9,7 +9,7 @@ const Download = ({ loading }) => {
         <Loading message='Updating job...' />
       ) : (
         <div className='msg'>
-          Job downloaded! Save downloaded file to the job folder.
+          Job downloaded! Save file to the job folder as "job.json".
         </div>
       )}
     </Fragment>
