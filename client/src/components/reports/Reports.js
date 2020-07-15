@@ -1,7 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { setJobLoading, updateJob } from '../../actions/job'
-import { updateDormant } from '../../actions/jobs'
+import { setJobLoading, setJob } from '../../actions/job'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
@@ -9,9 +8,13 @@ import Dormant from './Dormant'
 import SpoolShorts from './SpoolShorts'
 import { CSVLink } from 'react-csv'
 
-const Reports = ({ match, loading, job, dormant, job_mats }) => {
+const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
+
+  useEffect(() => {
+    setJob(jobnum)
+  }, [jobnum, setJob])
 
   // GO BACK TO AREAS ON NEW JOB
   useEffect(() => {
@@ -22,14 +25,14 @@ const Reports = ({ match, loading, job, dormant, job_mats }) => {
     <Fragment>
       {!loading && job ? (
         <Fragment>
-          {/* JOB HEADING */}
-          <div className='js-heading'>
-            {job.client}: {jobnum}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div className='download-csv'>
             <CSVLink className='filter-btn' data={job.spools}>
               Download CSV
             </CSVLink>
+          </div>
+          {/* JOB HEADING */}
+          <div className='js-heading'>
+            {job.client}: {jobnum}
           </div>
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
@@ -93,11 +96,11 @@ const Reports = ({ match, loading, job, dormant, job_mats }) => {
                 {/* ENTIRE JOB */}
                 <Areas job={job} header='All Spools' />
                 {/*  FOR EACH MATERIAL */}
-                {job_mats.map((job) => (
+                {job.materials.map((material) => (
                   <Areas
-                    key={job.materials[0]}
-                    job={job}
-                    header={job.materials[0]}
+                    key={material.material}
+                    job={material}
+                    header={material.material}
                   />
                 ))}
               </Fragment>
@@ -146,6 +149,5 @@ const mapStateToProps = (state) => ({
 })
 export default connect(mapStateToProps, {
   setJobLoading,
-  updateJob,
-  updateDormant,
+  setJob,
 })(Reports)

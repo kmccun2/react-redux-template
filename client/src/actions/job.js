@@ -1,12 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
-import {
-  UPDATE_JOB,
-  UPDATE_JOB_MATS,
-  JOB_ERROR,
-  SET_JOB_LOADING,
-  SET_JOB,
-} from './types'
+import { UPDATE_JOB, JOB_ERROR, SET_JOB_LOADING, SET_JOB } from './types'
 
 // SET LOADING TO TRUE
 export const setJobLoading = () => async (dispatch) => {
@@ -14,67 +8,6 @@ export const setJobLoading = () => async (dispatch) => {
     type: SET_JOB_LOADING,
   })
 }
-
-// // SORT
-// export const sortAreas = (object, key, type, lastsort) => async (dispatch) => {
-//   try {
-//     let newlastsort = undefined
-//     if (type === 'value') {
-//       // SORT BY VALUE
-//       // ASCENDING
-//       if (lastsort !== key + 'asc') {
-//         newlastsort = key + 'asc'
-//         object.sort(function (a, b) {
-//           return a[key] - b[key]
-//         })
-//       } else {
-//         // DESCENDING
-//         object.sort(function (b, a) {
-//           newlastsort = key + 'desc'
-//           return a[key] - b[key]
-//         })
-//       }
-//     } else if (type === 'name') {
-//       // SORT BY NAME
-//       object.sort(function (a, b) {
-//         var nameA = a[key].toUpperCase() // ignore upper and lowercase
-//         var nameB = b[key].toUpperCase() // ignore upper and lowercase
-
-//         // ASCENDING
-//         if (lastsort !== key + 'asc') {
-//           newlastsort = key + 'asc'
-//           if (nameA < nameB) {
-//             return -1
-//           }
-//           if (nameA > nameB) {
-//             return 1
-//           }
-//         } else {
-//           // DESCENDING
-//           newlastsort = key + 'desc'
-//           if (nameA < nameB) {
-//             return 1
-//           }
-//           if (nameA > nameB) {
-//             return -1
-//           }
-//         }
-
-//         // names must be equal
-//         return 0
-//       })
-//     }
-
-//     dispatch({
-//       type: SORT_AREAS,
-//       payload: { object: object, lastsort: newlastsort },
-//     })
-//   } catch {
-//     dispatch({
-//       type: SORT_ERROR,
-//     })
-//   }
-// }
 
 // UPDATE THE LINE LIST AND STORE IN STATE
 export const updateJob = (jobnum, filtered, materialcheck) => async (
@@ -87,6 +20,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       spools: [],
       areas: [],
       materials: [],
+      priorities: [],
       missing: [],
       workable_not_issued: 0,
       missingspools: {
@@ -179,13 +113,16 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       count = 0
 
       headers.map((header) => {
-        if (header === 'Spool ID' || header === 'Spool Tag') {
+        if (header.toUpperCase() === 'SPOOL ID' || header === 'Spool Tag') {
           piecemark_col = count
         } else if (header === 'Material') {
           material_col = count
         } else if (header === 'Status' || header === 'Date Issued') {
           issued_col = count
-        } else if (header === 'SPOOL' || header === 'Sketch No.') {
+        } else if (
+          header.toUpperCase() === 'SPOOL' ||
+          header === 'Sketch No.'
+        ) {
           spool_col = count
         } else if (header === 'Priority Group') {
           priority_group_col = count
@@ -194,29 +131,99 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
           header === 'Individual Priority'
         ) {
           priority_col = count
-        } else if (header === 'Area') {
+        } else if (header.toUpperCase() === 'AREA') {
           area_col = count
-        } else if (
-          header === 'Iso' ||
-          header === 'Iso No.' ||
-          header === 'ISO'
-        ) {
+        } else if (header.toUpperCase() === 'ISO' || header === 'Iso No.') {
           iso_col = count
         } else if (header === 'In Detailing' || header === 'Detailing') {
           detailing_col = count
         } else if (header === 'In Checking' || header === 'Checking') {
           checking_col = count
         } else if (
-          header === 'SHOP' ||
-          (header === 'Fab. Location') === 'Shop'
+          header.toUpperCase() === 'SHOP' ||
+          header === 'Fab. Location'
         ) {
           shop_col = count
-        } else if (header === 'HOLD' || header === 'HOLD Status') {
+        } else if (
+          header.toUpperCase() === 'HOLD' ||
+          header === 'HOLD Status'
+        ) {
           on_hold_col = count
         }
         count += 1
         return headers
       })
+      // CHECK FOR ERRORS ON COLUMN HEADERS
+      if (piecemark_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Spool Id header should be titled "Spool ID".'
+        )
+      if (material_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Material header should be titled "Material".'
+        )
+      if (issued_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Issued header should be titled "Status".'
+        )
+      if (spool_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Spool/sketch header should be titled SPOOL.'
+        )
+      if (priority_group_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Priority Group header should be titled "Priority Group".'
+        )
+      if (priority_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Priority header should be titled "Individual Priority".'
+        )
+      if (area_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Area header should be titled "Area".'
+        )
+      if (iso_col === undefined)
+        alert(
+          'Error on ' + jobnum + ' linelist! Iso header should be titled "Iso".'
+        )
+      if (detailing_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Detailing header should be titled "Detailing".'
+        )
+      if (checking_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! header should be titled "Checking".'
+        )
+      if (shop_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! Shop header should be titled "Shop".'
+        )
+      if (on_hold_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' linelist! On hold header should be titled "HOLD".'
+        )
 
       // ADD SPOOLS FROM LINELIST TO JOB
       count = 0
@@ -242,6 +249,9 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
               shop: line.split(',')[shop_col],
               on_hold: line.split(',')[on_hold_col],
               multiplier: 1,
+              jobnum: jobnum,
+              client: job.client,
+              status: 'Not Workable',
               items: [],
               missing: [],
               missingsupports: { p: false, c: false, o: false },
@@ -330,6 +340,56 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
         count += 1
         return headers
       })
+
+      // CHECK FOR ERRORS ON COLUMN HEADERS
+      if (sr_piecemark_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "PIECEMARK".'
+        )
+      if (pulled_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "DATE PULL".'
+        )
+      if (weldout_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "WELD OUT".'
+        )
+      if (rts_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "READY TO SHIP".'
+        )
+      if (rtsc_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "READY TO SHIP COATING".'
+        )
+      if (stc_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "SHIP TO COATING".'
+        )
+      if (delivered_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "TO SITE".'
+        )
+      if (sr_on_hold_col === undefined)
+        alert(
+          'Error on ' +
+            jobnum +
+            ' status report! Piecemark header should be titled "ON HOLD".'
+        )
 
       // ADD INFORMATION FROM STATUS REPORT TO JOB
       count = 0
@@ -582,29 +642,43 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     job.spools.map((each) => {
       // TOTAL SPOOLS
       job.total += each.multiplier
-      // TOTAL ISSUED
-      if (each.issued !== '' && each.issued !== undefined) {
-        job.issued += each.multiplier
-      }
       // TOTAL WORKABLE
       if (each.workable) {
         job.workable += each.multiplier
+        each.status = 'Workable'
       }
-      // TOTAL ON HOLD
-      if (each.on_hold !== '' && each.on_hold !== undefined) {
-        job.on_hold += each.multiplier
+      // TOTAL ISSUED
+      if (each.issued !== '' && each.issued !== undefined) {
+        job.issued += each.multiplier
+        each.status = 'Issued'
       }
       // TOTAL WELDED OUT
       if (each.weldout !== '' && each.weldout !== undefined) {
         job.weldout += each.multiplier
+        each.status = 'Welded Out'
+      }
+      // READY TO SHIP TO COATING
+      if (each.rtsc !== '' && each.rtsc !== undefined) {
+        each.status = 'Ready to Ship to Coating'
       }
       // TOTAL STC
       if (each.stc !== '' && each.stc !== undefined) {
         job.stc += each.multiplier
+        each.status = 'Shipped to Coating'
+      }
+      // READY TO DELIVER
+      if (each.rts !== '' && each.rtsc !== undefined) {
+        each.status = 'Ready to Deliver'
       }
       // TOTAL DELIVERED
       if (each.delivered !== '' && each.delivered !== undefined) {
         job.delivered += each.multiplier
+        each.status = 'Delivered'
+      }
+      // TOTAL ON HOLD
+      if (each.on_hold !== '' && each.on_hold !== undefined) {
+        job.on_hold += each.multiplier
+        each.status = 'On Hold'
       }
       // AREAS
       if (areas_list.includes(each.area) === false) {
@@ -623,10 +697,49 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       //MATERIALS
       if (materials_list.includes(each.material) === false) {
         materials_list.push(each.material)
-        job.materials.push(each.material)
+        job.materials.push({
+          material: each.material,
+          areas_list: [],
+          areas: [],
+          total: 0,
+          issued: 0,
+          workable: 0,
+          on_hold: 0,
+          weldout: 0,
+          stc: 0,
+          delivered: 0,
+        })
+      }
+
+      // PRIORITIES
+      if (job.priorities.includes(each.priority) === false) {
+        job.priorities.push(each.priority)
       }
       return each
     })
+
+    // ADD AREAS TO MATERIALS
+    job.materials.map((material) => {
+      job.spools.map((spool) => {
+        if (
+          spool.material === material.material &&
+          material.areas_list.includes(spool.area) === false
+        ) {
+          material.areas_list.push(spool.area)
+          material.areas.push({
+            area: spool.area,
+            priority: spool.priority,
+            spools: 0,
+            on_hold: 0,
+            workable: 0,
+            weldout: 0,
+            stc: 0,
+            delivered: 0,
+          })
+        }
+      })
+    })
+
     //ADD INFO TO AREAS
     job.areas.map((area) => {
       job.spools.map((spool) => {
@@ -680,6 +793,75 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
         area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(2)
       }
       return area
+    })
+
+    //ADD INFO TO AREAS FOR EACH MATERIAL
+    job.materials.map((material) => {
+      material.areas.map((area) => {
+        let newspools = job.spools.filter(
+          (spool) => spool.material === material.material
+        )
+        newspools.map((spool) => {
+          // FIND SPOOLS WITH CERTAIN AREA
+          if (spool.area === area.area) {
+            // TOTAL SPOOLS
+            area.spools += spool.multiplier
+            material.total += spool.multiplier
+            // TOTAL ON HOLD
+            if (spool.on_hold !== '' && spool.on_hold !== undefined) {
+              area.on_hold += spool.multiplier
+              material.on_hold += spool.multiplier
+              // TOTAL ON HOLD
+            }
+            // WORKABLE
+            if (spool.workable) {
+              area.workable += spool.multiplier
+              material.workable += spool.multiplier
+            }
+            // TOTAL SHIPPED TO PAINT
+            if (spool.stc !== '' && spool.stc !== undefined) {
+              area.stc += spool.multiplier
+              material.stc += spool.multiplier
+            }
+            // TOTAL WELDED OUT
+            if (spool.weldout !== '' && spool.weldout !== undefined) {
+              area.weldout += spool.multiplier
+              material.weldout += spool.multiplier
+            }
+            // TOTAL DELIVERED
+            if (spool.delivered !== '' && spool.delivered !== undefined) {
+              area.delivered += spool.multiplier
+              material.delivered += spool.multiplier
+            }
+          }
+          return spool
+        })
+        // ASSIGN OTHER AREA VALUES
+        area.not_workable = area.spools - area.workable
+        area.not_delivered = area.spools - area.delivered
+        area.not_weldout = area.spools - area.weldout
+        // WORKABLE PERCENTAGE
+        if (area.workable / area.spools === 1) {
+          area.workable_perc = (area.workable / area.spools) * 100
+        } else {
+          area.workable_perc = ((area.workable / area.spools) * 100).toFixed(2)
+        }
+        // WELDOUT PERCENTAGE
+        if (area.weldout / area.spools === 1) {
+          area.weldout_perc = (area.weldout / area.spools) * 100
+        } else {
+          area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(2)
+        }
+        // DELIVERED PERCENTAGE
+        if (area.delivered / area.spools === 1) {
+          area.delivered_perc = (area.delivered / area.spools) * 100
+        } else {
+          area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(
+            2
+          )
+        }
+        return area
+      })
     })
 
     // SORT BY NAME
@@ -1096,12 +1278,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     if (filtered === null) {
       dispatch({
         type: UPDATE_JOB,
-        payload: { job: job, jobnum: jobnum, dormant: dormant },
-      })
-    } else {
-      dispatch({
-        type: UPDATE_JOB_MATS,
-        payload: job,
+        payload: false,
       })
     }
   } catch (err) {

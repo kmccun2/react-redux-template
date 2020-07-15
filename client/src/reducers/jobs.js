@@ -1,16 +1,24 @@
 import {
   JOBS_ERROR,
   SET_JOBS_LOADING,
-  UPDATE_JOB_SPOOLS,
-  UPDATE_DORMANT,
+  UPDATE_JOBS,
   GET_ITEMS,
 } from '../actions/types'
 
 const initialState = {
   loading: false,
   jobnums: ['6112', '6951', '6973'],
-  all_spools: [],
-  dormant: undefined,
+  all_statuses: [
+    'Not Workable',
+    'Workable',
+    'Issued',
+    'Welded Out',
+    'Ready to Ship to Coating',
+    'Shipped to Coating',
+    'Ready to Deliver',
+    'Delivered',
+    'On Hold',
+  ],
   error: {},
 }
 
@@ -23,21 +31,17 @@ export default function (state = initialState, action) {
         ...state,
         loading: true,
       }
-    case UPDATE_JOB_SPOOLS:
+    case UPDATE_JOBS:
       return {
         ...state,
+        jobs: payload.jobs,
         dormant: payload.dormant,
-        all_spools: payload.all_spools,
-      }
-    case UPDATE_DORMANT:
-      return {
-        ...state,
-        dormant: payload.dormant,
-        all_jobs: payload.all_jobnums.sort(),
+        all_spools: payload.all_spools.sort((a, b) =>
+          a.spool > b.spool ? 1 : b.spool > a.spool ? -1 : 0
+        ),
         all_shops: payload.all_shops.sort(),
         all_materials: payload.all_materials.sort(),
         all_priorities: payload.all_priorities.sort(),
-        all_statuses: payload.all_statuses,
         loading: false,
       }
     case GET_ITEMS:

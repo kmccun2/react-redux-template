@@ -21,10 +21,23 @@ const Search = ({ loading, jobnums, all_spools }) => {
       setFilteredSpools([])
     } else {
       setFilteredSpools(
-        all_spools.filter((each) =>
-          each.spool.toUpperCase().includes(spoolname.toUpperCase())
+        all_spools.filter(
+          (each) =>
+            each.spool.slice(0, spoolname.length).toUpperCase() ===
+            spoolname.toUpperCase()
         )
       )
+    }
+    if (spoolname[spoolname.length - 1] === ' ') {
+      setFilteredSpools(
+        all_spools.filter(
+          (each) =>
+            each.spool.slice(0, spoolname.length).toUpperCase() ===
+              spoolname.slice(0, spoolname.length - 1).toUpperCase() &&
+            each.spool.length === spoolname.length - 1
+        )
+      )
+      console.log(filteredSpools)
     }
   }, [spoolname, all_spools])
 

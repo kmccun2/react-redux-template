@@ -1,8 +1,8 @@
 import {
   SET_JOB,
-  UPDATE_JOB_MATS,
   JOB_ERROR,
   SET_JOB_LOADING,
+  UPDATE_JOB,
 } from '../actions/types'
 
 const initialState = {
@@ -29,11 +29,10 @@ export default function (state = initialState, action) {
         dormant: payload.dormant,
         loading: false,
       }
-    case UPDATE_JOB_MATS:
+    case UPDATE_JOB:
       return {
         ...state,
-        job_mats: [...state.job_mats, payload],
-        loading: false,
+        loading: payload,
       }
     case JOB_ERROR:
       return {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Dashboard from '../dashboard/Dashboard'
 import { Switch, Route } from 'react-router-dom'
 import Reports from '../reports/Reports'
@@ -6,8 +6,14 @@ import NotFound from '../misc/NotFound'
 import AllDormant from '../reports/AllDormant'
 import SpoolProf from '../spool/SpoolProf'
 import Filters from '../filters/Filters'
+import Download from '../misc/Download'
+import { updateJobs } from '../../actions/jobs'
+import { connect } from 'react-redux'
 
-const Routes = () => {
+const Routes = ({ jobnums, updateJobs }) => {
+  useEffect(() => {
+    updateJobs(jobnums)
+  }, [jobnums, updateJobs])
   return (
     <section className='content-body'>
       <Switch>
@@ -16,10 +22,15 @@ const Routes = () => {
         <Route exact path='/dormant' component={AllDormant} />
         <Route exact path='/spool/:id' component={SpoolProf} />
         <Route exact path='/filters' component={Filters} />
+        <Route exact path='/download' component={Download} />
         <Route component={NotFound} />
       </Switch>
     </section>
   )
 }
 
-export default Routes
+const mapStateToProps = (state) => ({
+  jobnums: state.jobs.jobnums,
+})
+
+export default connect(mapStateToProps, { updateJobs })(Routes)

@@ -1,15 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import FilterForms from './FilterForms'
 import { connect } from 'react-redux'
-import { updateDormant } from '../../actions/jobs'
 import Loading from '../misc/Loading'
 import { CSVLink } from 'react-csv'
 
 const Filters = ({
   spools,
   dormant,
-  updateDormant,
-  jobnums,
   all_jobs,
   all_shops,
   all_materials,
@@ -22,14 +19,6 @@ const Filters = ({
   const [paramStatuses, setParamStatuses] = useState(undefined)
   const [paramShops, setParamShops] = useState(undefined)
   const [filtSpools, setFiltSpools] = useState([])
-
-  // LOAD JOBS IF NOT LOADED
-  useEffect(() => {
-    if (dormant === undefined) {
-      updateDormant(jobnums)
-    }
-    // eslint-disable-next-line
-  }, [])
 
   // CREATE PARAMETER LISTS
   useEffect(() => {
@@ -127,4 +116,4 @@ const mapStateToProps = (state) => ({
   all_statuses: state.jobs.all_statuses,
 })
 
-export default connect(mapStateToProps, { updateDormant })(Filters)
+export default connect(mapStateToProps)(Filters)

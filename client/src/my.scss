@@ -64,11 +64,22 @@ body {
   width: 100%;
   text-align: center;
   display: flex;
+  font-size: 24px;
+  align-items: center;
+  justify-content: center;
+  padding-top: 75px;
+  margin-bottom: 24px;
+}
+.msg {
+  width: 100%;
+  text-align: center;
+  display: flex;
   font-size: 30px;
   align-items: center;
   justify-content: center;
   padding-top: 75px;
   margin-bottom: 30px;
+  height: calc(100vh - 100px);
 }
 // ALERT
 .my-alert {
@@ -174,10 +185,14 @@ body {
   justify-content: space-evenly;
   width: 100%;
 }
+.download-csv {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
 .js-heading {
   width: 100%;
   text-align: center;
-  margin-top: 40px;
   font-size: 28px;
   font-weight: bold;
 }
@@ -602,7 +617,7 @@ body {
   padding: 6px 10px;
   border: 1px solid #c9c8c8;
   border-radius: 4px;
-  margin: 20px 7px 0 12px;
+  margin: 10px 7px 0 12px;
   background-color: #f3f3f3;
   font-weight: bold;
   cursor: pointer;

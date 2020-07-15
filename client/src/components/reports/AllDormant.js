@@ -1,10 +1,10 @@
-import React, { useEffect, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
-import { setJobsLoading, updateDormant } from '../../actions/jobs'
+import { setJobsLoading, updateJobs } from '../../actions/jobs'
 import Dormant from '../reports/Dormant'
 import Loading from '../misc/Loading'
 
-const AllDormant = ({ dormant, jobnums, updateDormant }) => {
+const AllDormant = ({ dormant }) => {
   return (
     <Fragment>
       {dormant !== undefined ? (
@@ -21,9 +21,6 @@ const AllDormant = ({ dormant, jobnums, updateDormant }) => {
 const mapStateToProps = (state) => ({
   loading: state.jobs.loading,
   dormant: state.jobs.dormant,
-  jobnums: state.jobs.jobnums,
 })
 
-export default connect(mapStateToProps, { setJobsLoading, updateDormant })(
-  AllDormant
-)
+export default connect(mapStateToProps, { setJobsLoading })(AllDormant)

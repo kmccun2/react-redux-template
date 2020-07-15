@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react'
 
 const Dormant = ({
-  dormant: { overall, jobs, shops, materials, manyjobs },
+  dormant: { overall, jobs, shops, materials },
+  manyjobs,
 }) => {
   return (
     <Fragment>
@@ -67,7 +68,7 @@ const Dormant = ({
         </div>
       </div>
       {/* BY JOB */}
-      {true && (
+      {manyjobs && (
         <Fragment>
           <div className='table-row table-label'>By Job</div>
           <div className='table-container'>

@@ -1,5 +1,4 @@
 import React, { useEffect, Fragment } from 'react'
-import { updateDormant, getItems } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 import Timeline from './Timeline'
@@ -21,9 +20,9 @@ const SpoolProf = ({
     // eslint-disable-next-line
   }, [])
 
-  useEffect(() => {
-    getItems(all_spools.filter((each) => each.piecemark === match.params.id)[0])
-  }, [match.params.id, all_spools, getItems])
+  // useEffect(() => {
+  //   getItems(all_spools.filter((each) => each.piecemark === match.params.id)[0])
+  // }, [match.params.id, all_spools, getItems])
 
   return (
     <Fragment>
@@ -207,4 +206,4 @@ const mapStateToProps = (state) => ({
   spool: state.jobs.profspool,
 })
 
-export default connect(mapStateToProps, { updateDormant, getItems })(SpoolProf)
+export default connect(mapStateToProps)(SpoolProf)

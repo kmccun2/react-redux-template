@@ -15,9 +15,6 @@ const Reports = ({
     setJobLoading()
     if (needupdate) {
       updateJob(job, null)
-    } else {
-      setJob(job)
-      console.log('Job set.')
     }
   }
 
@@ -26,12 +23,14 @@ const Reports = ({
       {jobnums.map((job) => (
         <Fragment key={job}>
           {download ? (
-            <div
-              className='reports-job'
-              onClick={() => handleJobClick(job, true)}
-            >
-              {job}
-            </div>
+            <Link to={'/download'}>
+              <div
+                className='reports-job'
+                onClick={() => handleJobClick(job, true)}
+              >
+                {job}
+              </div>
+            </Link>
           ) : (
             <Link to={'/reports/' + job}>
               <div className='reports-job' onClick={() => handleJobClick(job)}>

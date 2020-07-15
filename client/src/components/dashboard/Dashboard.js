@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect } from 'react'
-import { setJobsLoading, updateDormant } from '../../actions/jobs'
+import { setJobsLoading } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 
@@ -29,6 +29,4 @@ const mapStateToProps = (state) => ({
   dormant: state.jobs.dormant,
 })
 
-export default connect(mapStateToProps, { setJobsLoading, updateDormant })(
-  Dashboard
-)
+export default connect(mapStateToProps, { setJobsLoading })(Dashboard)
