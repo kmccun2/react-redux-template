@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
-import { setJobsLoading, updateJobs } from '../../actions/jobs'
+import { setJobsLoading } from '../../actions/jobs'
 import Dormant from '../reports/Dormant'
 import Loading from '../misc/Loading'
 

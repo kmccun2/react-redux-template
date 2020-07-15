@@ -35,16 +35,19 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         if (all_materials.includes(material.material) === false) {
           all_materials.push(material.material)
         }
+        return material
       })
       job.dormant.shops.map((shop) => {
         if (all_shops.includes(shop.shop) === false) {
           all_shops.push(shop.shop)
         }
+        return shop
       })
       job.job.priorities.map((priority) => {
         if (all_priorities.includes(priority) === false) {
           all_priorities.push(priority)
         }
+        return priority
       })
       return job
     })
@@ -87,10 +90,12 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         rts_d_np: { total: 0, spools: 0, avg: 0 },
         w_d_np: { total: 0, spools: 0, avg: 0 },
       })
+      return shop
     })
     jobs.map((job) => {
       dormant.jobs.push(job.dormant.overall)
       dormant.jobs[dormant.jobs.length - 1].jobnum = job.jobnum
+      return job
     })
 
     // ADD MATERIAL OBJECTS TO DORMANT OBJECT
@@ -110,6 +115,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         rts_d_np: { total: 0, spools: 0, avg: 0 },
         w_d_np: { total: 0, spools: 0, avg: 0 },
       })
+      return material
     })
 
     // ADD UP DORMANT OVERALLS
@@ -167,7 +173,9 @@ export const updateJobs = (jobnums) => async (dispatch) => {
             jobsshop.w_stc.total += shop.w_stc.total
             jobsshop.w_stc.spools += shop.w_stc.spools
           }
+          return jobsshop
         })
+        return shop
       })
 
       job.dormant.materials.map((material) => {
@@ -198,8 +206,11 @@ export const updateJobs = (jobnums) => async (dispatch) => {
             jobsmaterial.w_stc.total += material.w_stc.total
             jobsmaterial.w_stc.spools += material.w_stc.spools
           }
+          return jobsmaterial
         })
+        return material
       })
+      return job
     })
 
     // USE TOTALS AND SPOOLS TO FIND AVERAGES FOR DORMANT OBJECTS

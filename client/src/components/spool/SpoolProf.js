@@ -1,37 +1,30 @@
-import React, { useEffect, Fragment } from 'react'
+import React, { useEffect, Fragment, useState } from 'react'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 import Timeline from './Timeline'
 
-const SpoolProf = ({
-  match,
-  all_spools,
-  dormant,
-  jobnums,
-  updateDormant,
-  getItems,
-  spool,
-}) => {
-  // LOAD JOBS IF NOT LOADED
-  useEffect(() => {
-    if (dormant === undefined) {
-      updateDormant(jobnums)
-    }
-    // eslint-disable-next-line
-  }, [])
+const SpoolProf = ({ match, all_spools, dormant }) => {
+  const [spool, setSpool] = useState(undefined)
 
-  // useEffect(() => {
-  //   getItems(all_spools.filter((each) => each.piecemark === match.params.id)[0])
-  // }, [match.params.id, all_spools, getItems])
+  useEffect(() => {
+    if (all_spools) {
+      setSpool(
+        all_spools.filter((spool) => spool.piecemark === match.params.id)[0]
+      )
+    }
+  }, [match.params.id, all_spools])
 
   return (
     <Fragment>
       {dormant !== undefined && spool !== undefined ? (
         <Fragment>
-          <div className='js-heading'>Spool {spool.spool}</div>
-          <div className='sub-heading'>
-            {spool.client}: {spool.jobnum}
+          <div className='js-heading' style={{ marginTop: 60 }}>
+            Spool: {spool.spool}
           </div>
+          <div className='sub-heading'>
+            {spool.client} {spool.jobnum}
+          </div>
+          <div className='sub-heading'>ID: {spool.piecemark}</div>
           <Timeline spool={spool} />
 
           {/* DATES */}
@@ -136,60 +129,67 @@ const SpoolProf = ({
           {/* ITEMS */}
           <div className='prof-heading'>Components</div>
           <div className='spool-items'>
-            {spool.items.map((item) => {
-              if (item.item.includes('PIPE')) {
-                return (
-                  <div
-                    className={
-                      item.status === 'Complete'
-                        ? 'spool-item pipe'
-                        : 'spool-item pipe missing'
-                    }
-                  ></div>
-                )
-              } else if (item.item.includes('SUPPORT')) {
-                return (
-                  <div
-                    className={
-                      item.status === 'Complete'
-                        ? 'spool-item support'
-                        : 'spool-item support missing'
-                    }
-                  ></div>
-                )
-              } else if (item.item.includes('VALVE')) {
-                return (
-                  <div
-                    className={
-                      item.status === 'Complete'
-                        ? 'spool-item valve'
-                        : 'spool-item valve missing'
-                    }
-                  ></div>
-                )
-              } else if (item.item.includes('FITTING')) {
-                return (
-                  <div
-                    className={
-                      item.status === 'Complete'
-                        ? 'spool-item fitting'
-                        : 'spool-item fitting missing'
-                    }
-                  ></div>
-                )
-              } else if (item.item.includes('FLANGE')) {
-                return (
-                  <div
-                    className={
-                      item.status === 'Complete'
-                        ? 'spool-item flange'
-                        : 'spool-item flange missing'
-                    }
-                  ></div>
-                )
-              }
-              return item
-            })}
+            {spool.items.length === 0
+              ? 'Add BOM export to job folder to see components.'
+              : spool.items.map((item) => {
+                  if (item.item.includes('PIPE')) {
+                    return (
+                      <div
+                        key={Math.random()}
+                        className={
+                          item.status === 'Complete'
+                            ? 'spool-item pipe'
+                            : 'spool-item pipe missing'
+                        }
+                      ></div>
+                    )
+                  } else if (item.item.includes('SUPPORT')) {
+                    return (
+                      <div
+                        key={Math.random()}
+                        className={
+                          item.status === 'Complete'
+                            ? 'spool-item support'
+                            : 'spool-item support missing'
+                        }
+                      ></div>
+                    )
+                  } else if (item.item.includes('VALVE')) {
+                    return (
+                      <div
+                        key={Math.random()}
+                        className={
+                          item.status === 'Complete'
+                            ? 'spool-item valve'
+                            : 'spool-item valve missing'
+                        }
+                      ></div>
+                    )
+                  } else if (item.item.includes('FITTING')) {
+                    return (
+                      <div
+                        key={Math.random()}
+                        className={
+                          item.status === 'Complete'
+                            ? 'spool-item fitting'
+                            : 'spool-item fitting missing'
+                        }
+                      ></div>
+                    )
+                  } else if (item.item.includes('FLANGE')) {
+                    return (
+                      <div
+                        key={Math.random()}
+                        className={
+                          item.status === 'Complete'
+                            ? 'spool-item flange'
+                            : 'spool-item flange missing'
+                        }
+                      ></div>
+                    )
+                  }
+                  return item
+                })}
           </div>
         </Fragment>
       ) : (

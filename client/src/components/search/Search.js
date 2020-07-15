@@ -21,13 +21,21 @@ const Search = ({ loading, jobnums, all_spools }) => {
       setFilteredSpools([])
     } else {
       setFilteredSpools(
-        all_spools.filter(
-          (each) =>
-            each.spool.slice(0, spoolname.length).toUpperCase() ===
-            spoolname.toUpperCase()
+        all_spools.filter((each) =>
+          each.spool.toUpperCase().includes(spoolname.toUpperCase())
         )
       )
     }
+
+    // MUST MATCH STARTING WITH FIRST CHARACTER
+    //   setFilteredSpools(
+    //     all_spools.filter(
+    //       (each) =>
+    //         each.spool.slice(0, spoolname.length).toUpperCase() ===
+    //         spoolname.toUpperCase()
+    //     )
+    //   )
+    // }
     if (spoolname[spoolname.length - 1] === ' ') {
       setFilteredSpools(
         all_spools.filter(
@@ -37,9 +45,8 @@ const Search = ({ loading, jobnums, all_spools }) => {
             each.spool.length === spoolname.length - 1
         )
       )
-      console.log(filteredSpools)
     }
-  }, [spoolname, all_spools])
+  }, [spoolname, all_spools, filteredSpools])
 
   return (
     <Fragment>
@@ -71,7 +78,7 @@ const Search = ({ loading, jobnums, all_spools }) => {
       {filteredSpools.length > 0 && (
         <div className='list-of-spools'>
           {filteredSpools.map((spool) => (
-            <Link to={'/spool/' + spool.piecemark}>
+            <Link key={spool.piecemark} to={'/spool/' + spool.piecemark}>
               <div
                 onClick={() => setFormData({ ...formData, spoolname: '' })}
                 key={spool.piecemark}

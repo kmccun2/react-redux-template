@@ -3,7 +3,7 @@ import { BsFillCaretDownFill } from 'react-icons/bs'
 import { FaCheck } from 'react-icons/fa'
 
 const FilterForms = ({
-  all_jobs,
+  jobnums,
   paramJobs,
   setParamJobs,
   all_materials,
@@ -66,9 +66,49 @@ const FilterForms = ({
     }
   }
 
+  const handleToggle = (type) => {
+    if (type === 'jobs') {
+      if (paramJobs.length === 0) {
+        setParamJobs(jobnums)
+      } else {
+        setParamJobs([])
+      }
+    }
+    if (type === 'materials') {
+      if (paramMaterials.length === 0) {
+        setParamMaterials(all_materials)
+      } else {
+        setParamMaterials([])
+      }
+    }
+    if (type === 'priorities') {
+      if (paramPriorities.length === 0) {
+        setParamPriorities(all_priorities)
+      } else {
+        setParamPriorities([])
+      }
+    }
+    if (type === 'shops') {
+      if (paramShops.length === 0) {
+        setParamShops(all_shops)
+      } else {
+        setParamShops([])
+      }
+    }
+    if (type === 'statuses') {
+      if (paramStatuses.length === 0) {
+        setParamStatuses(all_statuses)
+      } else {
+        setParamStatuses([])
+      }
+    }
+  }
+
   return (
     <Fragment>
-      <div className='js-heading'>Filter Spools</div>
+      <div style={{ marginTop: 60 }} className='js-heading'>
+        Filter Spools
+      </div>
       <div className='filter-forms'>
         <div className='filter-form'>
           <div
@@ -84,7 +124,10 @@ const FilterForms = ({
           </div>
           <div className={jobOpen ? 'filter-dd' : 'filter-dd hide'}>
             <Fragment>
-              {all_jobs.map((job) => (
+              <div className='toggle' onClick={() => handleToggle('jobs')}>
+                Toggle All
+              </div>
+              {jobnums.map((job) => (
                 <div
                   className='filter-item'
                   onClick={() => handleSelect('job', job, paramJobs)}
@@ -113,6 +156,10 @@ const FilterForms = ({
           </div>
           <div className={matOpen ? 'filter-dd' : 'filter-dd hide'}>
             <Fragment>
+              <div className='toggle' onClick={() => handleToggle('materials')}>
+                Toggle All
+              </div>
+
               {all_materials.map((material) => (
                 <div
                   className='filter-item'
@@ -144,6 +191,13 @@ const FilterForms = ({
           </div>
           <div className={priOpen ? 'filter-dd' : 'filter-dd hide'}>
             <Fragment>
+              <div
+                className='toggle'
+                onClick={() => handleToggle('priorities')}
+              >
+                Toggle All
+              </div>
+
               {all_priorities.map((priority) => (
                 <div
                   className='filter-item'
@@ -177,6 +231,10 @@ const FilterForms = ({
           </div>
           <div className={shopOpen ? 'filter-dd' : 'filter-dd hide'}>
             <Fragment>
+              <div className='toggle' onClick={() => handleToggle('shops')}>
+                Toggle All
+              </div>
+
               {all_shops.map((shop) => (
                 <div
                   className='filter-item'
@@ -204,6 +262,10 @@ const FilterForms = ({
           </div>
           <div className={lsOpen ? 'filter-dd' : 'filter-dd hide'}>
             <Fragment>
+              <div className='toggle' onClick={() => handleToggle('statuses')}>
+                Toggle All
+              </div>
+
               {all_statuses.map((status) => (
                 <div
                   className='filter-item'

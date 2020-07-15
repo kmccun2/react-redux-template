@@ -5,9 +5,9 @@ import Loading from '../misc/Loading'
 import { CSVLink } from 'react-csv'
 
 const Filters = ({
-  spools,
+  all_spools,
   dormant,
-  all_jobs,
+  jobnums,
   all_shops,
   all_materials,
   all_priorities,
@@ -23,25 +23,18 @@ const Filters = ({
   // CREATE PARAMETER LISTS
   useEffect(() => {
     if (dormant !== undefined) {
-      setParamJobs(all_jobs)
+      setParamJobs(jobnums)
       setParamMaterials(all_materials)
       setParamShops(all_shops)
       setParamPriorities(all_priorities)
       setParamStatuses(all_statuses)
     }
-  }, [
-    dormant,
-    all_jobs,
-    all_materials,
-    all_shops,
-    all_priorities,
-    all_statuses,
-  ])
+  }, [dormant, jobnums, all_materials, all_shops, all_priorities, all_statuses])
 
   // CREATE FILTERED SPOOLS LIST
   useEffect(() => {
     if (
-      spools !== [] &&
+      all_spools !== [] &&
       paramJobs !== undefined &&
       paramMaterials !== undefined &&
       paramShops !== undefined &&
@@ -49,7 +42,7 @@ const Filters = ({
       paramStatuses !== undefined
     ) {
       setFiltSpools(
-        spools.filter(
+        all_spools.filter(
           (spool) =>
             paramJobs.includes(spool.jobnum) &&
             paramShops.includes(spool.shop) &&
@@ -58,11 +51,10 @@ const Filters = ({
             paramStatuses.includes(spool.status)
         )
       )
-      console.log(filtSpools)
     }
     // eslint-disable-next-line
   }, [
-    spools,
+    all_spools,
     setFiltSpools,
     paramJobs,
     paramMaterials,
@@ -78,7 +70,7 @@ const Filters = ({
       filtSpools !== undefined ? (
         <Fragment>
           <FilterForms
-            all_jobs={all_jobs}
+            jobnums={jobnums}
             all_materials={all_materials}
             all_shops={all_shops}
             all_priorities={all_priorities}
@@ -94,7 +86,12 @@ const Filters = ({
             paramStatuses={paramStatuses}
             setParamStatuses={setParamStatuses}
           />
-          <CSVLink className='filter-btn' data={filtSpools}>
+          <CSVLink
+            className='filter-btn'
+            onClick={() => console.log(filtSpools)}
+            data={filtSpools}
+          >
+            {' '}
             Download CSV
           </CSVLink>
         </Fragment>
@@ -106,10 +103,9 @@ const Filters = ({
 }
 
 const mapStateToProps = (state) => ({
-  spools: state.jobs.all_spools,
+  all_spools: state.jobs.all_spools,
   dormant: state.jobs.dormant,
   jobnums: state.jobs.jobnums,
-  all_jobs: state.jobs.all_jobs,
   all_shops: state.jobs.all_shops,
   all_materials: state.jobs.all_materials,
   all_priorities: state.jobs.all_priorities,

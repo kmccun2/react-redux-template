@@ -1,15 +1,9 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import { setJobsLoading } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Loading from '../misc/Loading'
 
 const Dashboard = ({ setJobsLoading, jobnums, updateDormant, dormant }) => {
-  // useEffect(() => {
-  //   setJobsLoading()
-  //   updateDormant(jobnums)
-  //   // eslint-disable-next-line
-  // }, [])
-
   return (
     <Fragment>
       {dormant === undefined ? (

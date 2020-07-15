@@ -507,7 +507,7 @@ body {
   width: 100%;
   text-align: center;
   margin-top: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   font-size: 28px;
   font-weight: bold;
 }
@@ -518,6 +518,8 @@ body {
   width: 100%;
   justify-content: center;
   max-width: 1100px;
+  font-size: 20px;
+  margin-top: 15px;
 }
 .spool-item {
   width: 100px;
@@ -592,11 +594,20 @@ body {
   margin-top: 5px;
   border: 1px solid #c1c1c1;
   border-radius: 3px;
-  cursor: pointer;
   max-height: 310px;
   overflow-y: auto;
 }
-
+.toggle {
+  width: fit-content;
+  text-align: center;
+  margin: 0 auto;
+  cursor: pointer;
+  padding: 0 5px;
+  border-radius: 3px;
+}
+.toggle:hover {
+  background-color: #ebebeb;
+}
 .filter-item {
   display: flex;
   flex-direction: row;
@@ -612,6 +623,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .filter-btn {
   padding: 6px 10px;

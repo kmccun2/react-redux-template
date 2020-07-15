@@ -737,7 +737,9 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
             delivered: 0,
           })
         }
+        return spool
       })
+      return material
     })
 
     //ADD INFO TO AREAS
@@ -862,6 +864,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
         }
         return area
       })
+      return material
     })
 
     // SORT BY NAME
