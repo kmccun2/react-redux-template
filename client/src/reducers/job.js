@@ -32,7 +32,8 @@ export default function (state = initialState, action) {
     case UPDATE_JOB:
       return {
         ...state,
-        loading: payload,
+        job: payload.job,
+        loading: false,
       }
     case JOB_ERROR:
       return {

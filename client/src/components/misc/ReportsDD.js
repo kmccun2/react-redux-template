@@ -4,10 +4,10 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 const Reports = ({ show, updateJob, setJobLoading, jobnums, download }) => {
-  const handleJobClick = (job, needupdate) => {
+  const handleJobClick = (jobnum, needupdate) => {
     setJobLoading()
     if (needupdate) {
-      updateJob(job, null)
+      updateJob(jobnum)
     }
   }
 
@@ -16,21 +16,24 @@ const Reports = ({ show, updateJob, setJobLoading, jobnums, download }) => {
       style={download && { marginLeft: -42 }}
       className={show ? 'reports-dropdown' : 'reports-dropdown hide'}
     >
-      {jobnums.map((job) => (
-        <Fragment key={job}>
+      {jobnums.map((jobnum) => (
+        <Fragment key={jobnum}>
           {download ? (
             <Link to={'/download'}>
               <div
                 className='reports-job'
-                onClick={() => handleJobClick(job, true)}
+                onClick={() => handleJobClick(jobnum, true)}
               >
-                {job}
+                {jobnum}
               </div>
             </Link>
           ) : (
-            <Link to={'/reports/' + job}>
-              <div className='reports-job' onClick={() => handleJobClick(job)}>
-                {job}
+            <Link to={'/reports/' + jobnum}>
+              <div
+                className='reports-job'
+                onClick={() => handleJobClick(jobnum)}
+              >
+                {jobnum}
               </div>
             </Link>
           )}

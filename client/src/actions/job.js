@@ -10,9 +10,7 @@ export const setJobLoading = () => async (dispatch) => {
 }
 
 // UPDATE THE LINE LIST AND STORE IN STATE
-export const updateJob = (jobnum, filtered, materialcheck) => async (
-  dispatch
-) => {
+export const updateJob = (jobnum) => async (dispatch) => {
   try {
     // CREATE LINE LIST OBJECT
     let job = {
@@ -22,12 +20,7 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       materials: [],
       priorities: [],
       missing: [],
-      discrepancies: {
-        fc_iss: [],
-        notfc_notiss: [],
-        fc_not_ll: [],
-        sr_not_ll: [],
-      },
+      discrepancies: [],
       workable_not_issued: 0,
       missingspools: {
         valves: { p: 0, c: 0, o: 0 },
@@ -303,7 +296,6 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     let sr_on_hold_col = undefined
 
     count = 0
-
     headers.map((header) => {
       if (header === 'PIECE MARK' || header === 'PIECEMARK') {
         sr_piecemark_col = count
@@ -327,7 +319,6 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
       count += 1
       return headers
     })
-
     // CHECK FOR ERRORS ON COLUMN HEADERS
     if (sr_piecemark_col === undefined)
       alert(
@@ -391,42 +382,48 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
         line.split(',')[sr_piecemark_col] !== undefined &&
         count >= first_row
       ) {
-        sr_pms.push(line.split(',')[sr_piecemark_col])
-        job.spools.map((each) => {
-          ll_pms.push(each.piecemark)
-          ll_spools.push(each.spool)
-          // ASSIGN STATUS REPORT INFORMATION
-          if (line.split(',')[sr_piecemark_col] === each.piecemark) {
-            each.pulled = line.split(',')[pulled_col]
-            each.weldout = line.split(',')[weldout_col]
-            each.rts = line.split(',')[rts_col]
-            each.rtsc = line.split(',')[rtsc_col]
-            each.stc = line.split(',')[stc_col]
-            each.delivered = line.split(',')[delivered_col]
-            each.on_hold = line.split(',')[sr_on_hold_col]
-          }
-
-          // CHECK IF SPOOLS IS WORKABLE BASED ON IF IT HAS BEEN ISSUED
-          if (each.issued !== '') {
-            each.workable = true
-          } else {
-            each.workable = false
-          }
-
-          return job
+        sr_pms.push({
+          piecemark: line.split(',')[sr_piecemark_col],
+          pulled: line.split(',')[pulled_col],
+          weldout: line.split(',')[weldout_col],
+          rts: line.split(',')[rts_col],
+          rtsc: line.split(',')[rtsc_col],
+          stc: line.split(',')[stc_col],
+          delivered: line.split(',')[delivered_col],
+          on_hold: line.split(',')[sr_on_hold_col],
         })
-        return job
       }
-      return lines
+      return line
+    })
+
+    // COMPARE SPOOLS
+    job.spools.map((spool) => {
+      sr_pms.map((pm) => {
+        if (spool.piecemark === pm.piecemark) {
+          spool.pulled = pm.pulled
+          spool.weldout = pm.weldout
+          spool.rts = pm.rts
+          spool.rtsc = pm.rtsc
+          spool.stc = pm.stc
+          spool.delivered = pm.delivered
+          spool.on_hold = pm.on_hold
+        }
+      })
     })
 
     // ADD DISCREPANCIES
     sr_pms.map((pm) => {
-      if (ll_pms.includes(pm) === false) {
-        job.discrepancies.sr_not_ll.push({ piecemark: pm, job: jobnum })
+      if (ll_pms.includes(pm.piecemark) === false) {
+        job.discrepancies.push({
+          piecemark: pm.piecemark,
+          spool: undefined,
+          job: jobnum,
+          type: 'sr_not_ll',
+        })
       }
       return pm
     })
+
     /////  //////
     //  // //
     /////  /////
@@ -633,11 +630,21 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     job.spools.map((spool) => {
       if (fc_spools.includes(spool.spool)) {
         if (spool.issued !== undefined && spool.issued !== '') {
-          job.discrepancies.fc_iss.push(spool)
+          job.discrepancies.push({
+            spool: spool.spool,
+            piecemark: spool.piecemark,
+            jobnum: spool.jobnum,
+            type: 'fc_iss',
+          })
         }
       } else {
         if (spool.issued === undefined && spool.issued === '') {
-          job.discrepancies.notfc_notiss.push(spool)
+          job.discrepancies.push({
+            spool: spool.spool,
+            piecemark: spool.piecemark,
+            jobnum: spool.jobnum,
+            type: 'notfc_notiss',
+          })
         }
       }
       return spool
@@ -645,7 +652,12 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
 
     fc_spools.map((spool) => {
       if (ll_spools.includes(spool === false)) {
-        job.discrepancies.fc_not_ll.push({ spool: spool, job: jobnum })
+        job.discrepancies.push({
+          spool: spool.spool,
+          piecemark: spool.piecemark,
+          jobnum: spool.jobnum,
+          type: 'fc_not_ll',
+        })
       }
       return spool
     })
@@ -935,139 +947,130 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     }
 
     // ONLY IF INITIAL SCREEN LOAD
-    if (!materialcheck) {
-      job.spools.map((spool) => {
-        spool.items.map((item) => {
-          // IF ITEM IS A SHORT
-          if (item.status !== 'Complete') {
-            if ('VALVES / IN-LINE ITEMS'.includes(item.item))
-              assignShort('VALVES / IN-LINE ITEMS', item, spool)
-            if ('FITTINGS'.includes(item.item))
-              assignShort('FITTINGS', item, spool)
-            if ('FLANGES'.includes(item.item))
-              assignShort('FLANGES', item, spool)
-            if ('SUPPORTS'.includes(item.item))
-              assignShort('SUPPORTS', item, spool)
-            if ('PIPE'.includes(item.item)) assignShort('PIPE', item, spool)
-          }
-          return item
-        })
-        return spool
+    job.spools.map((spool) => {
+      spool.items.map((item) => {
+        // IF ITEM IS A SHORT
+        if (item.status !== 'Complete') {
+          if ('VALVES / IN-LINE ITEMS'.includes(item.item))
+            assignShort('VALVES / IN-LINE ITEMS', item, spool)
+          if ('FITTINGS'.includes(item.item))
+            assignShort('FITTINGS', item, spool)
+          if ('FLANGES'.includes(item.item)) assignShort('FLANGES', item, spool)
+          if ('SUPPORTS'.includes(item.item))
+            assignShort('SUPPORTS', item, spool)
+          if ('PIPE'.includes(item.item)) assignShort('PIPE', item, spool)
+        }
+        return item
       })
+      return spool
+    })
 
-      // SET MISSING ITEMS BY SCOPE TO TRUE FOR EACH SPOOL TO BE COUNTED LATER
-      job.spools.map((spool) => {
-        // COUNT WORKABLE BUT NOT ISSUED
-        if (spool.missing.length === 0 && spool.workable === false) {
-          job.workable_not_issued += 1
-        }
-        let countSpools = (purchased, nomaterial) => {
+    // SET MISSING ITEMS BY SCOPE TO TRUE FOR EACH SPOOL TO BE COUNTED LATER
+    job.spools.map((spool) => {
+      // COUNT WORKABLE BUT NOT ISSUED
+      if (spool.missing.length === 0 && spool.workable === false) {
+        job.workable_not_issued += 1
+      }
+      let countSpools = (purchased, nomaterial) => {
+        if (
+          spool.missing.includes(purchased) ||
+          spool.missing.includes(nomaterial)
+        ) {
+          // ADD TO JOB VARIABLE
           if (
-            spool.missing.includes(purchased) ||
-            spool.missing.includes(nomaterial)
+            purchased.includes('Performance') &&
+            purchased.includes('SUPPORT')
           ) {
-            // ADD TO JOB VARIABLE
-            if (
-              purchased.includes('Performance') &&
-              purchased.includes('SUPPORT')
-            ) {
-              job.missingspools.supports.p += 1
-            }
-            if (
-              purchased.includes('Performance') &&
-              purchased.includes('FITTING')
-            ) {
-              job.missingspools.supports.p += 1
-            }
-            if (
-              purchased.includes('Performance') &&
-              purchased.includes('FLANGE')
-            ) {
-              job.missingspools.supports.p += 1
-            }
-            if (
-              purchased.includes('Performance') &&
-              purchased.includes('PIPE')
-            ) {
-              job.missingspools.supports.p += 1
-            }
-            if (
-              purchased.includes('Performance') &&
-              purchased.includes('VALVE')
-            ) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Client') && purchased.includes('SUPPORT')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Client') && purchased.includes('FITTING')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Client') && purchased.includes('FLANGE')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Client') && purchased.includes('PIPE')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Client') && purchased.includes('VALVE')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Other') && purchased.includes('SUPPORT')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Other') && purchased.includes('FITTING')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Other') && purchased.includes('FLANGE')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Other') && purchased.includes('PIPE')) {
-              job.missingspools.supports.p += 1
-            }
-            if (purchased.includes('Other') && purchased.includes('VALVE')) {
-              job.missingspools.supports.p += 1
-            }
+            job.missingspools.supports.p += 1
+          }
+          if (
+            purchased.includes('Performance') &&
+            purchased.includes('FITTING')
+          ) {
+            job.missingspools.supports.p += 1
+          }
+          if (
+            purchased.includes('Performance') &&
+            purchased.includes('FLANGE')
+          ) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Performance') && purchased.includes('PIPE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (
+            purchased.includes('Performance') &&
+            purchased.includes('VALVE')
+          ) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Client') && purchased.includes('SUPPORT')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Client') && purchased.includes('FITTING')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Client') && purchased.includes('FLANGE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Client') && purchased.includes('PIPE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Client') && purchased.includes('VALVE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Other') && purchased.includes('SUPPORT')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Other') && purchased.includes('FITTING')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Other') && purchased.includes('FLANGE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Other') && purchased.includes('PIPE')) {
+            job.missingspools.supports.p += 1
+          }
+          if (purchased.includes('Other') && purchased.includes('VALVE')) {
+            job.missingspools.supports.p += 1
           }
         }
-        countSpools(
-          'Performance-VALVES / IN-LINE ITEMS-Purchased',
-          'Performance-VALVES / IN-LINE ITEMS-No Material'
-        )
-        countSpools(
-          'Performance-FLANGES-Purchased',
-          'Performance-FLANGES-No Material'
-        )
-        countSpools(
-          'Performance-FITTINGS-Purchased',
-          'Performance-FITTINGS-No Material'
-        )
-        countSpools(
-          'Performance-SUPPORTS-Purchased',
-          'Performance-SUPPORTS-No Material'
-        )
-        countSpools(
-          'Performance-PIPE-Purchased',
-          'Performance-PIPE-No Material'
-        )
-        countSpools(
-          'Client-VALVES / IN-LINE ITEMS-Purchased',
-          'Client-VALVES / IN-LINE ITEMS-No Material'
-        )
-        countSpools('Client-FLANGES-Purchased', 'Client-FLANGES-No Material')
-        countSpools('Client-FITTINGS-Purchased', 'Client-FITTINGS-No Material')
-        countSpools('Client-SUPPORTS-Purchased', 'Client-SUPPORTS-No Material')
-        countSpools('Client-PIPE-Purchased', 'Client-PIPE-No Material')
-        countSpools(
-          'Other-VALVES / IN-LINE ITEMS-Purchased',
-          'Other-VALVES / IN-LINE ITEMS-No Material'
-        )
-        countSpools('Other-FLANGES-Purchased', 'Other-FLANGES-No Material')
-        countSpools('Other-FITTINGS-Purchased', 'Other-FITTINGS-No Material')
-        countSpools('Other-SUPPORTS-Purchased', 'Other-SUPPORTS-No Material')
-        countSpools('Other-PIPE-Purchased', 'Other-PIPE-No Material')
-        return spool
-      })
-    }
+      }
+      countSpools(
+        'Performance-VALVES / IN-LINE ITEMS-Purchased',
+        'Performance-VALVES / IN-LINE ITEMS-No Material'
+      )
+      countSpools(
+        'Performance-FLANGES-Purchased',
+        'Performance-FLANGES-No Material'
+      )
+      countSpools(
+        'Performance-FITTINGS-Purchased',
+        'Performance-FITTINGS-No Material'
+      )
+      countSpools(
+        'Performance-SUPPORTS-Purchased',
+        'Performance-SUPPORTS-No Material'
+      )
+      countSpools('Performance-PIPE-Purchased', 'Performance-PIPE-No Material')
+      countSpools(
+        'Client-VALVES / IN-LINE ITEMS-Purchased',
+        'Client-VALVES / IN-LINE ITEMS-No Material'
+      )
+      countSpools('Client-FLANGES-Purchased', 'Client-FLANGES-No Material')
+      countSpools('Client-FITTINGS-Purchased', 'Client-FITTINGS-No Material')
+      countSpools('Client-SUPPORTS-Purchased', 'Client-SUPPORTS-No Material')
+      countSpools('Client-PIPE-Purchased', 'Client-PIPE-No Material')
+      countSpools(
+        'Other-VALVES / IN-LINE ITEMS-Purchased',
+        'Other-VALVES / IN-LINE ITEMS-No Material'
+      )
+      countSpools('Other-FLANGES-Purchased', 'Other-FLANGES-No Material')
+      countSpools('Other-FITTINGS-Purchased', 'Other-FITTINGS-No Material')
+      countSpools('Other-SUPPORTS-Purchased', 'Other-SUPPORTS-No Material')
+      countSpools('Other-PIPE-Purchased', 'Other-PIPE-No Material')
+      return spool
+    })
 
     let shops_list = []
 
@@ -1299,12 +1302,10 @@ export const updateJob = (jobnum, filtered, materialcheck) => async (
     link.dispatchEvent(event)
 
     // DISPATCH TO REDUCER
-    if (filtered === null) {
-      dispatch({
-        type: UPDATE_JOB,
-        payload: false,
-      })
-    }
+    dispatch({
+      type: UPDATE_JOB,
+      payload: false,
+    })
   } catch (err) {
     console.log(err)
     dispatch({

@@ -1,4 +1,5 @@
 const express = require('express')
+const createCsvWriter = require('csv-writer').createArrayCsvWriter
 const router = express.Router()
 let fs = require('fs')
 
@@ -68,6 +69,20 @@ router.get('/bom_export/:job', async (req, res) => {
     console.error(err.message)
     res.status(500).send('Server Error')
   }
+})
+
+// @route    POST api/spools/:job/header/records
+// @desc     Write spools to CSV file
+router.get('/spools/:job/header/records', async (req, res) => {
+  const csvWriter = createCsvWriter({
+    path: 'path/to/file.csv',
+    header: req.params.header,
+  })
+  await csvWriter
+    .writeRecords(req.params.records) // returns a promise
+    .then(() => {
+      console.log('...Done')
+    })
 })
 
 module.exports = router

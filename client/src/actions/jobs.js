@@ -12,6 +12,7 @@ export const setJobsLoading = () => async (dispatch) => {
 export const updateJobs = (jobnums) => async (dispatch) => {
   try {
     let jobs = []
+    let discrepancies = []
 
     // ADD EACH JOB TO JOBS
     for (let i = 0; i < jobnums.length; i++) {
@@ -210,6 +211,10 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         })
         return material
       })
+      // DISCREPANCIES
+      job.job.discrepancies.map((disc) => {
+        discrepancies.push(disc)
+      })
       return job
     })
 
@@ -259,6 +264,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         all_materials: all_materials,
         all_shops: all_shops,
         all_priorities: all_priorities,
+        discrepancies: discrepancies,
       },
     })
   } catch {

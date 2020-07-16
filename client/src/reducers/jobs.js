@@ -42,6 +42,7 @@ export default function (state = initialState, action) {
         all_shops: payload.all_shops.sort(),
         all_materials: payload.all_materials.sort(),
         all_priorities: payload.all_priorities.sort(),
+        discrepancies: payload.discrepancies,
         loading: false,
       }
     case GET_ITEMS:
