@@ -1,7 +1,27 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
+import { updateJobs } from '../../actions/jobs'
 
-const Discrepancies = ({ discrepancies }) => {
+const Discrepancies = ({ discrepancies, updateJobs }) => {
+  const [srNotLl, setSrNotLl] = useState([])
+  const [fcIss, setFcIss] = useState([])
+  const [notFcNotIss, setNotFcNotIss] = useState([])
+  const [fcNotLl, setFcNotLl] = useState([])
+
+  useEffect(() => {
+    updateJobs()
+  }, [])
+
+  useEffect(() => {
+    if (discrepancies) {
+      setSrNotLl(discrepancies.filter((disc) => disc.type === 'sr_not_ll'))
+      setFcIss(discrepancies.filter((disc) => disc.type === 'fc_iss'))
+      setNotFcNotIss(
+        discrepancies.filter((disc) => disc.type === 'not_fc_not_iss')
+      )
+      setFcNotLl(discrepancies.filter((disc) => disc.type === 'fc_not_ll'))
+    }
+  }, [discrepancies])
   return (
     <Fragment>
       <div style={{ marginTop: 60 }} className='js-heading'>
@@ -14,28 +34,45 @@ const Discrepancies = ({ discrepancies }) => {
             In Status Report (Not in Linelist)
           </div>
           <div className='table-header table-row'>
-            <div className='disc-col'>Spools</div>
             <div className='disc-col'>Job</div>
+            <div className='disc-col'>Piecemark</div>
           </div>
           <Fragment>
-            {/* {discrepancies.status_not_ll} */}
-            <div className='table-row'>
-              <div className='disc-col'></div>
-              <div className='disc-col'></div>
-            </div>
+            {srNotLl.length === 0 ? (
+              <div className='no-discrepancies'>No Discrepancies</div>
+            ) : (
+              <Fragment>
+                {srNotLl.map((each) => (
+                  <div key={each.piecemark} className='table-row'>
+                    <div className='disc-col'>{each.jobnum}</div>
+                    <div className='disc-col'>{each.piecemark}</div>
+                  </div>
+                ))}
+              </Fragment>
+            )}
           </Fragment>
         </div>
         {/* FORECAST (ISSUED) */}
         <div className='table-container disc-table'>
           <div className='table-row disc-table-label'>In Forecast (Issued)</div>
           <div className='table-header table-row'>
-            <div className='disc-col'>Spools</div>
             <div className='disc-col'>Job</div>
+            <div className='disc-col'>Spool</div>
           </div>
-          <div className='table-row'>
-            <div className='disc-col'></div>
-            <div className='disc-col'></div>
-          </div>
+          <Fragment>
+            {fcIss.length === 0 ? (
+              <div className='no-discrepancies'>No Discrepancies</div>
+            ) : (
+              <Fragment>
+                {fcIss.map((each) => (
+                  <div key={each.spool} className='table-row'>
+                    <div className='disc-col'>{each.jobnum}</div>
+                    <div className='disc-col'>{each.spool}</div>
+                  </div>
+                ))}
+              </Fragment>
+            )}
+          </Fragment>
         </div>
 
         {/* NOT FORECAST (NOT ISSUED) */}
@@ -44,13 +81,23 @@ const Discrepancies = ({ discrepancies }) => {
             Not in Forecast (Not Issued)
           </div>
           <div className='table-header table-row'>
-            <div className='disc-col'>Spools</div>
             <div className='disc-col'>Job</div>
+            <div className='disc-col'>Spool</div>
           </div>
-          <div className='table-row'>
-            <div className='disc-col'></div>
-            <div className='disc-col'></div>
-          </div>
+          <Fragment>
+            {notFcNotIss.length === 0 ? (
+              <div className='no-discrepancies'>No Discrepancies</div>
+            ) : (
+              <Fragment>
+                {notFcNotIss.map((each) => (
+                  <div key={each.spool} className='table-row'>
+                    <div className='disc-col'>{each.jobnum}</div>
+                    <div className='disc-col'>{each.spool}</div>
+                  </div>
+                ))}
+              </Fragment>
+            )}
+          </Fragment>
         </div>
 
         {/* FORECAST (NOT LINELIST) */}
@@ -59,13 +106,23 @@ const Discrepancies = ({ discrepancies }) => {
             In Forecast (Not in Linelist)
           </div>
           <div className='table-header table-row'>
-            <div className='disc-col'>Spools</div>
             <div className='disc-col'>Job</div>
+            <div className='disc-col'>Spool</div>
           </div>
-          <div className='table-row'>
-            <div className='disc-col'></div>
-            <div className='disc-col'></div>
-          </div>
+          <Fragment>
+            {fcNotLl.length === 0 ? (
+              <div className='no-discrepancies'>No Discrepancies</div>
+            ) : (
+              <Fragment>
+                {fcNotLl.map((each) => (
+                  <div key={each.spool} className='table-row'>
+                    <div className='disc-col'>{each.jobnum}</div>
+                    <div className='disc-col'>{each.spool}</div>
+                  </div>
+                ))}
+              </Fragment>
+            )}
+          </Fragment>
         </div>
       </div>
     </Fragment>
@@ -75,4 +132,4 @@ const Discrepancies = ({ discrepancies }) => {
 const mapStateToProps = (state) => ({
   discrepancies: state.jobs.discrepancies,
 })
-export default connect(mapStateToProps)(Discrepancies)
+export default connect(mapStateToProps, { updateJobs })(Discrepancies)

@@ -11,7 +11,7 @@ import { updateJobs } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Discrepancies from '../discrepancies/Discrepancies'
 
-const Routes = ({ jobnums, updateJobs }) => {
+const Routes = ({ jobnums, updateJobs, jobs }) => {
   useEffect(() => {
     updateJobs(jobnums)
   }, [jobnums, updateJobs])
@@ -33,6 +33,7 @@ const Routes = ({ jobnums, updateJobs }) => {
 
 const mapStateToProps = (state) => ({
   jobnums: state.jobs.jobnums,
+  jobs: state.jobs.jobs,
 })
 
 export default connect(mapStateToProps, { updateJobs })(Routes)

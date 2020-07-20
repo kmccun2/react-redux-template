@@ -214,6 +214,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
       // DISCREPANCIES
       job.job.discrepancies.map((disc) => {
         discrepancies.push(disc)
+        return disc
       })
       return job
     })

@@ -56,6 +56,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let spools_list = []
     let areas_list = []
     let materials_list = []
+    let ll_pms = []
 
     //     //
     //     //
@@ -244,6 +245,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             missingflanges: {},
           })
           spools_list.push(line.split(',')[spool_col])
+          ll_pms.push(line.split(',')[piecemark_col])
         } else {
           job.spools.map((spool) => {
             if (spool.spool === line.split(',')[spool_col]) {
@@ -372,7 +374,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0
     let sr_pms = []
-    let ll_pms = []
     let ll_spools = []
 
     lines.map((line) => {
@@ -408,16 +409,19 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.delivered = pm.delivered
           spool.on_hold = pm.on_hold
         }
+        return pm
       })
+      return spool
     })
 
     // ADD DISCREPANCIES
     sr_pms.map((pm) => {
       if (ll_pms.includes(pm.piecemark) === false) {
+        console.log(pm.piecemark)
         job.discrepancies.push({
           piecemark: pm.piecemark,
           spool: undefined,
-          job: jobnum,
+          jobnum: jobnum,
           type: 'sr_not_ll',
         })
       }

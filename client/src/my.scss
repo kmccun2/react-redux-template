@@ -136,7 +136,8 @@ body {
   justify-content: flex-end;
   padding: 0 10px;
   background-color: #8668b2;
-  border-bottom: 2px solid #5b4b72;
+  z-index: 1;
+  box-shadow: 0px 0px 5px -1px black;
 }
 .subheader-item {
   color: white;
@@ -286,7 +287,7 @@ body {
 .col12,
 .col13,
 .col14 {
-  padding: 4px 5px;
+  padding: 6px 5px 4px 5px;
   width: 102px;
   line-height: 1.3;
   text-align: center;
@@ -649,7 +650,7 @@ body {
 }
 .disc-table-label {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 25px;
   font-size: 16px;
   font-weight: bold;
   width: 100%;
@@ -661,9 +662,14 @@ body {
 
 .disc-col {
   padding: 8px 5px;
-  width: 140px;
+  width: 150px;
   line-height: 1.3;
   text-align: center;
   overflow: hidden;
   min-height: 30px;
+}
+.no-discrepancies {
+  width: 100%;
+  text-align: center;
+  padding: 40px;
 }
