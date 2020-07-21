@@ -10,7 +10,7 @@ const Discrepancies = ({ discrepancies, updateJobs }) => {
 
   useEffect(() => {
     updateJobs()
-  }, [])
+  }, [updateJobs])
 
   useEffect(() => {
     if (discrepancies) {

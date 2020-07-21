@@ -26,8 +26,11 @@ const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
       {!loading && job ? (
         <Fragment>
           <div className='download-csv'>
-            <CSVLink className='filter-btn' data={job.spools}>
-              Download CSV
+            <CSVLink className='download-btn' data={job.spools}>
+              Download Spools
+            </CSVLink>
+            <CSVLink className='download-btn' data={job.shorts}>
+              Download Shorts
             </CSVLink>
           </div>
           {/* JOB HEADING */}
@@ -111,20 +114,36 @@ const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
                 {/* SPOOLS MISSING ITEMS (BY SCOPE) */}
                 <SpoolShorts job={job} />
                 {/* ENTIRE JOB */}
-                <Shorts missing={job.missing} header='Total Shorts' />
+                <Shorts
+                  shorts={job.shorts.filter((short) => short.item !== 'PIPE')}
+                  header='Total Shorts'
+                  pipeshorts={job.shorts.filter(
+                    (short) => short.item === 'PIPE'
+                  )}
+                />
                 {/* TOTAL PURCHASED */}
                 <Shorts
-                  missing={job.missing.filter((each) =>
-                    each.includes('Purchased')
+                  shorts={job.shorts.filter(
+                    (short) =>
+                      short.status === 'Purchased' && short.item !== 'PIPE'
                   )}
                   header='Total Purchased'
+                  pipeshorts={job.shorts.filter(
+                    (short) =>
+                      short.item === 'PIPE' && short.status === 'Purchased'
+                  )}
                 />
                 {/* TOTAL NO MATERIAL */}
                 <Shorts
-                  missing={job.missing.filter((each) =>
-                    each.includes('No Material')
+                  shorts={job.shorts.filter(
+                    (short) =>
+                      short.status === 'No Material' && short.item !== 'PIPE'
                   )}
                   header='Total No Material'
+                  pipeshorts={job.shorts.filter(
+                    (short) =>
+                      short.item === 'PIPE' && short.status === 'No Material'
+                  )}
                 />
               </Fragment>
             )}

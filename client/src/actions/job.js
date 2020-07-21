@@ -19,7 +19,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       areas: [],
       materials: [],
       priorities: [],
-      missing: [],
+      shorts: [],
       discrepancies: [],
       workable_not_issued: 0,
       missingspools: {
@@ -28,6 +28,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         flanges: { p: 0, c: 0, o: 0 },
         supports: { p: 0, c: 0, o: 0 },
         pipe: { p: 0, c: 0, o: 0 },
+        total: { p: 0, c: 0, o: 0 },
       },
     }
 
@@ -237,13 +238,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
             client: job.client,
             status: 'Not Workable',
             items: [],
-            missing: [],
-            missingsupports: { p: false, c: false, o: false },
-            missingvalves: {},
-            missingpipe: {},
-            missingfittings: {},
-            missingflanges: {},
+            shorts: [],
           })
+
           spools_list.push(line.split(',')[spool_col])
           ll_pms.push(line.split(',')[piecemark_col])
         } else {
@@ -295,7 +292,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let rtsc_col = undefined
     let stc_col = undefined
     let delivered_col = undefined
-    let sr_on_hold_col = undefined
+    // let sr_on_hold_col = undefined
 
     count = 0
     headers.map((header) => {
@@ -315,8 +312,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         stc_col = count
       } else if (header === 'TO SITE' || header === 'DATE TO FIELD') {
         delivered_col = count
-      } else if (header === 'ON HOLD' || header === 'HOLD DATE') {
-        sr_on_hold_col = count
+        // } else if (header === 'ON HOLD' || header === 'HOLD DATE') {
+        //   sr_on_hold_col = count
       }
       count += 1
       return headers
@@ -364,12 +361,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
           jobnum +
           ' status report! Piecemark header should be titled "TO SITE".'
       )
-    if (sr_on_hold_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Piecemark header should be titled "ON HOLD".'
-      )
+    // if (sr_on_hold_col === undefined)
+    //   alert(
+    //     'Error on ' +
+    //       jobnum +
+    //       ' status report! Piecemark header should be titled "ON HOLD".'
+    //   )
 
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0
@@ -391,13 +388,13 @@ export const updateJob = (jobnum) => async (dispatch) => {
           rtsc: line.split(',')[rtsc_col],
           stc: line.split(',')[stc_col],
           delivered: line.split(',')[delivered_col],
-          on_hold: line.split(',')[sr_on_hold_col],
+          // on_hold: line.split(',')[sr_on_hold_col],
         })
       }
       return line
     })
 
-    // COMPARE SPOOLS
+    // COMPARE SPOOLS AND ADD SCOPE
     job.spools.map((spool) => {
       sr_pms.map((pm) => {
         if (spool.piecemark === pm.piecemark) {
@@ -408,16 +405,26 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.stc = pm.stc
           spool.delivered = pm.delivered
           spool.on_hold = pm.on_hold
+          spool.workable = true
         }
         return pm
       })
+
+      // SET SCOPE
+      // 6951
+      if (job.number === '6951') {
+        if (spool.material === 'Chrome') {
+          spool.scope = 'Client'
+        } else {
+          spool.scope = 'Performance'
+        }
+      }
       return spool
     })
 
     // ADD DISCREPANCIES
     sr_pms.map((pm) => {
       if (ll_pms.includes(pm.piecemark) === false) {
-        console.log(pm.piecemark)
         job.discrepancies.push({
           piecemark: pm.piecemark,
           spool: undefined,
@@ -548,7 +555,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let quantity_col = undefined
     let status_col = undefined
     let po_col = undefined
-    let perc_comp_col = undefined
     let unit_col = undefined
 
     count = 0
@@ -568,8 +574,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
         status_col = count
       } else if (header === ' PO NUMBER') {
         po_col = count
-      } else if (header === 'PERCENTAGE COMPLETE') {
-        perc_comp_col = count
       } else if (header === ' UNIT') {
         unit_col = count
       }
@@ -594,33 +598,31 @@ export const updateJob = (jobnum) => async (dispatch) => {
             line.split(',')[bom_path_col].split('/').slice(-1)[0] ===
             spool.spool
           ) {
-            // IF ALL ITEMS ON FORECAST ARE COMPLETE, MARK SPOOL AS WORKABLE
-            if (
-              line.split(',')[perc_comp_col].split('/').slice(-1)[0] === '100%'
-            ) {
-              spool.workable = true
+            // REMOVE BOM ITEM IF FORECAST HAS THAT ITEM
+            spool.item = spool.items.filter(
+              (item) => item.pos !== line.split(',')[position_col]
+            )
+            // CREATE FORCAST ITEM
+            let item = {
+              client: job.client,
+              jobnum: spool.jobnum,
+              spool: spool.spool,
+              item: line.split(',')[item_col],
+              tag: line.split(',')[tag_col],
+              pos: line.split(',')[position_col],
+              status: line.split(',')[status_col],
+              po: line.split(',')[po_col],
+              scope: spool.scope,
+              quantity: line.split(',')[quantity_col],
+              unit: line.split(',')[unit_col],
+              spoolmultiplier: spool.multiplier,
             }
-            // ITERATE THROUGH ITEMS AND ADD INFO
-            let in_items = false
-            spool.items.map((item) => {
-              if (item.pos === line.split(',')[position_col]) {
-                item.status = line.split(',')[status_col]
-                item.po = line.split(',')[po_col]
-                in_items = true
-              }
-              return item
-            })
-            // IF ITEM NOT IN ITEMS ALREADY, ADD IT
-            if (in_items === false) {
-              spool.items.push({
-                tag: line.split(',')[tag_col],
-                item: line.split(',')[item_col],
-                quantity: line.split(',')[quantity_col],
-                unit: line.split(',')[unit_col],
-                pos: line.split(',')[position_col],
-                po: line.split(',')[po_col],
-                status: line.split(',')[status_col],
-              })
+            // PUSH ITEM TO SPOOL
+            spool.items.push(item)
+            // PUSH SHORTS TO JOB
+            if (item.status === 'No Material' || item.status === 'Purchased') {
+              job.shorts.push(item)
+              spool.shorts.push(item.item)
             }
           }
           return job
@@ -684,7 +686,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         each.status = 'Workable'
       }
       // TOTAL ISSUED
-      if (each.issued !== '' && each.issued !== undefined) {
+      if (each.issued.includes('/')) {
         job.issued += each.multiplier
         each.status = 'Issued'
       }
@@ -920,161 +922,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
         } else return 0
       })
     }
-
-    // FIND SHORTS
-    // FORMULA FOR SHORTS
-    let assignShort = (groupperf, item, spool) => {
-      let missingitem = undefined
-      if (groupperf.includes(item.item) && item.status === 'Purchased') {
-        missingitem = groupperf + '-Purchased'
-      }
-      if (groupperf.includes(item.item) && item.status === 'No Material') {
-        missingitem = groupperf + '-No Material'
-      }
-      // SET SCOPE
-      // 6951
-      if (job.number === '6951') {
-        if (spool.material === 'Chrome') {
-          item.scope = 'Client'
-          missingitem = 'Client' + missingitem
-        } else {
-          item.scope = 'Performance'
-          missingitem = 'Performance-' + missingitem
-        }
-      }
-      if (!missingitem.includes('undefined')) {
-        for (let i = 0; i < item.quantity; i++) {
-          spool.missing.push(missingitem)
-          job.missing.push(missingitem)
-        }
-      }
-    }
-
-    // ONLY IF INITIAL SCREEN LOAD
-    job.spools.map((spool) => {
-      spool.items.map((item) => {
-        // IF ITEM IS A SHORT
-        if (item.status !== 'Complete') {
-          if ('VALVES / IN-LINE ITEMS'.includes(item.item))
-            assignShort('VALVES / IN-LINE ITEMS', item, spool)
-          if ('FITTINGS'.includes(item.item))
-            assignShort('FITTINGS', item, spool)
-          if ('FLANGES'.includes(item.item)) assignShort('FLANGES', item, spool)
-          if ('SUPPORTS'.includes(item.item))
-            assignShort('SUPPORTS', item, spool)
-          if ('PIPE'.includes(item.item)) assignShort('PIPE', item, spool)
-        }
-        return item
-      })
-      return spool
-    })
-
-    // SET MISSING ITEMS BY SCOPE TO TRUE FOR EACH SPOOL TO BE COUNTED LATER
-    job.spools.map((spool) => {
-      // COUNT WORKABLE BUT NOT ISSUED
-      if (spool.missing.length === 0 && spool.workable === false) {
-        job.workable_not_issued += 1
-      }
-      let countSpools = (purchased, nomaterial) => {
-        if (
-          spool.missing.includes(purchased) ||
-          spool.missing.includes(nomaterial)
-        ) {
-          // ADD TO JOB VARIABLE
-          if (
-            purchased.includes('Performance') &&
-            purchased.includes('SUPPORT')
-          ) {
-            job.missingspools.supports.p += 1
-          }
-          if (
-            purchased.includes('Performance') &&
-            purchased.includes('FITTING')
-          ) {
-            job.missingspools.supports.p += 1
-          }
-          if (
-            purchased.includes('Performance') &&
-            purchased.includes('FLANGE')
-          ) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Performance') && purchased.includes('PIPE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (
-            purchased.includes('Performance') &&
-            purchased.includes('VALVE')
-          ) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Client') && purchased.includes('SUPPORT')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Client') && purchased.includes('FITTING')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Client') && purchased.includes('FLANGE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Client') && purchased.includes('PIPE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Client') && purchased.includes('VALVE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Other') && purchased.includes('SUPPORT')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Other') && purchased.includes('FITTING')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Other') && purchased.includes('FLANGE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Other') && purchased.includes('PIPE')) {
-            job.missingspools.supports.p += 1
-          }
-          if (purchased.includes('Other') && purchased.includes('VALVE')) {
-            job.missingspools.supports.p += 1
-          }
-        }
-      }
-      countSpools(
-        'Performance-VALVES / IN-LINE ITEMS-Purchased',
-        'Performance-VALVES / IN-LINE ITEMS-No Material'
-      )
-      countSpools(
-        'Performance-FLANGES-Purchased',
-        'Performance-FLANGES-No Material'
-      )
-      countSpools(
-        'Performance-FITTINGS-Purchased',
-        'Performance-FITTINGS-No Material'
-      )
-      countSpools(
-        'Performance-SUPPORTS-Purchased',
-        'Performance-SUPPORTS-No Material'
-      )
-      countSpools('Performance-PIPE-Purchased', 'Performance-PIPE-No Material')
-      countSpools(
-        'Client-VALVES / IN-LINE ITEMS-Purchased',
-        'Client-VALVES / IN-LINE ITEMS-No Material'
-      )
-      countSpools('Client-FLANGES-Purchased', 'Client-FLANGES-No Material')
-      countSpools('Client-FITTINGS-Purchased', 'Client-FITTINGS-No Material')
-      countSpools('Client-SUPPORTS-Purchased', 'Client-SUPPORTS-No Material')
-      countSpools('Client-PIPE-Purchased', 'Client-PIPE-No Material')
-      countSpools(
-        'Other-VALVES / IN-LINE ITEMS-Purchased',
-        'Other-VALVES / IN-LINE ITEMS-No Material'
-      )
-      countSpools('Other-FLANGES-Purchased', 'Other-FLANGES-No Material')
-      countSpools('Other-FITTINGS-Purchased', 'Other-FITTINGS-No Material')
-      countSpools('Other-SUPPORTS-Purchased', 'Other-SUPPORTS-No Material')
-      countSpools('Other-PIPE-Purchased', 'Other-PIPE-No Material')
-      return spool
-    })
 
     let shops_list = []
 
