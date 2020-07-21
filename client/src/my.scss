@@ -237,11 +237,11 @@ body {
   padding: 6px 10px;
   border: 1px solid #c9c8c8;
   border-radius: 4px;
-  margin: 10px 7px 0 12px;
+  margin: 10px 7px 20px 12px;
   background-color: #f3f3f3;
   font-weight: bold;
   cursor: pointer;
-  width: 170px;
+  width: fit-content;
   text-align: center;
 }
 .download-btn:hover {
@@ -686,4 +686,10 @@ body {
   width: 100%;
   text-align: center;
   padding: 40px;
+}
+// LOCATION
+.slider-container {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 500px;
 }

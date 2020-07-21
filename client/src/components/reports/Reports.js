@@ -1,14 +1,16 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { setJobLoading, setJob } from '../../actions/job'
+import { setJobLoading, setJob, downloadReport } from '../../actions/job'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
 import Dormant from './Dormant'
 import SpoolShorts from './SpoolShorts'
 import { CSVLink } from 'react-csv'
+import Discrepancies from '../discrepancies/Discrepancies'
+import Location from '../reports/Location'
 
-const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
+const Reports = ({ match, loading, job, dormant, setJob, downloadReport }) => {
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
 
@@ -32,6 +34,9 @@ const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
             <CSVLink className='download-btn' data={job.shorts}>
               Download Shorts
             </CSVLink>
+            <div className='download-btn' onClick={() => downloadReport(job)}>
+              Download Summary
+            </div>
           </div>
           {/* JOB HEADING */}
           <div className='js-heading'>
@@ -149,6 +154,10 @@ const Reports = ({ match, loading, job, dormant, job_mats, setJob }) => {
             )}
             {/* DORMANT SUMMARIES */}
             {jsActive === 3 && <Dormant manyjobs={false} dormant={dormant} />}
+            {/* DISCREPANCIES */}
+            {jsActive === 4 && <Discrepancies jobnum={jobnum} />}
+            {/* LOCATiON */}
+            {jsActive === 5 && <Location />}
           </div>
         </Fragment>
       ) : (
@@ -169,4 +178,5 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
   setJobLoading,
   setJob,
+  downloadReport,
 })(Reports)

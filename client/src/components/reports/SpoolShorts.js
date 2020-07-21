@@ -98,7 +98,6 @@ const SpoolShorts = ({ job: { shorts, spools, issued, total } }) => {
 
   // COUNT SPOOLS USING MULITPLIER
   const countSpools = (spoolsarray) => {
-    console.log(spoolsarray)
     let countspools = 0
     spoolsarray.map((spool) => (countspools += spool.spoolmultiplier))
     return countspools

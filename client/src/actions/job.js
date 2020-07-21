@@ -1,5 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
+import XLSX from 'xlsx'
 import { UPDATE_JOB, JOB_ERROR, SET_JOB_LOADING, SET_JOB } from './types'
 
 // SET LOADING TO TRUE
@@ -1180,5 +1181,23 @@ export const setJob = (jobnum) => async (dispatch) => {
     dispatch({
       type: JOB_ERROR,
     })
+  }
+}
+
+export const downloadReport = (job) => async (dispatch) => {
+  try {
+    // GRAB XLSX SUMMARY TEMPLATE
+    const res = await axios.get('/api/xlsx/summary/')
+    let wb = res.data
+    wb.Sheets.PRINTOUT.B5.v = 1000000
+    // console.log(wb)
+
+    /* write workbook (use type 'binary') */
+    XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+  } catch {
+    // dispatch({
+    //   type: JOB_ERROR,
+    // })
+    console.log('error')
   }
 }

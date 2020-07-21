@@ -2,26 +2,51 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { updateJobs } from '../../actions/jobs'
 
-const Discrepancies = ({ discrepancies, updateJobs }) => {
+const Discrepancies = ({ discrepancies, updateJobs, jobnum }) => {
   const [srNotLl, setSrNotLl] = useState([])
   const [fcIss, setFcIss] = useState([])
   const [notFcNotIss, setNotFcNotIss] = useState([])
   const [fcNotLl, setFcNotLl] = useState([])
 
   useEffect(() => {
-    updateJobs()
-  }, [updateJobs])
+    if (!jobnum) {
+      updateJobs()
+    }
+  }, [updateJobs, jobnum])
 
   useEffect(() => {
     if (discrepancies) {
-      setSrNotLl(discrepancies.filter((disc) => disc.type === 'sr_not_ll'))
-      setFcIss(discrepancies.filter((disc) => disc.type === 'fc_iss'))
-      setNotFcNotIss(
-        discrepancies.filter((disc) => disc.type === 'not_fc_not_iss')
-      )
-      setFcNotLl(discrepancies.filter((disc) => disc.type === 'fc_not_ll'))
+      if (jobnum) {
+        setSrNotLl(
+          discrepancies.filter(
+            (disc) => disc.jobnum === jobnum && disc.type === 'sr_not_ll'
+          )
+        )
+        setFcIss(
+          discrepancies.filter(
+            (disc) => disc.jobnum === jobnum && disc.type === 'fc_iss'
+          )
+        )
+        setNotFcNotIss(
+          discrepancies.filter(
+            (disc) => disc.jobnum === jobnum && disc.type === 'not_fc_not_iss'
+          )
+        )
+        setFcNotLl(
+          discrepancies.filter(
+            (disc) => disc.jobnum === jobnum && disc.type === 'fc_not_ll'
+          )
+        )
+      } else {
+        setSrNotLl(discrepancies.filter((disc) => disc.type === 'sr_not_ll'))
+        setFcIss(discrepancies.filter((disc) => disc.type === 'fc_iss'))
+        setNotFcNotIss(
+          discrepancies.filter((disc) => disc.type === 'not_fc_not_iss')
+        )
+        setFcNotLl(discrepancies.filter((disc) => disc.type === 'fc_not_ll'))
+      }
     }
-  }, [discrepancies])
+  }, [discrepancies, jobnum])
   return (
     <Fragment>
       <div style={{ marginTop: 60 }} className='js-heading'>
