@@ -2,51 +2,30 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { updateJobs } from '../../actions/jobs'
 
-const Discrepancies = ({ discrepancies, updateJobs, jobnum }) => {
+const Discrepancies = ({ discrepancies, job, type }) => {
+  const [used, setUsed] = useState([])
   const [srNotLl, setSrNotLl] = useState([])
   const [fcIss, setFcIss] = useState([])
   const [notFcNotIss, setNotFcNotIss] = useState([])
   const [fcNotLl, setFcNotLl] = useState([])
 
   useEffect(() => {
-    if (!jobnum) {
-      updateJobs()
+    if (type === undefined && discrepancies) {
+      setSrNotLl(discrepancies.filter((one) => one.type === 'sr_not_ll'))
+      setFcIss(discrepancies.filter((one) => one.type === 'fc_iss'))
+      setNotFcNotIss(discrepancies.filter((one) => one.type === 'notfc_notiss'))
+      setFcNotLl(discrepancies.filter((one) => one.type === 'fc_not_ll'))
     }
-  }, [updateJobs, jobnum])
+    if (type === 'one') {
+      setSrNotLl(job.discrepancies.filter((one) => one.type === 'sr_not_ll'))
+      setFcIss(job.discrepancies.filter((one) => one.type === 'fc_iss'))
+      setNotFcNotIss(
+        job.discrepancies.filter((one) => one.type === 'notfc_notiss')
+      )
+      setFcNotLl(job.discrepancies.filter((one) => one.type === 'fc_not_ll'))
+    }
+  }, [discrepancies])
 
-  useEffect(() => {
-    if (discrepancies) {
-      if (jobnum) {
-        setSrNotLl(
-          discrepancies.filter(
-            (disc) => disc.jobnum === jobnum && disc.type === 'sr_not_ll'
-          )
-        )
-        setFcIss(
-          discrepancies.filter(
-            (disc) => disc.jobnum === jobnum && disc.type === 'fc_iss'
-          )
-        )
-        setNotFcNotIss(
-          discrepancies.filter(
-            (disc) => disc.jobnum === jobnum && disc.type === 'not_fc_not_iss'
-          )
-        )
-        setFcNotLl(
-          discrepancies.filter(
-            (disc) => disc.jobnum === jobnum && disc.type === 'fc_not_ll'
-          )
-        )
-      } else {
-        setSrNotLl(discrepancies.filter((disc) => disc.type === 'sr_not_ll'))
-        setFcIss(discrepancies.filter((disc) => disc.type === 'fc_iss'))
-        setNotFcNotIss(
-          discrepancies.filter((disc) => disc.type === 'not_fc_not_iss')
-        )
-        setFcNotLl(discrepancies.filter((disc) => disc.type === 'fc_not_ll'))
-      }
-    }
-  }, [discrepancies, jobnum])
   return (
     <Fragment>
       <div style={{ marginTop: 60 }} className='js-heading'>
@@ -156,5 +135,6 @@ const Discrepancies = ({ discrepancies, updateJobs, jobnum }) => {
 
 const mapStateToProps = (state) => ({
   discrepancies: state.jobs.discrepancies,
+  job: state.job.job,
 })
 export default connect(mapStateToProps, { updateJobs })(Discrepancies)

@@ -10,7 +10,7 @@ import { CSVLink } from 'react-csv'
 import Discrepancies from '../discrepancies/Discrepancies'
 import Location from '../reports/Location'
 
-const Reports = ({ match, loading, job, dormant, setJob, downloadReport }) => {
+const Reports = ({ match, loading, job, setJob, downloadReport }) => {
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
 
@@ -119,43 +119,25 @@ const Reports = ({ match, loading, job, dormant, setJob, downloadReport }) => {
                 {/* SPOOLS MISSING ITEMS (BY SCOPE) */}
                 <SpoolShorts job={job} />
                 {/* ENTIRE JOB */}
-                <Shorts
-                  shorts={job.shorts.filter((short) => short.item !== 'PIPE')}
-                  header='Total Shorts'
-                  pipeshorts={job.shorts.filter(
-                    (short) => short.item === 'PIPE'
-                  )}
-                />
+                <Shorts shorts={job.count_shorts.total} header='Total Shorts' />
                 {/* TOTAL PURCHASED */}
                 <Shorts
-                  shorts={job.shorts.filter(
-                    (short) =>
-                      short.status === 'Purchased' && short.item !== 'PIPE'
-                  )}
+                  shorts={job.count_shorts.purchased}
                   header='Total Purchased'
-                  pipeshorts={job.shorts.filter(
-                    (short) =>
-                      short.item === 'PIPE' && short.status === 'Purchased'
-                  )}
                 />
                 {/* TOTAL NO MATERIAL */}
                 <Shorts
-                  shorts={job.shorts.filter(
-                    (short) =>
-                      short.status === 'No Material' && short.item !== 'PIPE'
-                  )}
+                  shorts={job.count_shorts.no_material}
                   header='Total No Material'
-                  pipeshorts={job.shorts.filter(
-                    (short) =>
-                      short.item === 'PIPE' && short.status === 'No Material'
-                  )}
                 />
               </Fragment>
             )}
             {/* DORMANT SUMMARIES */}
-            {jsActive === 3 && <Dormant manyjobs={false} dormant={dormant} />}
+            {jsActive === 3 && (
+              <Dormant manyjobs={false} dormant={job.dormant} />
+            )}
             {/* DISCREPANCIES */}
-            {jsActive === 4 && <Discrepancies jobnum={jobnum} />}
+            {jsActive === 4 && <Discrepancies type={'one'} />}
             {/* LOCATiON */}
             {jsActive === 5 && <Location />}
           </div>
@@ -172,7 +154,6 @@ const mapStateToProps = (state) => ({
   job: state.job.job,
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
-  dormant: state.job.dormant,
   jobnums: state.jobs.jobnums,
 })
 export default connect(mapStateToProps, {

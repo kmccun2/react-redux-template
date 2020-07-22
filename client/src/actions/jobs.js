@@ -20,6 +20,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         const res = await axios.get('/api/json/import/' + jobnums[i])
         let job = JSON.parse(res.data)
         jobs.push(job)
+        console.log(jobs)
       } catch {
         console.log('No job found.')
       }
@@ -31,8 +32,8 @@ export const updateJobs = (jobnums) => async (dispatch) => {
     let all_priorities = []
     let all_spools = []
     jobs.map((job) => {
-      job.job.spools.map((spool) => all_spools.push(spool))
-      job.job.materials.map((material) => {
+      job.spools.map((spool) => all_spools.push(spool))
+      job.materials.map((material) => {
         if (all_materials.includes(material.material) === false) {
           all_materials.push(material.material)
         }
@@ -44,7 +45,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         }
         return shop
       })
-      job.job.priorities.map((priority) => {
+      job.priorities.map((priority) => {
         if (all_priorities.includes(priority) === false) {
           all_priorities.push(priority)
         }
@@ -212,7 +213,7 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         return material
       })
       // DISCREPANCIES
-      job.job.discrepancies.map((disc) => {
+      job.discrepancies.map((disc) => {
         discrepancies.push(disc)
         return disc
       })

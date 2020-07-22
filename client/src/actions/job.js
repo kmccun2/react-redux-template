@@ -1,6 +1,5 @@
 import axios from 'axios'
 import moment from 'moment'
-import XLSX from 'xlsx'
 import { UPDATE_JOB, JOB_ERROR, SET_JOB_LOADING, SET_JOB } from './types'
 
 // SET LOADING TO TRUE
@@ -23,6 +22,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
       shorts: [],
       discrepancies: [],
       workable_not_issued: 0,
+      issued_missing_item: 0,
+      on_hold_no_shorts: 0,
       missingspools: {
         valves: { p: 0, c: 0, o: 0 },
         fittings: { p: 0, c: 0, o: 0 },
@@ -36,6 +37,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // DORMANT OBJECT
     let dormant = {
       overall: {
+        number: jobnum,
         lifespan: { total: 0, spools: 0, avg: 0 },
         i_p: { total: 0, spools: 0, avg: 0 },
         p_w: { total: 0, spools: 0, avg: 0 },
@@ -616,7 +618,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               scope: spool.scope,
               quantity: line.split(',')[quantity_col],
               unit: line.split(',')[unit_col],
-              spoolmultiplier: spool.multiplier,
+              multiplier: spool.multiplier,
             }
             // PUSH ITEM TO SPOOL
             spool.items.push(item)
@@ -1111,8 +1113,725 @@ export const updateJob = (jobnum) => async (dispatch) => {
     findAvg('rts_d_np')
     findAvg('w_d_np')
 
+    // WORKABLE BUT NOT ISSUED
+    job.spools.map((spool) => {
+      if (spool.workable === true && spool.issued.includes('/') === false) {
+        job.workable_not_issued += spool.multiplier
+      }
+      // ISSUED BUT MISSING ITEM
+      if (spool.issued.includes('/') && spool.shorts.length > 0) {
+        job.issued_missing_item += spool.multiplier
+      }
+      // ON HOLD
+      if (spool.status === 'On Hold' && spool.shorts.length === 0) {
+        job.on_hold_no_shorts += spool.multiplier
+      }
+      // MISSING VALVE ONLY
+      let missing_items = spool.items.filter(
+        (item) => item.status !== 'Complete'
+      ).length
+      let missing_valves = spool.items.filter(
+        (item) => item.item === 'VALVES / IN-LINE ITEMS'
+      ).length
+      if (missing_items > 0 && missing_items === missing_valves) {
+        spool.missing_valve_only = true
+      } else {
+        spool.missing_valve_only = false
+      }
+      return spool
+    })
+
+    // ////// //  // ///   /// ///   ///   //   /////  //    //
+    // //     //  // // /// // // /// // //  // //  //  //  //
+    // ////// //  // //     // //     // ////// // //     //
+    //     // //  // //     // //     // //  // //  //    //
+    // ////// ////// //     // //     // //  // //  //    //
+
+    let summary = {
+      client: job.client,
+      number: jobnum,
+      spools: job.spools,
+      shorts: job.shorts,
+      dormant: dormant,
+      priorities: job.priorities,
+      issued: job.issued,
+      workable: job.workable,
+      total: job.total,
+      on_hold: job.on_hold,
+      weldout: job.weldout,
+      stc: job.stc,
+      delivered: job.delivered,
+      workable_not_issued: job.workable_not_issued,
+      issued_missing_item: job.issued_missing_item,
+      on_hold_no_shorts: job.on_hold_no_shorts,
+      areas: job.areas,
+      materials: job.materials,
+      discrepancies: job.discrepancies,
+      spools_by_scope: {
+        valves: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+        pipe: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+        flanges: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+        fittings: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+        supports: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+      },
+      count_shorts: {
+        missing_valve_only: {
+          performance: undefined,
+          client: undefined,
+          other: undefined,
+          total: undefined,
+        },
+        total: {
+          valves: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          pipe: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          flanges: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          fittings: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          supports: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+        },
+        no_material: {
+          valves: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          pipe: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          flanges: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          fittings: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          supports: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+        },
+        purchased: {
+          valves: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          pipe: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          flanges: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          fittings: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+          supports: {
+            performance: undefined,
+            client: undefined,
+            other: undefined,
+            total: undefined,
+          },
+        },
+      },
+    }
+
+    // SPOOLS BY SCOPE
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    let spoollist = []
+    let spools_valves = []
+    let spools_pipe = []
+    let spools_flanges = []
+    let spools_fittings = []
+    let spools_supports = []
+
+    // CREATE ARRAYS OF MISSINGS SPOOLS BY PRIORITY OF ITEM
+    job.shorts.map((each) => {
+      if (
+        spoollist.includes(each.spool) === false &&
+        each.item === 'VALVES / IN-LINE ITEMS'
+      ) {
+        spoollist.push(each.spool)
+        spools_valves.push(each)
+      }
+      return each
+    })
+    job.shorts.map((each) => {
+      if (spoollist.includes(each.spool) === false && each.item === 'PIPE') {
+        spoollist.push(each.spool)
+        spools_pipe.push(each)
+      }
+      return each
+    })
+    job.shorts.map((each) => {
+      if (spoollist.includes(each.spool) === false && each.item === 'FLANGES') {
+        spoollist.push(each.spool)
+        spools_flanges.push(each)
+      }
+      return each
+    })
+    job.shorts.map((each) => {
+      if (
+        spoollist.includes(each.spool) === false &&
+        each.item === 'FITTINGS'
+      ) {
+        spoollist.push(each.spool)
+        spools_fittings.push(each)
+      }
+      return each
+    })
+    job.shorts.map((each) => {
+      if (
+        spoollist.includes(each.spool) === false &&
+        each.item === 'SUPPORTS'
+      ) {
+        spoollist.push(each.spool)
+        spools_supports.push(each)
+      }
+      return each
+    })
+
+    // COUNT SPOOLS MISSING ITEMS USING MULTIPLIER
+    const countSpools = (spoolsarray) => {
+      let countspools = 0
+      spoolsarray.map((spool) => (countspools += spool.multiplier))
+      return countspools
+    }
+
+    // VALVES
+    summary.spools_by_scope.valves.performance = countSpools(
+      spools_valves.filter((spool) => spool.scope === 'Performance')
+    )
+    summary.spools_by_scope.valves.client = countSpools(
+      spools_valves.filter((spool) => spool.scope === 'Client')
+    )
+    summary.spools_by_scope.valves.other = countSpools(
+      spools_valves.filter((spool) => spool.scope === 'Other')
+    )
+    summary.spools_by_scope.valves.total = countSpools(spools_valves)
+    // PIPE
+    summary.spools_by_scope.pipe.performance = countSpools(
+      spools_pipe.filter((spool) => spool.scope === 'Performance')
+    )
+    summary.spools_by_scope.pipe.client = countSpools(
+      spools_pipe.filter((spool) => spool.scope === 'Client')
+    )
+    summary.spools_by_scope.pipe.other = countSpools(
+      spools_pipe.filter((spool) => spool.scope === 'Other')
+    )
+    summary.spools_by_scope.pipe.total = countSpools(spools_pipe)
+    // FLANGES
+    summary.spools_by_scope.flanges.performance = countSpools(
+      spools_flanges.filter((spool) => spool.scope === 'Performance')
+    )
+    summary.spools_by_scope.flanges.client = countSpools(
+      spools_flanges.filter((spool) => spool.scope === 'Client')
+    )
+    summary.spools_by_scope.flanges.other = countSpools(
+      spools_flanges.filter((spool) => spool.scope === 'Other')
+    )
+    summary.spools_by_scope.flanges.total = countSpools(spools_flanges)
+    // FITTINGS
+    summary.spools_by_scope.fittings.performance = countSpools(
+      spools_fittings.filter((spool) => spool.scope === 'Performance')
+    )
+    summary.spools_by_scope.fittings.client = countSpools(
+      spools_fittings.filter((spool) => spool.scope === 'Client')
+    )
+    summary.spools_by_scope.fittings.other = countSpools(
+      spools_fittings.filter((spool) => spool.scope === 'Other')
+    )
+    summary.spools_by_scope.fittings.total = countSpools(spools_fittings)
+    // SUPPORTS
+    summary.spools_by_scope.supports.performance = countSpools(
+      spools_supports.filter((spool) => spool.scope === 'Performance')
+    )
+    summary.spools_by_scope.supports.client = countSpools(
+      spools_supports.filter((spool) => spool.scope === 'Client')
+    )
+    summary.spools_by_scope.supports.other = countSpools(
+      spools_supports.filter((spool) => spool.scope === 'Other')
+    )
+    summary.spools_by_scope.supports.total = countSpools(spools_supports)
+
+    // COUNT UP DISCREPANCIES
+    summary.spools_by_scope.discrepancies =
+      job.total -
+      (summary.spools_by_scope.valves.total +
+        summary.spools_by_scope.pipe.total +
+        summary.spools_by_scope.flanges.total +
+        summary.spools_by_scope.fittings.total +
+        summary.spools_by_scope.supports.total +
+        summary.issued +
+        summary.workable_not_issued +
+        summary.on_hold_no_shorts -
+        summary.issued_missing_item)
+
+    // SHORTS
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // NO MATERIAL
+    // VALVES
+    summary.count_shorts.no_material.valves.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.no_material.valves.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.no_material.valves.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.no_material.valves.total = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'No Material'
+    ).length
+    // PIPE
+    let count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'No Material' &&
+        short.scope === 'Performance'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.no_material.pipe.performance = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'No Material' &&
+        short.scope === 'Client'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.no_material.pipe.client = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'No Material' &&
+        short.scope === 'Other'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.no_material.pipe.other = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (short.item === 'PIPE' && short.status === 'No Material') {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.no_material.pipe.total = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    // FLANGES
+    summary.count_shorts.no_material.flanges.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'No Material' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.no_material.flanges.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'No Material' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.no_material.flanges.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'No Material' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.no_material.flanges.total = summary.shorts.filter(
+      (short) => short.item === 'FLANGES' && short.status === 'No Material'
+    ).length
+    // FITTINGS
+    summary.count_shorts.no_material.fittings.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.no_material.fittings.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.no_material.fittings.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.no_material.fittings.total = summary.shorts.filter(
+      (short) => short.item === 'FITTINGS' && short.status === 'No Material'
+    ).length
+    // SUPPORTS
+    summary.count_shorts.no_material.supports.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.no_material.supports.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.no_material.supports.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'No Material' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.no_material.supports.total = summary.shorts.filter(
+      (short) => short.item === 'SUPPORTS' && short.status === 'No Material'
+    ).length
+
+    // PURCHASED
+    // VALVES
+    summary.count_shorts.purchased.valves.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.purchased.valves.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.purchased.valves.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.purchased.valves.total = summary.shorts.filter(
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased'
+    ).length
+    // PIPE
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Performance'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.purchased.pipe.performance = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Client'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.purchased.pipe.client = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (
+        short.item === 'PIPE' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Other'
+      ) {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.purchased.pipe.other = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    count_pipe = 0
+    summary.shorts.filter((short) => {
+      if (short.item === 'PIPE' && short.status === 'Purchased') {
+        count_pipe += parseFloat(short.quantity)
+      }
+      return short
+    })
+    summary.count_shorts.purchased.pipe.total = parseFloat(
+      count_pipe.toFixed(1)
+    )
+    // FLANGES
+    summary.count_shorts.purchased.flanges.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.purchased.flanges.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.purchased.flanges.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'FLANGES' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.purchased.flanges.total = summary.shorts.filter(
+      (short) => short.item === 'FLANGES' && short.status === 'Purchased'
+    ).length
+    // FITTINGS
+    summary.count_shorts.purchased.fittings.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.purchased.fittings.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.purchased.fittings.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'FITTINGS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.purchased.fittings.total = summary.shorts.filter(
+      (short) => short.item === 'FITTINGS' && short.status === 'Purchased'
+    ).length
+    // SUPPORTS
+    summary.count_shorts.purchased.supports.performance = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Performance'
+    ).length
+    summary.count_shorts.purchased.supports.client = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Client'
+    ).length
+    summary.count_shorts.purchased.supports.other = summary.shorts.filter(
+      (short) =>
+        short.item === 'SUPPORTS' &&
+        short.status === 'Purchased' &&
+        short.scope === 'Other'
+    ).length
+    summary.count_shorts.purchased.supports.total = summary.shorts.filter(
+      (short) => short.item === 'SUPPORTS' && short.status === 'Purchased'
+    ).length
+
+    // TOTAL SHORTS
+    // PERFORMANCE
+    summary.count_shorts.total.valves.performance =
+      summary.count_shorts.no_material.valves.performance +
+      summary.count_shorts.purchased.valves.performance
+
+    summary.count_shorts.total.pipe.performance =
+      summary.count_shorts.no_material.pipe.performance +
+      summary.count_shorts.purchased.pipe.performance
+
+    summary.count_shorts.total.flanges.performance =
+      summary.count_shorts.no_material.flanges.performance +
+      summary.count_shorts.purchased.flanges.performance
+
+    summary.count_shorts.total.fittings.performance =
+      summary.count_shorts.no_material.fittings.performance +
+      summary.count_shorts.purchased.fittings.performance
+
+    summary.count_shorts.total.supports.performance =
+      summary.count_shorts.no_material.supports.performance +
+      summary.count_shorts.purchased.supports.performance
+    // CLIENT
+    summary.count_shorts.total.valves.client =
+      summary.count_shorts.no_material.valves.client +
+      summary.count_shorts.purchased.valves.client
+
+    summary.count_shorts.total.pipe.client =
+      summary.count_shorts.no_material.pipe.client +
+      summary.count_shorts.purchased.pipe.client
+
+    summary.count_shorts.total.flanges.client =
+      summary.count_shorts.no_material.flanges.client +
+      summary.count_shorts.purchased.flanges.client
+
+    summary.count_shorts.total.fittings.client =
+      summary.count_shorts.no_material.fittings.client +
+      summary.count_shorts.purchased.fittings.client
+
+    summary.count_shorts.total.supports.client =
+      summary.count_shorts.no_material.supports.client +
+      summary.count_shorts.purchased.supports.client
+    // OTHER
+    summary.count_shorts.total.valves.other =
+      summary.count_shorts.no_material.valves.other +
+      summary.count_shorts.purchased.valves.other
+
+    summary.count_shorts.total.pipe.other =
+      summary.count_shorts.no_material.pipe.other +
+      summary.count_shorts.purchased.pipe.other
+
+    summary.count_shorts.total.flanges.other =
+      summary.count_shorts.no_material.flanges.other +
+      summary.count_shorts.purchased.flanges.other
+
+    summary.count_shorts.total.fittings.other =
+      summary.count_shorts.no_material.fittings.other +
+      summary.count_shorts.purchased.fittings.other
+
+    summary.count_shorts.total.supports.other =
+      summary.count_shorts.no_material.supports.other +
+      summary.count_shorts.purchased.supports.other
+    // TOTAL
+    summary.count_shorts.total.valves.total =
+      summary.count_shorts.no_material.valves.total +
+      summary.count_shorts.purchased.valves.total
+
+    summary.count_shorts.total.pipe.total =
+      summary.count_shorts.no_material.pipe.total +
+      summary.count_shorts.purchased.pipe.total
+
+    summary.count_shorts.total.flanges.total =
+      summary.count_shorts.no_material.flanges.total +
+      summary.count_shorts.purchased.flanges.total
+
+    summary.count_shorts.total.fittings.total =
+      summary.count_shorts.no_material.fittings.total +
+      summary.count_shorts.purchased.fittings.total
+
+    summary.count_shorts.total.supports.total =
+      summary.count_shorts.no_material.supports.total +
+      summary.count_shorts.purchased.supports.total
+
+    // SPOOL MISSING VALVE ONLY
+    summary.count_shorts.missing_valve_only.performance = summary.spools.filter(
+      (spool) =>
+        spool.missing_valve_only === true && spool.scope === 'Performance'
+    ).length
+    summary.count_shorts.missing_valve_only.client = summary.spools.filter(
+      (spool) => spool.missing_valve_only === true && spool.scope === 'Client'
+    ).length
+    summary.count_shorts.missing_valve_only.other = summary.spools.filter(
+      (spool) => spool.missing_valve_only === true && spool.scope === 'Other'
+    ).length
+    summary.count_shorts.missing_valve_only.total = summary.spools.filter(
+      (spool) => spool.missing_valve_only === true
+    ).length
+
+    console.log(summary)
+
     // DOWNLOAD JSON FILE
-    let obj = { job: job, jobnum: jobnum, dormant: dormant }
+    let obj = summary
     let str = JSON.stringify(obj)
 
     let encode = function (s) {
@@ -1153,6 +1872,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
     )
     link.dispatchEvent(event)
 
+    // AREAS
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // DISPATCH TO REDUCER
     dispatch({
       type: UPDATE_JOB,
@@ -1175,7 +1898,7 @@ export const setJob = (jobnum) => async (dispatch) => {
 
     dispatch({
       type: SET_JOB,
-      payload: { job: job.job, dormant: job.dormant, jobnum: job.jobnum },
+      payload: job,
     })
   } catch {
     dispatch({
@@ -1187,13 +1910,7 @@ export const setJob = (jobnum) => async (dispatch) => {
 export const downloadReport = (job) => async (dispatch) => {
   try {
     // GRAB XLSX SUMMARY TEMPLATE
-    const res = await axios.get('/api/xlsx/summary/')
-    let wb = res.data
-    wb.Sheets.PRINTOUT.B5.v = 1000000
-    // console.log(wb)
-
-    /* write workbook (use type 'binary') */
-    XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+    const res = await axios.get('/api/summary/' + job.number + '/' + job.client)
   } catch {
     // dispatch({
     //   type: JOB_ERROR,

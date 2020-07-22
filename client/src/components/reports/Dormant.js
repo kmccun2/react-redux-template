@@ -88,8 +88,8 @@ const Dormant = ({
               <div className='d-col13'>Weld to Site</div>
             </div>
             {jobs.map((job) => (
-              <div className='table-row' key={job.jobnum}>
-                <div className='d-col1 table-subheader'>{job.jobnum}</div>
+              <div className='table-row' key={job.number}>
+                <div className='d-col1 table-subheader'>{job.number}</div>
                 <div className='d-col2'>
                   {job.lifespan.avg !== 0 ? job.lifespan.avg : '-'}
                 </div>

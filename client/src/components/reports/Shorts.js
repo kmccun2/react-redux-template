@@ -1,37 +1,11 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 
-const Shorts = ({ header, shorts, job, pipeshorts }) => {
-  // CALCULATIONS FOR PIPE
-  const [pipe_p, setPipe_p] = useState(0)
-  const [pipe_c, setPipe_c] = useState(0)
-  const [pipe_o, setPipe_o] = useState(0)
-  const [pipe_t, setPipe_t] = useState(0)
-
-  useEffect(() => {
-    let perf = 0
-    let cli = 0
-    let oth = 0
-    let tot = 0
-    pipeshorts.map((short) => {
-      if (short.scope === 'Performance') {
-        perf += parseFloat(short.quantity)
-      }
-      if (short.scope === 'Client') {
-        cli += parseFloat(short.quantity)
-      }
-      if (short.scope === 'Other') {
-        oth += parseFloat(short.quantity)
-      }
-      tot += parseFloat(short.quantity)
-      return short
-    })
-    setPipe_p(perf.toFixed(1))
-    setPipe_c(cli.toFixed(1))
-    setPipe_o(oth.toFixed(1))
-    setPipe_t(tot.toFixed(1))
-  }, [pipeshorts])
-
+const Shorts = ({
+  header,
+  job,
+  shorts: { valves, pipe, flanges, fittings, supports },
+}) => {
   return (
     <Fragment>
       {job && (
@@ -48,149 +22,59 @@ const Shorts = ({ header, shorts, job, pipeshorts }) => {
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader'>Valves</div>
-            <div className='sh-col2'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'VALVES / IN-LINE ITEMS' &&
-                    short.scope === 'Performance'
-                ).length
-              }
-            </div>
-            <div className='sh-col3'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'VALVES / IN-LINE ITEMS' &&
-                    short.scope === 'Client'
-                ).length
-              }
-            </div>
-            <div className='sh-col4'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'VALVES / IN-LINE ITEMS' &&
-                    short.scope === 'Other'
-                ).length
-              }
-            </div>
-            <div className='sh-col5 total-subheader'>
-              {
-                shorts.filter(
-                  (short) => short.item === 'VALVES / IN-LINE ITEMS'
-                ).length
-              }
-            </div>
+            <div className='sh-col2'>{valves.performance}</div>
+            <div className='sh-col3'>{valves.client}</div>
+            <div className='sh-col4'>{valves.other}</div>
+            <div className='sh-col5 total-subheader'>{valves.total}</div>
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader'>Flanges</div>
-            <div className='sh-col2'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'FLANGES' && short.scope === 'Performance'
-                ).length
-              }
-            </div>
-            <div className='sh-col3'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'FLANGES' && short.scope === 'Client'
-                ).length
-              }
-            </div>
-            <div className='sh-col4'>
-              {
-                shorts.filter(
-                  (short) => short.item === 'FLANGES' && short.scope === 'Other'
-                ).length
-              }
-            </div>
-            <div className='sh-col5 total-subheader'>
-              {shorts.filter((short) => short.item === 'FLANGES').length}
-            </div>
+            <div className='sh-col2'>{flanges.performance}</div>
+            <div className='sh-col3'>{flanges.client}</div>
+            <div className='sh-col4'>{flanges.other}</div>
+            <div className='sh-col5 total-subheader'>{flanges.total}</div>
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader'>Fittings</div>
-            <div className='sh-col2'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'FITTINGS' && short.scope === 'Performance'
-                ).length
-              }
-            </div>
-            <div className='sh-col3'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'FITTINGS' && short.scope === 'Client'
-                ).length
-              }
-            </div>
-            <div className='sh-col4'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'FITTINGS' && short.scope === 'Other'
-                ).length
-              }
-            </div>
-            <div className='sh-col5 total-subheader'>
-              {shorts.filter((short) => short.item === 'FITTINGS').length}
-            </div>
+            <div className='sh-col2'>{fittings.performance}</div>
+            <div className='sh-col3'>{fittings.client}</div>
+            <div className='sh-col4'>{fittings.other}</div>
+            <div className='sh-col5 total-subheader'>{fittings.total}</div>
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader'>Supports</div>
-            <div className='sh-col2'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'SUPPORTS' && short.scope === 'Performance'
-                ).length
-              }
-            </div>
-            <div className='sh-col3'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'SUPPORTS' && short.scope === 'Client'
-                ).length
-              }
-            </div>
-            <div className='sh-col4'>
-              {
-                shorts.filter(
-                  (short) =>
-                    short.item === 'SUPPORTS' && short.scope === 'Other'
-                ).length
-              }
-            </div>
-            <div className='sh-col5 total-subheader'>
-              {shorts.filter((short) => short.item === 'SUPPORTS').length}
-            </div>
+            <div className='sh-col2'>{supports.performance}</div>
+            <div className='sh-col3'>{supports.client}</div>
+            <div className='sh-col4'>{supports.other}</div>
+            <div className='sh-col5 total-subheader'>{supports.total}</div>
           </div>
           <div className='totals-row table-row'>
             <div className='sh-col1'>TOTAL</div>
             <div className='sh-col2'>
-              {shorts.filter((short) => short.scope === 'Performance').length}
+              {valves.performance +
+                flanges.performance +
+                fittings.performance +
+                supports.performance}
             </div>
             <div className='sh-col3'>
-              {shorts.filter((short) => short.scope === 'Client').length}
+              {valves.client +
+                flanges.client +
+                fittings.client +
+                supports.client}
             </div>
             <div className='sh-col4'>
-              {shorts.filter((short) => short.scope === 'Other').length}
+              {valves.other + flanges.other + fittings.other + supports.other}
             </div>
-            <div className='sh-col5'>{shorts.length}</div>
+            <div className='sh-col5'>
+              {valves.total + flanges.total + fittings.total + supports.total}
+            </div>
           </div>
           <div className='table-row pipe-row'>
             <div className='sh-col1 table-subheader'>Pipe</div>
-            <div className='sh-col2'>{pipe_p}</div>
-            <div className='sh-col3'>{pipe_c}</div>
-            <div className='sh-col4'>{pipe_o}</div>
-            <div className='sh-col5 total-subheader'>{pipe_t}</div>
+            <div className='sh-col2'>{pipe.performance}</div>
+            <div className='sh-col3'>{pipe.client}</div>
+            <div className='sh-col4'>{pipe.other}</div>
+            <div className='sh-col5 total-subheader'>{pipe.total}</div>
           </div>
         </div>
       )}

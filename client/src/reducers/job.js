@@ -24,9 +24,7 @@ export default function (state = initialState, action) {
     case SET_JOB:
       return {
         ...state,
-        jobnum: payload.jobnum,
-        job: payload.job,
-        dormant: payload.dormant,
+        job: payload,
         loading: false,
       }
     case UPDATE_JOB:
