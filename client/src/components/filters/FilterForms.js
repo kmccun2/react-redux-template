@@ -29,23 +29,18 @@ const FilterForms = ({
     if (list.includes(item)) {
       if (type === 'job') {
         setParamJobs(list.filter((each) => each !== item))
-        console.log(list)
       }
       if (type === 'material') {
         setParamMaterials(list.filter((each) => each !== item))
-        console.log(list)
       }
       if (type === 'shop') {
         setParamShops(list.filter((each) => each !== item))
-        console.log(list)
       }
       if (type === 'priority') {
         setParamPriorities(list.filter((each) => each !== item))
-        console.log(list)
       }
       if (type === 'status') {
         setParamStatuses(list.filter((each) => each !== item))
-        console.log(list)
       }
     } else {
       if (type === 'job') {

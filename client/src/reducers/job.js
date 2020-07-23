@@ -3,12 +3,14 @@ import {
   JOB_ERROR,
   SET_JOB_LOADING,
   UPDATE_JOB,
+  DOWNLOAD_JOB,
+  DOWNLOAD_JOB_LOADING,
 } from '../actions/types'
 
 const initialState = {
   loading: false,
   job_mats: [],
-  error: {},
+  downloading: false,
   dormant: undefined,
 }
 
@@ -32,6 +34,16 @@ export default function (state = initialState, action) {
         ...state,
         job: payload.job,
         loading: false,
+      }
+    case DOWNLOAD_JOB:
+      return {
+        ...state,
+        downloading: false,
+      }
+    case DOWNLOAD_JOB_LOADING:
+      return {
+        ...state,
+        downloading: true,
       }
     case JOB_ERROR:
       return {

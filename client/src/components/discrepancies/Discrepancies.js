@@ -3,28 +3,21 @@ import { connect } from 'react-redux'
 import { updateJobs } from '../../actions/jobs'
 
 const Discrepancies = ({ discrepancies, job, type }) => {
-  const [used, setUsed] = useState([])
-  const [srNotLl, setSrNotLl] = useState([])
-  const [fcIss, setFcIss] = useState([])
-  const [notFcNotIss, setNotFcNotIss] = useState([])
-  const [fcNotLl, setFcNotLl] = useState([])
+  const [used, setUsed] = useState({
+    fc_not_ll: [],
+    sr_not_ll: [],
+    notfc_notiss: [],
+    fc_iss: [],
+  })
 
   useEffect(() => {
     if (type === undefined && discrepancies) {
-      setSrNotLl(discrepancies.filter((one) => one.type === 'sr_not_ll'))
-      setFcIss(discrepancies.filter((one) => one.type === 'fc_iss'))
-      setNotFcNotIss(discrepancies.filter((one) => one.type === 'notfc_notiss'))
-      setFcNotLl(discrepancies.filter((one) => one.type === 'fc_not_ll'))
+      setUsed(discrepancies)
     }
     if (type === 'one') {
-      setSrNotLl(job.discrepancies.filter((one) => one.type === 'sr_not_ll'))
-      setFcIss(job.discrepancies.filter((one) => one.type === 'fc_iss'))
-      setNotFcNotIss(
-        job.discrepancies.filter((one) => one.type === 'notfc_notiss')
-      )
-      setFcNotLl(job.discrepancies.filter((one) => one.type === 'fc_not_ll'))
+      setUsed(job.discrepancies)
     }
-  }, [discrepancies])
+  }, [discrepancies, type])
 
   return (
     <Fragment>
@@ -42,11 +35,11 @@ const Discrepancies = ({ discrepancies, job, type }) => {
             <div className='disc-col'>Piecemark</div>
           </div>
           <Fragment>
-            {srNotLl.length === 0 ? (
+            {used.sr_not_ll.length === 0 ? (
               <div className='no-discrepancies'>No Discrepancies</div>
             ) : (
               <Fragment>
-                {srNotLl.map((each) => (
+                {used.sr_not_ll.map((each) => (
                   <div key={each.piecemark} className='table-row'>
                     <div className='disc-col'>{each.jobnum}</div>
                     <div className='disc-col'>{each.piecemark}</div>
@@ -64,11 +57,11 @@ const Discrepancies = ({ discrepancies, job, type }) => {
             <div className='disc-col'>Spool</div>
           </div>
           <Fragment>
-            {fcIss.length === 0 ? (
+            {used.fc_iss.length === 0 ? (
               <div className='no-discrepancies'>No Discrepancies</div>
             ) : (
               <Fragment>
-                {fcIss.map((each) => (
+                {used.fc_iss.map((each) => (
                   <div key={each.spool} className='table-row'>
                     <div className='disc-col'>{each.jobnum}</div>
                     <div className='disc-col'>{each.spool}</div>
@@ -89,11 +82,11 @@ const Discrepancies = ({ discrepancies, job, type }) => {
             <div className='disc-col'>Spool</div>
           </div>
           <Fragment>
-            {notFcNotIss.length === 0 ? (
+            {used.notfc_notiss.length === 0 ? (
               <div className='no-discrepancies'>No Discrepancies</div>
             ) : (
               <Fragment>
-                {notFcNotIss.map((each) => (
+                {used.notfc_notiss.map((each) => (
                   <div key={each.spool} className='table-row'>
                     <div className='disc-col'>{each.jobnum}</div>
                     <div className='disc-col'>{each.spool}</div>
@@ -114,11 +107,11 @@ const Discrepancies = ({ discrepancies, job, type }) => {
             <div className='disc-col'>Spool</div>
           </div>
           <Fragment>
-            {fcNotLl.length === 0 ? (
+            {used.fc_not_ll.length === 0 ? (
               <div className='no-discrepancies'>No Discrepancies</div>
             ) : (
               <Fragment>
-                {fcNotLl.map((each) => (
+                {used.fc_not_ll.map((each) => (
                   <div key={each.spool} className='table-row'>
                     <div className='disc-col'>{each.jobnum}</div>
                     <div className='disc-col'>{each.spool}</div>

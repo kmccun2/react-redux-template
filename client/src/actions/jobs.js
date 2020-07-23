@@ -12,15 +12,18 @@ export const setJobsLoading = () => async (dispatch) => {
 export const updateJobs = (jobnums) => async (dispatch) => {
   try {
     let jobs = []
-    let discrepancies = []
-
+    let discrepancies = {
+      fc_not_ll: [],
+      sr_not_ll: [],
+      notfc_notiss: [],
+      fc_iss: [],
+    }
     // ADD EACH JOB TO JOBS
     for (let i = 0; i < jobnums.length; i++) {
       try {
         const res = await axios.get('/api/json/import/' + jobnums[i])
         let job = JSON.parse(res.data)
         jobs.push(job)
-        console.log(jobs)
       } catch {
         console.log('No job found.')
       }
@@ -213,8 +216,20 @@ export const updateJobs = (jobnums) => async (dispatch) => {
         return material
       })
       // DISCREPANCIES
-      job.discrepancies.map((disc) => {
-        discrepancies.push(disc)
+      job.discrepancies.sr_not_ll.map((disc) => {
+        discrepancies.sr_not_ll.push(disc)
+        return disc
+      })
+      job.discrepancies.fc_iss.map((disc) => {
+        discrepancies.fc_iss.push(disc)
+        return disc
+      })
+      job.discrepancies.notfc_notiss.map((disc) => {
+        discrepancies.notfc_notiss.push(disc)
+        return disc
+      })
+      job.discrepancies.fc_not_ll.map((disc) => {
+        discrepancies.fc_not_ll.push(disc)
         return disc
       })
       return job

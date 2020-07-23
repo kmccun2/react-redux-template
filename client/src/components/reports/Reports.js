@@ -1,6 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { setJobLoading, setJob, downloadReport } from '../../actions/job'
+import {
+  setJobLoading,
+  setJob,
+  downloadReport,
+  downloadLoading,
+} from '../../actions/job'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
@@ -10,7 +15,15 @@ import { CSVLink } from 'react-csv'
 import Discrepancies from '../discrepancies/Discrepancies'
 import Location from '../reports/Location'
 
-const Reports = ({ match, loading, job, setJob, downloadReport }) => {
+const Reports = ({
+  match,
+  loading,
+  job,
+  setJob,
+  downloadReport,
+  downloading,
+  downloadLoading,
+}) => {
   const [jsActive, setjsActive] = useState(1)
   let jobnum = match.params.job.toString()
 
@@ -34,8 +47,14 @@ const Reports = ({ match, loading, job, setJob, downloadReport }) => {
             <CSVLink className='download-btn' data={job.shorts}>
               Download Shorts
             </CSVLink>
-            <div className='download-btn' onClick={() => downloadReport(job)}>
-              Download Summary
+            <div
+              className='download-btn'
+              onClick={() => {
+                downloadLoading()
+                downloadReport(job)
+              }}
+            >
+              {downloading ? 'Downloading...' : 'Download Summary'}
             </div>
           </div>
           {/* JOB HEADING */}
@@ -155,9 +174,11 @@ const mapStateToProps = (state) => ({
   job_mats: state.job.job_mats,
   jobs: state.job.jobs,
   jobnums: state.jobs.jobnums,
+  downloading: state.job.downloading,
 })
 export default connect(mapStateToProps, {
   setJobLoading,
   setJob,
   downloadReport,
+  downloadLoading,
 })(Reports)

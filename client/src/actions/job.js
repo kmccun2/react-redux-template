@@ -1,6 +1,13 @@
 import axios from 'axios'
 import moment from 'moment'
-import { UPDATE_JOB, JOB_ERROR, SET_JOB_LOADING, SET_JOB } from './types'
+import {
+  UPDATE_JOB,
+  JOB_ERROR,
+  SET_JOB_LOADING,
+  SET_JOB,
+  DOWNLOAD_JOB,
+  DOWNLOAD_JOB_LOADING,
+} from './types'
 
 // SET LOADING TO TRUE
 export const setJobLoading = () => async (dispatch) => {
@@ -20,7 +27,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
       materials: [],
       priorities: [],
       shorts: [],
-      discrepancies: [],
+      discrepancies: {
+        fc_not_ll: [],
+        sr_not_ll: [],
+        notfc_notiss: [],
+        fc_iss: [],
+      },
       workable_not_issued: 0,
       issued_missing_item: 0,
       on_hold_no_shorts: 0,
@@ -428,7 +440,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // ADD DISCREPANCIES
     sr_pms.map((pm) => {
       if (ll_pms.includes(pm.piecemark) === false) {
-        job.discrepancies.push({
+        job.discrepancies.sr_not_ll.push({
           piecemark: pm.piecemark,
           spool: undefined,
           jobnum: jobnum,
@@ -639,7 +651,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     job.spools.map((spool) => {
       if (fc_spools.includes(spool.spool)) {
         if (spool.issued !== undefined && spool.issued !== '') {
-          job.discrepancies.push({
+          job.discrepancies.fc_iss.push({
             spool: spool.spool,
             piecemark: spool.piecemark,
             jobnum: spool.jobnum,
@@ -648,7 +660,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         }
       } else {
         if (spool.issued === undefined && spool.issued === '') {
-          job.discrepancies.push({
+          job.discrepancies.notfc_notiss.push({
             spool: spool.spool,
             piecemark: spool.piecemark,
             jobnum: spool.jobnum,
@@ -661,7 +673,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     fc_spools.map((spool) => {
       if (ll_spools.includes(spool === false)) {
-        job.discrepancies.push({
+        job.forecast_not_linelist.push({
           spool: spool.spool,
           piecemark: spool.piecemark,
           jobnum: spool.jobnum,
@@ -821,19 +833,19 @@ export const updateJob = (jobnum) => async (dispatch) => {
       if (area.workable / area.spools === 1) {
         area.workable_perc = (area.workable / area.spools) * 100
       } else {
-        area.workable_perc = ((area.workable / area.spools) * 100).toFixed(2)
+        area.workable_perc = ((area.workable / area.spools) * 100).toFixed(1)
       }
       // WELDOUT PERCENTAGE
       if (area.weldout / area.spools === 1) {
         area.weldout_perc = (area.weldout / area.spools) * 100
       } else {
-        area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(2)
+        area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(1)
       }
       // DELIVERED PERCENTAGE
       if (area.delivered / area.spools === 1) {
         area.delivered_perc = (area.delivered / area.spools) * 100
       } else {
-        area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(2)
+        area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(1)
       }
       return area
     })
@@ -1828,8 +1840,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
       (spool) => spool.missing_valve_only === true
     ).length
 
-    console.log(summary)
-
     // DOWNLOAD JSON FILE
     let obj = summary
     let str = JSON.stringify(obj)
@@ -1910,11 +1920,29 @@ export const setJob = (jobnum) => async (dispatch) => {
 export const downloadReport = (job) => async (dispatch) => {
   try {
     // GRAB XLSX SUMMARY TEMPLATE
+    // eslint-disable-next-line
     const res = await axios.get('/api/summary/' + job.number + '/' + job.client)
+    dispatch({
+      type: DOWNLOAD_JOB,
+    })
+    alert('Summary saved to job folder!')
   } catch {
-    // dispatch({
-    //   type: JOB_ERROR,
-    // })
+    dispatch({
+      type: JOB_ERROR,
+    })
+    console.log('error')
+  }
+}
+
+export const downloadLoading = () => async (dispatch) => {
+  try {
+    dispatch({
+      type: DOWNLOAD_JOB_LOADING,
+    })
+  } catch {
+    dispatch({
+      type: JOB_ERROR,
+    })
     console.log('error')
   }
 }

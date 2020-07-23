@@ -11,13 +11,13 @@ router.get('/:job/:client', async (req, res) => {
       mode: 'text',
       args: [req.params.job, req.params.client],
     }
-    PythonShell.run('test.py', options, function (err, results) {
+    PythonShell.run('summary.py', options, function (err, results) {
       if (err) throw err
       // Results is an array consisting of messages collected during execution
-      console.log(results)
+      console.log('Complete!')
+      res.json(results.client)
     })
   } catch (err) {
-    console.error(err.message)
     res.status(500).send('Server Error')
   }
 })
