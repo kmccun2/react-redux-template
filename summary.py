@@ -400,79 +400,77 @@ spbs['E14'] = job['total']
 print('')
 print('Adding discrepancies lists..')
 
-for i in range(len(job['fc_issued'])):
-    disc['A'+str(i+2)] = job['fc_issued'][i]
-for i in range(len(job['not_fc_not_issued'])):
-    disc['B'+str(i+2)] = job['not_fc_not_issued'][i]
-for i in range(len(job['fc_not_ll'])):
-    disc['C'+str(i+2)] = job['fc_not_ll'][i]
-for i in range(len(job['sr_not_ll'])):
-    disc['D'+str(i+2)] = job['sr_not_ll'][i]
-for i in range(len(job['on_hold_dis'])):
-    disc['D'+str(i+2)] = job['on_hold_dis'][i]
+for i in range(len(job['discrepancies']['fc_iss'])):
+    disc['A'+str(i+2)] = job['discrepancies']['fc_iss'][i]['spool']
+for i in range(len(job['discrepancies']['notfc_notiss'])):
+    disc['B'+str(i+2)] = job['discrepancies']['notfc_not_iss'][i]['spool']
+for i in range(len(job['discrepancies']['fc_not_ll'])):
+    disc['C'+str(i+2)] = job['discrepancies']['fc_not_ll'][i]['spool']
+for i in range(len(job['discrepancies']['sr_not_ll'])):
+    disc['D'+str(i+2)] = job['discrepancies']['sr_not_ll'][i]['piecemark']
 
 for row in range(2, disc.max_row+1):
     for col in range(1, disc.max_column+1):
         disc[get_column_letter(
             col)+str(row)].alignment = Alignment(vertical='center', horizontal='center')
 
-# # STYLES #####################
-# # AREAS
+# STYLES #####################
+# AREAS
 
-# # PRINTOUT
-# for row in range(29, printout.max_row+1):
-#     for col in range(1, printout.max_column+1):
-#         printout[get_column_letter(
-#             col)+str(row)].alignment = Alignment(vertical='center', horizontal='center')
+# PRINTOUT
+for row in range(29, printout.max_row+1):
+    for col in range(1, printout.max_column+1):
+        printout[get_column_letter(
+            col)+str(row)].alignment = Alignment(vertical='center', horizontal='center')
 
-# # AREA TABS
-# areasmc = areas.max_column
-# areasmr = areas.max_row
+# AREA TABS
+areasmc = areas.max_column
+areasmr = areas.max_row
 
-# for row in range(1, areasmr+1):
-#     areas.row_dimensions[row].height = 15
-#     for col in range(1, areasmc+1):
-#         areas.column_dimensions[str(get_column_letter(col))].width = 13
-#         areas[str(get_column_letter(col))+str(row)
-#               ].alignment = Alignment(vertical='center', horizontal='center', wrap_text=True)
+for row in range(1, areasmr+1):
+    areas.row_dimensions[row].height = 15
+    for col in range(1, areasmc+1):
+        areas.column_dimensions[str(get_column_letter(col))].width = 13
+        areas[str(get_column_letter(col))+str(row)
+              ].alignment = Alignment(vertical='center', horizontal='center', wrap_text=True)
 
-# areas.row_dimensions[1].height = 37
-# areas.row_dimensions[2].height = 37
+areas.row_dimensions[1].height = 37
+areas.row_dimensions[2].height = 37
 
-# areas.merge_cells('A1:'+str(get_column_letter(areas.max_column))+'1')
+areas.merge_cells('A1:'+str(get_column_letter(areas.max_column))+'1')
 
-# areas['A1'].font = Font(bold=True, sz=20, color=white)
-# areas['A1'].fill = PatternFill(
-#     fill_type='solid', start_color=black, end_color=black)
+areas['A1'].font = Font(bold=True, sz=20, color=white)
+areas['A1'].fill = PatternFill(
+    fill_type='solid', start_color=black, end_color=black)
 
-# for col in range(1, areas.max_column+1):
-#     areas[get_column_letter(col)+'2'].font = Font(bold=True, color=white)
-#     areas[get_column_letter(col)+'2'].fill = PatternFill(
-#         fill_type='solid', start_color=header_blue, end_color=header_blue)
+for col in range(1, areas.max_column+1):
+    areas[get_column_letter(col)+'2'].font = Font(bold=True, color=white)
+    areas[get_column_letter(col)+'2'].fill = PatternFill(
+        fill_type='solid', start_color=header_blue, end_color=header_blue)
 
-# # ABM SHEET
-# # SIZE AND ALIGN ALL CELLS
-# if len(job['areas']) > 0:
-#     for row in range(1, abm.max_row+1):
-#         abm.row_dimensions[row].height = 15
-#         for col in range(1, abm.max_column+1):
-#             abm.column_dimensions[str(get_column_letter(col))].width = 13
-#             abm[str(get_column_letter(col))+str(row)
-#                 ].alignment = Alignment(vertical='center', horizontal='center', wrap_text=True)
+# ABM SHEET
+# SIZE AND ALIGN ALL CELLS
+if len(job['areas']) > 0:
+    for row in range(1, abm.max_row+1):
+        abm.row_dimensions[row].height = 15
+        for col in range(1, abm.max_column+1):
+            abm.column_dimensions[str(get_column_letter(col))].width = 13
+            abm[str(get_column_letter(col))+str(row)
+                ].alignment = Alignment(vertical='center', horizontal='center', wrap_text=True)
 
-#         if abm['A'+str(row)].value == 'Area':
-#             abm.merge_cells('A'+str(row-1)+':'+mat_perc_delivered+str(row-1))
-#             abm.row_dimensions[row].height = 37
-#             abm.row_dimensions[row-1].height = 37
-#             abm['A'+str(row-1)].font = Font(bold=True, sz=20, color=white)
-#             abm['A'+str(row-1)].fill = PatternFill(
-#                 fill_type='solid', start_color=black, end_color=black)
-#             carbon_headers = ['A'+str(row), 'B'+str(row), 'C'+str(row), 'D'+str(row), 'E'+str(row), 'F'+str(row), 'G'+str(row), 'H'+str(row),
-#                               'I'+str(row), 'J'+str(row), 'K'+str(row), 'L'+str(row), 'M'+str(row), 'N'+str(row)]
-#             for cell in carbon_headers:
-#                 abm[cell].font = Font(bold=True, color=white)
-#                 abm[cell].fill = PatternFill(
-#                     fill_type='solid', start_color=header_blue, end_color=header_blue)
+        if abm['A'+str(row)].value == 'Area':
+            abm.merge_cells('A'+str(row-1)+':'+mat_perc_delivered+str(row-1))
+            abm.row_dimensions[row].height = 37
+            abm.row_dimensions[row-1].height = 37
+            abm['A'+str(row-1)].font = Font(bold=True, sz=20, color=white)
+            abm['A'+str(row-1)].fill = PatternFill(
+                fill_type='solid', start_color=black, end_color=black)
+            carbon_headers = ['A'+str(row), 'B'+str(row), 'C'+str(row), 'D'+str(row), 'E'+str(row), 'F'+str(row), 'G'+str(row), 'H'+str(row),
+                              'I'+str(row), 'J'+str(row), 'K'+str(row), 'L'+str(row), 'M'+str(row), 'N'+str(row)]
+            for cell in carbon_headers:
+                abm[cell].font = Font(bold=True, color=white)
+                abm[cell].fill = PatternFill(
+                    fill_type='solid', start_color=header_blue, end_color=header_blue)
 
 
 # ###### ###### ##    ## ######

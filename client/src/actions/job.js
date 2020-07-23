@@ -830,19 +830,28 @@ export const updateJob = (jobnum) => async (dispatch) => {
       area.not_delivered = area.spools - area.delivered
       area.not_weldout = area.spools - area.weldout
       // WORKABLE PERCENTAGE
-      if (area.workable / area.spools === 1) {
+      if (
+        area.workable / area.spools === 1 ||
+        area.workable / area.spools === 0
+      ) {
         area.workable_perc = (area.workable / area.spools) * 100
       } else {
         area.workable_perc = ((area.workable / area.spools) * 100).toFixed(1)
       }
       // WELDOUT PERCENTAGE
-      if (area.weldout / area.spools === 1) {
+      if (
+        area.weldout / area.spools === 1 ||
+        area.weldout / area.spools === 1
+      ) {
         area.weldout_perc = (area.weldout / area.spools) * 100
       } else {
         area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(1)
       }
       // DELIVERED PERCENTAGE
-      if (area.delivered / area.spools === 1) {
+      if (
+        area.delivered / area.spools === 1 ||
+        area.delivered / area.spools === 1
+      ) {
         area.delivered_perc = (area.delivered / area.spools) * 100
       } else {
         area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(1)
@@ -896,23 +905,32 @@ export const updateJob = (jobnum) => async (dispatch) => {
         area.not_delivered = area.spools - area.delivered
         area.not_weldout = area.spools - area.weldout
         // WORKABLE PERCENTAGE
-        if (area.workable / area.spools === 1) {
+        if (
+          area.workable / area.spools === 1 ||
+          area.workable / area.spools === 0
+        ) {
           area.workable_perc = (area.workable / area.spools) * 100
         } else {
-          area.workable_perc = ((area.workable / area.spools) * 100).toFixed(2)
+          area.workable_perc = ((area.workable / area.spools) * 100).toFixed(1)
         }
         // WELDOUT PERCENTAGE
-        if (area.weldout / area.spools === 1) {
+        if (
+          area.weldout / area.spools === 1 ||
+          area.weldout / area.spools === 1
+        ) {
           area.weldout_perc = (area.weldout / area.spools) * 100
         } else {
-          area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(2)
+          area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(1)
         }
         // DELIVERED PERCENTAGE
-        if (area.delivered / area.spools === 1) {
+        if (
+          area.delivered / area.spools === 1 ||
+          area.delivered / area.spools === 1
+        ) {
           area.delivered_perc = (area.delivered / area.spools) * 100
         } else {
           area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(
-            2
+            1
           )
         }
         return area
