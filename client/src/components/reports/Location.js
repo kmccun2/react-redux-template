@@ -1,6 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 
 const Location = ({ job }) => {
   const [data, setData] = useState([])

@@ -19,6 +19,7 @@ app.use(
 app.use('/api/csvs', require('./routes/api/csvs'))
 app.use('/api/json', require('./routes/api/json'))
 app.use('/api/summary', require('./routes/api/summary'))
+app.use('/api/tags', require('./routes/api/tags'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

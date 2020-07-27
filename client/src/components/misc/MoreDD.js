@@ -11,6 +11,9 @@ const MoreDD = ({ show }) => {
         <Link to={'/discrepancies'}>
           <div className='reports-job'>Discrepancies</div>
         </Link>
+        <Link to={'/comparetags'}>
+          <div className='reports-job'>Compare Tags</div>
+        </Link>
       </Fragment>
     </div>
   )
