@@ -11,7 +11,10 @@ router.get('/:job/:client', async (req, res) => {
       mode: 'text',
       args: [req.params.job, req.params.client],
     }
-    PythonShell.run('summary.py', options, function (err, results) {
+    PythonShell.run('database/Python/summary.py', options, function (
+      err,
+      results
+    ) {
       if (err) throw err
       // Results is an array consisting of messages collected during execution
       console.log('Complete!')

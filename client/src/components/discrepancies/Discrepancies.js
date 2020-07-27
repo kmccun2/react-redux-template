@@ -17,13 +17,12 @@ const Discrepancies = ({ discrepancies, job, type }) => {
     if (type === 'one') {
       setUsed(job.discrepancies)
     }
+    // eslint-disable-next-line
   }, [discrepancies, type])
 
   return (
     <Fragment>
-      <div style={{ marginTop: 60 }} className='js-heading'>
-        Discrepancies
-      </div>
+      <div className='table-label'>Discrepancies</div>
       <div className='disc-container'>
         {/* STATUS REPORT (NOT LINELIST) */}
         <div className='table-container disc-table'>

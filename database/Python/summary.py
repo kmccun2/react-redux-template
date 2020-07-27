@@ -278,17 +278,19 @@ for each in job['materials']:
             ] = str(round((each['delivered']/each['total'])*100))+"%"
         abm.row_dimensions[abm.max_row].height = 20
 
-# # SPOOL LOCAITON
-# print('')
-# print('Adding spool locations..')
+# SPOOL LOCAITON
+print('')
+print('Adding spool locations..')
 
-# loc['B1'] = job['location_nw']
-# loc['B2'] = job['location_w']
-# loc['B3'] = job['location_i']
-# loc['B4'] = job['location_p']
-# loc['B5'] = job['location_wo']
-# loc['B6'] = job['location_stp']
-# loc['B7'] = job['location_d']
+loc['B1'] = job['status']['not_workable']
+loc['B2'] = job['status']['workable']
+loc['B3'] = job['status']['issued']
+loc['B4'] = job['status']['pulled']
+loc['B5'] = job['status']['weldout']
+loc['B6'] = job['status']['stc']
+loc['B7'] = job['status']['rtd']
+loc['B8'] = job['status']['delivered']
+loc['B9'] = job['status']['on_hold']
 
 # SHORTS BY SCOPE
 print('')

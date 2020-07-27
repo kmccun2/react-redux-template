@@ -33,6 +33,17 @@ export const updateJob = (jobnum) => async (dispatch) => {
         notfc_notiss: [],
         fc_iss: [],
       },
+      status: {
+        not_workable: 0,
+        workable: 0,
+        issued: 0,
+        pulled: 0,
+        weldout: 0,
+        stc: 0,
+        rtd: 0,
+        delivered: 0,
+        on_hold: 0,
+      },
       workable_not_issued: 0,
       issued_missing_item: 0,
       on_hold_no_shorts: 0,
@@ -240,6 +251,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             piecemark: line.split(',')[piecemark_col],
             material: line.split(',')[material_col],
             issued: line.split(',')[issued_col],
+            pulled: '',
             priority_group: line.split(',')[priority_group_col],
             priority: line.split(',')[priority_col],
             area: line.split(',')[area_col],
@@ -420,7 +432,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.stc = pm.stc
           spool.delivered = pm.delivered
           spool.on_hold = pm.on_hold
-          spool.workable = true
         }
         return pm
       })
@@ -434,6 +445,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.scope = 'Performance'
         }
       }
+      spool.workable = true
       return spool
     })
 
@@ -638,6 +650,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (item.status === 'No Material' || item.status === 'Purchased') {
               job.shorts.push(item)
               spool.shorts.push(item.item)
+              spool.workable = false
             }
           }
           return job
@@ -686,6 +699,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // ADDITIONAL CALCULATIONS
     job.total = 0
     job.issued = 0
+    job.pulled = 0
     job.workable = 0
     job.on_hold = 0
     job.weldout = 0
@@ -695,6 +709,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     job.spools.map((each) => {
       // TOTAL SPOOLS
       job.total += each.multiplier
+      each.status = 'Not Workable'
       // TOTAL WORKABLE
       if (each.workable) {
         job.workable += each.multiplier
@@ -704,6 +719,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
       if (each.issued.includes('/')) {
         job.issued += each.multiplier
         each.status = 'Issued'
+      }
+      // TOTAL PULLED
+      if (each.pulled.includes('/')) {
+        job.pulled += each.multiplier
+        each.status = 'Pulled'
       }
       // TOTAL WELDED OUT
       if (each.weldout !== '' && each.weldout !== undefined) {
@@ -875,7 +895,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (spool.on_hold !== '' && spool.on_hold !== undefined) {
               area.on_hold += spool.multiplier
               material.on_hold += spool.multiplier
-              // TOTAL ON HOLD
             }
             // WORKABLE
             if (spool.workable) {
@@ -1022,6 +1041,42 @@ export const updateJob = (jobnum) => async (dispatch) => {
       findDays(spool.weldout, spool.rts, 'w_rts', false)
       findDays(spool.rts, spool.delivered, 'rts_d_np', false)
       findDays(spool.weldout, spool.delivered, 'w_d_np', false)
+
+      if (spool.status === 'Not Workable') {
+        job.status.not_workable += spool.multiplier
+      }
+      if (spool.status === 'Workable') {
+        job.status.workable += spool.multiplier
+      }
+      if (spool.status === 'Issued') {
+        job.status.issued += spool.multiplier
+      }
+      if (spool.status === 'Pulled') {
+        job.status.pulled += spool.multiplier
+      }
+      if (spool.status === 'Welded Out') {
+        job.status.weldout += spool.multiplier
+      }
+      if (spool.status === 'Shipped to Coating') {
+        job.status.stc += spool.multiplier
+      }
+      if (spool.status === 'Ready to Deliver') {
+        job.status.rtd += spool.multiplier
+      }
+      if (spool.status === 'Delivered') {
+        job.status.delivered += spool.multiplier
+      }
+      if (spool.status === 'On Hold') {
+        job.status.on_hold += spool.multiplier
+      }
+      // TOTAL WORKABLE
+      // TOTAL ISSUED
+      // TOTAL WELDED OUT
+      // READY TO SHIP TO COATING
+      // TOTAL STC
+      // READY TO DELIVER
+      // TOTAL DELIVERED
+      // TOTAL ON HOLD
       return spool
     })
 
@@ -1189,6 +1244,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       total: job.total,
       on_hold: job.on_hold,
       weldout: job.weldout,
+      status: job.status,
       stc: job.stc,
       delivered: job.delivered,
       workable_not_issued: job.workable_not_issued,

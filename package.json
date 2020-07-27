@@ -22,12 +22,9 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "axios": "^0.19.2",
-    "child_process": "^1.0.2",
     "csv-writer": "^1.6.0",
     "express": "^4.17.1",
-    "python-shell": "^2.0.1",
-    "react-infinite-scroll-component": "^5.0.5",
-    "xlsx": "^0.16.4"
+    "python-shell": "^2.0.1"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",

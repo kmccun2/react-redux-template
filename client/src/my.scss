@@ -214,7 +214,7 @@ body {
   border: 1px solid #dfdfdf;
   justify-content: center;
   width: fit-content;
-  margin: 15px auto;
+  margin: 15px auto 60px auto;
   cursor: pointer;
   background-color: #f4f4f4;
   border-radius: 4px;
@@ -688,8 +688,7 @@ body {
   padding: 40px;
 }
 // LOCATION
-.slider-container {
-  width: 100%;
-  margin: 0 auto;
-  max-width: 500px;
+.location-chart {
+  min-width: 800px;
+  padding-right: 30px;
 }
