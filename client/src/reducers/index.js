@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux'
-import player from './player'
+import jobs from './jobs'
+import job from './job'
 
 export default combineReducers({
-  player,
+  jobs,
+  job,
 })

@@ -1,7 +1,7 @@
 {
-  "name": "trackman_reports",
+  "name": "performancehub",
   "version": "1.0.0",
-  "description": "Web application that creates player reports using trackman csv files",
+  "description": "A starting point for react-redux applications, set up with alerts and bootstrap/custom scss files.",
   "main": "server.js",
   "scripts": {
     "start": "node server",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kmccun2/TrackmanReports.git"
+    "url": "git+https://github.com/kmccun2/PerformanceHub.git"
   },
   "author": "Kurt McCune",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kmccun2/TrackmanReports/issues"
+    "url": "https://github.com/kmccun2/PerformanceHub/issues"
   },
-  "homepage": "https://github.com/kmccun2/TrackmanReports#readme",
+  "homepage": "https://github.com/kmccun2/PerformanceHub#readme",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "axios": "^0.19.2",
