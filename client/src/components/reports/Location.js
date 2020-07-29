@@ -11,7 +11,7 @@ const Location = ({ job }) => {
     if (job) {
       setData([
         {
-          phase: 'Not Workable ',
+          phase: 'Not Workable',
           count: job.status.not_workable,
           color: '#3498db',
         },

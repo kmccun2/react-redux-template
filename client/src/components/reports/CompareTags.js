@@ -1,9 +1,13 @@
 import React, { Fragment, useEffect } from 'react'
+import { compareTags } from '../../actions/tags'
+import { connect } from 'react-redux'
 
-const CompareTags = () => {
+const CompareTags = ({ compareTags, job }) => {
   useEffect(() => {
-    CompareTags()
-  }, [compareTags])
+    if (job) {
+      compareTags(job)
+    }
+  }, [compareTags, job])
   return (
     <Fragment>
       <div className='table-label'>Compare Tags</div>
@@ -11,4 +15,7 @@ const CompareTags = () => {
   )
 }
 
-export default CompareTags
+const mapStateToProps = (state) => ({
+  job: state.job.job,
+})
+export default connect(mapStateToProps, { compareTags })(CompareTags)

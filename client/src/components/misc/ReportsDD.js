@@ -13,7 +13,7 @@ const Reports = ({ show, updateJob, setJobLoading, jobnums, download }) => {
 
   return (
     <div
-      style={download && { marginLeft: -42 }}
+      style={download && { marginLeft: -57 }}
       className={show ? 'reports-dropdown' : 'reports-dropdown hide'}
     >
       {jobnums.map((jobnum) => (
