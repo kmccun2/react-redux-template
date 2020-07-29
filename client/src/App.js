@@ -18,7 +18,7 @@ const App = () => {
             <div className='my-header'>
               <Link to='/'>
                 <span className='header-item company-name'>
-                  Performance Contractors
+                  Trackman Reports
                 </span>
               </Link>
               <Search />
