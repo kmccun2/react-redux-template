@@ -71,18 +71,21 @@ router.get('/bom_export/:job', async (req, res) => {
   }
 })
 
-// @route    POST api/spools/:job/header/records
-// @desc     Write spools to CSV file
-router.get('/spools/:job/header/records', async (req, res) => {
-  const csvWriter = createCsvWriter({
-    path: 'path/to/file.csv',
-    header: req.params.header,
-  })
-  await csvWriter
-    .writeRecords(req.params.records) // returns a promise
-    .then(() => {
-      console.log('...Done')
-    })
+// @route    GET api/client_tags/:job
+// @desc     Grab client tags csv file
+router.get('/client_tags/:job', async (req, res) => {
+  try {
+    let csv = fs.readFile(
+      'database/' + req.params.job + '/client_tags.csv',
+      'utf8',
+      function (err, data) {
+        res.json(data)
+      }
+    )
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
+  }
 })
 
 module.exports = router

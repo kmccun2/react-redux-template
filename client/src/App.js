@@ -6,6 +6,7 @@ import { Provider } from 'react-redux'
 import store from './store'
 import './bootstrap.scss'
 import './my.scss'
+import { FaTruck } from 'react-icons/fa'
 import Search from './components/search/Search'
 import Navlinks from './components/misc/Navlinks'
 
@@ -17,8 +18,13 @@ const App = () => {
           <div className='my-container'>
             <div className='my-header'>
               <Link to='/'>
+                <FaTruck
+                  color='white'
+                  size={30}
+                  style={{ marginRight: 13, marginTop: -9 }}
+                />
                 <span className='header-item company-name'>
-                  Performance Contractors
+                  Performance Hub
                 </span>
               </Link>
               <Search />

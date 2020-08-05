@@ -7,7 +7,8 @@ import {
 
 const initialState = {
   loading: false,
-  jobnums: ['6112', '6951', '6973'],
+  jobnums: ['7052', '6973', '6951', '6112'],
+  all_shops: ['', 'BR', 'PA', 'TX', 'M'],
   all_statuses: [
     'Not Workable',
     'Workable',
@@ -39,7 +40,6 @@ export default function (state = initialState, action) {
         all_spools: payload.all_spools.sort((a, b) =>
           a.spool > b.spool ? 1 : b.spool > a.spool ? -1 : 0
         ),
-        all_shops: payload.all_shops.sort(),
         all_materials: payload.all_materials.sort(),
         all_priorities: payload.all_priorities.sort(),
         discrepancies: payload.discrepancies,

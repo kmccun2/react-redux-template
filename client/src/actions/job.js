@@ -114,8 +114,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
       }
       count += 1
       if (
-        (line.includes('ISO') || line.includes('Iso')) &&
-        line.includes('Material')
+        line.toUpperCase().includes('ISO') &&
+        line.toUpperCase().includes('IN CHECKING') &&
+        line.toUpperCase().includes('IN DETAILING')
       ) {
         first_row = count
       }
@@ -127,7 +128,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let material_col = undefined
     let issued_col = undefined
     let spool_col = undefined
-    let priority_group_col = undefined
+    // let priority_group_col = undefined
     let priority_col = undefined
     let area_col = undefined
     let iso_col = undefined
@@ -147,8 +148,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         issued_col = count
       } else if (header.toUpperCase() === 'SPOOL' || header === 'Sketch No.') {
         spool_col = count
-      } else if (header === 'Priority Group') {
-        priority_group_col = count
+        // } else if (header === 'Priority Group') {
+        //   priority_group_col = count
       } else if (header === 'Priority #' || header === 'Individual Priority') {
         priority_col = count
       } else if (header.toUpperCase() === 'AREA') {
@@ -195,12 +196,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
           jobnum +
           ' linelist! Spool/sketch header should be titled SPOOL.'
       )
-    if (priority_group_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Priority Group header should be titled "Priority Group".'
-      )
+    // if (priority_group_col === undefined)
+    //   alert(
+    //     'Error on ' +
+    //       jobnum +
+    //       ' linelist! Priority Group header should be titled "Priority Group".'
+    //   )
     if (priority_col === undefined)
       alert(
         'Error on ' +
@@ -252,7 +253,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             material: line.split(',')[material_col],
             issued: line.split(',')[issued_col],
             pulled: '',
-            priority_group: line.split(',')[priority_group_col],
+            // priority_group: line.split(',')[priority_group_col],
             priority: line.split(',')[priority_col],
             area: line.split(',')[area_col],
             iso: line.split(',')[iso_col],
@@ -295,8 +296,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // FIND HEADERS FROM STATUS REPORT CSV
     lines = status_report_csv.split('\n')
-    header = lines.filter(
-      (line) => line.includes('PIECEMARK') || line.includes('PIECE MARK')
+    header = lines.filter((line) =>
+      line.toUpperCase().includes('PCMKIPCMAR')
     )[0]
     headers = header.split(',')
 
@@ -305,10 +306,15 @@ export const updateJob = (jobnum) => async (dispatch) => {
     first_row = undefined
     lines.map((line) => {
       count += 1
-      if (line.includes('PIECEMARK') || line.includes('PIECE MARK')) {
+      if (line.toUpperCase().includes('PCMKIPCMAR')) {
         first_row = count
       }
-      return lines
+      line.split(',').map((cell) => {
+        if (cell.includes('FB8')) {
+        }
+        return cell
+      })
+      return line
     })
 
     // ASSIGN COLUMN NUMBER TO EACH HEADER
@@ -323,24 +329,22 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     count = 0
     headers.map((header) => {
-      if (header === 'PIECE MARK' || header === 'PIECEMARK') {
+      if (header.toUpperCase() === 'PCMKIPCMAR') {
         sr_piecemark_col = count
-      } else if (header === 'DATE PULL') {
+      } else if (header.toUpperCase() === 'PULLTRANDA') {
         pulled_col = count
-      } else if (header === 'WELD OUT') {
+      } else if (header.toUpperCase() === 'WOUTTRANDA') {
         weldout_col = count
-      } else if (header === 'SPOOL') {
+      } else if (header.toUpperCase() === 'SHEETSKETC') {
         spool_col = count
-      } else if (header === 'READY TO SHIP') {
+      } else if (header.toUpperCase() === 'RTSTRANDAT') {
         rts_col = count
-      } else if (header === 'READY TO SHIP COATING') {
+      } else if (header.toUpperCase() === 'RTCTRANDAT') {
         rtsc_col = count
-      } else if (header === 'SHIP TO COATING' || header === 'DATE TO PAINTER') {
+      } else if (header.toUpperCase() === 'STCTRANDAT') {
         stc_col = count
-      } else if (header === 'TO SITE' || header === 'DATE TO FIELD') {
+      } else if (header.toUpperCase() === 'SITETRANDA') {
         delivered_col = count
-        // } else if (header === 'ON HOLD' || header === 'HOLD DATE') {
-        //   sr_on_hold_col = count
       }
       count += 1
       return headers
@@ -424,7 +428,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // COMPARE SPOOLS AND ADD SCOPE
     job.spools.map((spool) => {
       sr_pms.map((pm) => {
-        if (spool.piecemark === pm.piecemark) {
+        if (
+          pm.piecemark.includes(spool.piecemark + ' ') ||
+          pm.piecemark === spool.piecemark
+        ) {
           spool.pulled = pm.pulled
           spool.weldout = pm.weldout
           spool.rts = pm.rts
@@ -432,6 +439,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.stc = pm.stc
           spool.delivered = pm.delivered
           spool.on_hold = pm.on_hold
+          spool.workable = true
+          console.log('match')
         }
         return pm
       })
@@ -445,11 +454,18 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.scope = 'Performance'
         }
       }
-      spool.workable = true
       return spool
     })
 
     // ADD DISCREPANCIES
+    sr_pms.map((pm) => {
+      while (pm.piecemark[pm.piecemark.length - 1] === ' ') {
+        pm.piecemark = pm.piecemark.slice(0, -1)
+      }
+      console.log(pm.piecemark)
+      return pm
+    })
+
     sr_pms.map((pm) => {
       if (ll_pms.includes(pm.piecemark) === false) {
         job.discrepancies.sr_not_ll.push({

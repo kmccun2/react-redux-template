@@ -44,9 +44,11 @@ const Reports = ({
             <CSVLink className='download-btn' data={job.spools}>
               Download Spools
             </CSVLink>
-            <CSVLink className='download-btn' data={job.shorts}>
-              Download Shorts
-            </CSVLink>
+            {job.shorts.lengths > 0 && (
+              <CSVLink className='download-btn' data={job.shorts}>
+                Download Shorts
+              </CSVLink>
+            )}
             <div
               className='download-btn'
               onClick={() => {

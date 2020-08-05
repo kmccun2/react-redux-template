@@ -49,7 +49,7 @@ const Navlinks = () => {
           <ReportsDD show={showReportJobs} />
         </div>
         <Link to={'/dormant'}>
-          <div className='subheader-item'>Dormant Data</div>
+          <div className='subheader-item'>Dormant</div>
         </Link>
         <Link to={'/filters'}>
           <div className='subheader-item'>Filters</div>
