@@ -10,6 +10,7 @@ import Download from '../misc/Download'
 import { updateJobs } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Discrepancies from '../discrepancies/Discrepancies'
+import CompareTags from '../reports/CompareTags'
 
 const Routes = ({ jobnums, updateJobs, jobs }) => {
   useEffect(() => {
@@ -25,6 +26,7 @@ const Routes = ({ jobnums, updateJobs, jobs }) => {
         <Route exact path='/filters' component={Filters} />
         <Route exact path='/download' component={Download} />
         <Route exact path='/discrepancies' component={Discrepancies} />
+        <Route exact path='/compare_tags' component={CompareTags} />
         <Route component={NotFound} />
       </Switch>
     </section>

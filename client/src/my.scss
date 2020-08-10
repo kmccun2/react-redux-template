@@ -251,17 +251,15 @@ body {
 }
 // AREAS SUMMARY
 .table-container {
-  padding-bottom: 20px;
-  width: -moz-fit-content;
+  margin-bottom: 20px;
   width: fit-content;
   max-width: 100%;
   display: flex;
-  height: -moz-fit-content;
   height: fit-content;
-  min-height: -moz-fit-content;
   min-height: fit-content;
   flex-direction: column;
   align-items: flex-start;
+  box-shadow: 0px 1px 2px 1px gainsboro;
 }
 .table-label {
   text-align: center;
@@ -336,6 +334,7 @@ body {
 }
 .pipe-row {
   margin-top: 30px;
+  box-shadow: 0px 1px 2px 1px gainsboro;
 }
 .discrepancies {
   background-color: red;

@@ -27,6 +27,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       materials: [],
       priorities: [],
       shorts: [],
+      welds: [],
       discrepancies: {
         fc_not_ll: [],
         sr_not_ll: [],
@@ -253,6 +254,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             material: line.split(',')[material_col],
             issued: line.split(',')[issued_col],
             pulled: '',
+            scope: 'Other',
             // priority_group: line.split(',')[priority_group_col],
             priority: line.split(',')[priority_col],
             area: line.split(',')[area_col],
@@ -440,20 +442,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.delivered = pm.delivered
           spool.on_hold = pm.on_hold
           spool.workable = true
-          console.log('match')
         }
         return pm
       })
-
-      // SET SCOPE
-      // 6951
-      if (job.number === '6951') {
-        if (spool.material === 'Chrome') {
-          spool.scope = 'Client'
-        } else {
-          spool.scope = 'Performance'
-        }
-      }
       return spool
     })
 
@@ -462,7 +453,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
       while (pm.piecemark[pm.piecemark.length - 1] === ' ') {
         pm.piecemark = pm.piecemark.slice(0, -1)
       }
-      console.log(pm.piecemark)
       return pm
     })
 
@@ -506,20 +496,18 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // ASSIGN COLUMN NUMBER TO EACH HEADER
     let be_bom_path_col = undefined
-    // let be_piecemark_col = undefined
+    let be_description_col = undefined
     let be_tag_col = undefined
     let be_position_col = undefined
     let be_item_col = undefined
     let be_quantity_col = undefined
     let be_unit_col = undefined
-
+    let be_size_col = undefined
     count = 0
 
     headers.map((header) => {
       if (header === '﻿BOM PATH' || header === 'BOM PATH') {
         be_bom_path_col = count
-        // } else if (header === ' SKETCH') {
-        //   be_piecemark_col = count
       } else if (header === ' TAG NUMBER') {
         be_tag_col = count
       } else if (header === ' POS') {
@@ -530,6 +518,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
         be_quantity_col = count
       } else if (header === ' UNIT') {
         be_unit_col = count
+      } else if (header === ' DESCRIPTION') {
+        be_description_col = count
+      } else if (header === ' SIZE') {
+        be_size_col = count
       }
       count += 1
       return headers
@@ -543,7 +535,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
         line.split(',')[be_bom_path_col] !== undefined &&
         count >= first_row
       ) {
+        let weld_type = undefined
         job.spools.map((spool) => {
+          // DECIDE WELD TYPE FOR ITEM
+          if (line.split(',')[be_item_col] === 'SUPPORTS') {
+            weld_type = 'NA'
+          }
           if (
             line.split(',')[be_bom_path_col].split('/').slice(-1)[0] ===
             spool.spool
@@ -552,16 +549,19 @@ export const updateJob = (jobnum) => async (dispatch) => {
               tag: line.split(',')[be_tag_col],
               item: line.split(',')[be_item_col],
               quantity: line.split(',')[be_quantity_col],
+              weld_type: weld_type,
+              size: line.split(',')[be_size_col],
+              description: line.split(',')[be_description_col],
               unit: line.split(',')[be_unit_col],
               pos: line.split(',')[be_position_col],
               status: 'Complete',
             })
           }
-          return job
+          return spool
         })
         return job
       }
-      return lines
+      return line
     })
 
     // ////// //////
@@ -645,6 +645,26 @@ export const updateJob = (jobnum) => async (dispatch) => {
             spool.item = spool.items.filter(
               (item) => item.pos !== line.split(',')[position_col]
             )
+
+            // SET SCOPE
+            let item_scope = 'Other'
+            // 6951
+            if (job.number === '6951') {
+              if (spool.material === 'Chrome') {
+                item_scope = 'Client'
+              } else {
+                item_scope = 'Performance'
+              }
+            }
+            // 7052
+            if (job.number === '7052') {
+              if (line.split(',')[item_col] === 'VALVES / IN-LINE ITEMS') {
+                item_scope = 'Client'
+              } else {
+                item_scope = 'Performance'
+              }
+            }
+
             // CREATE FORCAST ITEM
             let item = {
               client: job.client,
@@ -655,7 +675,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               pos: line.split(',')[position_col],
               status: line.split(',')[status_col],
               po: line.split(',')[po_col],
-              scope: spool.scope,
+              scope: item_scope,
               quantity: line.split(',')[quantity_col],
               unit: line.split(',')[unit_col],
               multiplier: spool.multiplier,
@@ -676,8 +696,18 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return lines
     })
 
-    // FORECAST DISCREPANCIES
+    // FORECAST DISCREPANCIES AND DECIDE SCOPE
     job.spools.map((spool) => {
+      // SCOPE
+      spool.scope = 'Other'
+      spool.shorts.map((short) => {
+        if (short.scope === 'Performance' && spool.scope !== 'Client') {
+          spool.scope = 'Performance'
+        }
+        if (short.scope === 'Client') {
+          spool.scope = 'Client'
+        }
+      })
       if (fc_spools.includes(spool.spool)) {
         if (spool.issued !== undefined && spool.issued !== '') {
           job.discrepancies.fc_iss.push({
@@ -1242,6 +1272,84 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return spool
     })
 
+    //    // //  //
+    ///  /// //  //
+    // // // //////
+    //    // //  //
+    //    // //  //
+
+    // GRAB WELD DATA CSV
+    const res_weld = await axios.get('/api/csvs/man_hours/' + jobnum)
+    let man_hours_csv = res_weld.data
+
+    // FIND HEADERS FROM WELD DATA CSV
+    lines = man_hours_csv.split('\n')
+    header = lines[0]
+    headers = header.split(',')
+
+    // ASSIGN COLUMN NUMBER TO EACH HEADER
+    let pipeline_col = undefined
+    let revision_col = undefined
+    let weld_size_col = undefined
+    let weld_no_col = undefined
+    let weld_type_col = undefined
+    let weld_pipe_spec_col = undefined
+    let weld_spool_col = undefined
+    let weld_pm_col = undefined
+
+    count = 0
+    first_row = 1
+
+    headers.map((header) => {
+      if (header === 'PIPELINE-REFERENCE') {
+        pipeline_col = count
+      } else if (header === 'REVISION') {
+        revision_col = count
+      } else if (header === 'N_S_') {
+        weld_size_col = count
+      } else if (header === 'WELD-NO') {
+        weld_no_col = count
+      } else if (header === 'WELD-TYPE') {
+        weld_type_col = count
+      } else if (header === 'SPOOL-ID') {
+        weld_pm_col = count
+      } else if (header === 'PIPING-SPEC') {
+        weld_pipe_spec_col = count
+      } else if (header === 'SPOOL-DRAWING-SEQUENCE-NUMBER') {
+        weld_spool_col = count
+      }
+      count += 1
+      return header
+    })
+
+    // ADD SPOOLS FROM LINELIST TO JOB
+    count = 0
+    lines.map((line) => {
+      count += 1
+      if (
+        line.split(',')[pipeline_col] !== '' &&
+        line.split(',')[pipeline_col] !== undefined &&
+        count > first_row
+      ) {
+        job.spools.map((spool) => {
+          if (spool.piecemark === line.split(',')[weld_pm_col]) {
+            // FIND SCHEDULE
+            let weld_size = line.split(',')[weld_size_col]
+            if (line.split(',')[weld_size_col] === '4-Mar') {
+              weld_size = '.75'
+            }
+            job.welds.push({
+              spool: spool.spool,
+              size: weld_size,
+              type: line.split(',')[weld_type_col],
+              material: spool.material,
+              schedule: undefined,
+            })
+          }
+        })
+      }
+    })
+
     // ////// //  // ///   /// ///   ///   //   /////  //    //
     // //     //  // // /// // // /// // //  // //  //  //  //
     // ////// //  // //     // //     // ////// // //     //
@@ -1269,6 +1377,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       areas: job.areas,
       materials: job.materials,
       discrepancies: job.discrepancies,
+      welds: job.welds,
       spools_by_scope: {
         valves: {
           performance: undefined,
@@ -1971,10 +2080,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
       null
     )
     link.dispatchEvent(event)
-
-    // AREAS
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // DISPATCH TO REDUCER
     dispatch({

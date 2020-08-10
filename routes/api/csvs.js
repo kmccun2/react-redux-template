@@ -88,4 +88,21 @@ router.get('/client_tags/:job', async (req, res) => {
   }
 })
 
+// @route    GET api/man_hours/:job
+// @desc     Grab man_hours csv file
+router.get('/man_hours/:job', async (req, res) => {
+  try {
+    let csv = fs.readFile(
+      'database/' + req.params.job + '/man_hours.csv',
+      'utf8',
+      function (err, data) {
+        res.json(data)
+      }
+    )
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
+  }
+})
+
 module.exports = router

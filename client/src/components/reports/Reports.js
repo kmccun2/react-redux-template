@@ -14,6 +14,7 @@ import SpoolShorts from './SpoolShorts'
 import { CSVLink } from 'react-csv'
 import Discrepancies from '../discrepancies/Discrepancies'
 import Location from '../reports/Location'
+import ManHours from './ManHours'
 
 const Reports = ({
   match,
@@ -25,6 +26,7 @@ const Reports = ({
   downloadLoading,
 }) => {
   const [jsActive, setjsActive] = useState(1)
+  const [items, setItems] = useState([])
   let jobnum = match.params.job.toString()
 
   useEffect(() => {
@@ -36,6 +38,20 @@ const Reports = ({
     setjsActive(1)
   }, [jobnum])
 
+  // CREATE ITEMS OBJECT
+  useEffect(() => {
+    if (job) {
+      let all_items = []
+      job.spools.map((spool) => {
+        spool.items.map((item) => {
+          all_items.push(item)
+        })
+      })
+      setItems(all_items)
+      console.log(all_items.length)
+    }
+  }, [job])
+
   return (
     <Fragment>
       {!loading && job ? (
@@ -44,9 +60,14 @@ const Reports = ({
             <CSVLink className='download-btn' data={job.spools}>
               Download Spools
             </CSVLink>
-            {job.shorts.lengths > 0 && (
-              <CSVLink className='download-btn' data={job.shorts}>
-                Download Shorts
+            {items.length > 0 && (
+              <CSVLink className='download-btn' data={items}>
+                Download Items
+              </CSVLink>
+            )}
+            {job.welds.length > 0 && (
+              <CSVLink className='download-btn' data={job.welds}>
+                Download Welds
               </CSVLink>
             )}
             <div
@@ -117,6 +138,15 @@ const Reports = ({
             >
               Location
             </div>
+            <div
+              onClick={() => setjsActive(6)}
+              className={
+                jsActive === 6 ? 'js-tab js-active js-tab-border' : 'js-tab'
+              }
+              style={{ borderLeft: '1px solid #dfdfdf' }}
+            >
+              Man Hours
+            </div>
           </div>
           <div className='reports-content'>
             {/* AREA SUMMARIES */}
@@ -161,6 +191,8 @@ const Reports = ({
             {jsActive === 4 && <Discrepancies type={'one'} />}
             {/* LOCATiON */}
             {jsActive === 5 && <Location />}
+            {/* MAN HOURS */}
+            {jsActive === 6 && <ManHours />}
           </div>
         </Fragment>
       ) : (
