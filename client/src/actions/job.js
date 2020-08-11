@@ -641,11 +641,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
             line.split(',')[bom_path_col].split('/').slice(-1)[0] ===
             spool.spool
           ) {
-            // REMOVE BOM ITEM IF FORECAST HAS THAT ITEM
-            spool.item = spool.items.filter(
-              (item) => item.pos !== line.split(',')[position_col]
-            )
-
             // SET SCOPE
             let item_scope = 'Other'
             // 6951
@@ -694,9 +689,17 @@ export const updateJob = (jobnum) => async (dispatch) => {
             })
             // PUSH SHORTS TO JOB
             if (item.status === 'No Material' || item.status === 'Purchased') {
-              job.shorts.push(item)
-              spool.shorts.push(item.item)
-              spool.workable = false
+              if (item.item !== 'PIPE') {
+                for (let i = 0; i < item.quantity; i++) {
+                  job.shorts.push(item)
+                  spool.shorts.push(item.item)
+                  spool.workable = false
+                }
+              } else {
+                job.shorts.push(item)
+                spool.shorts.push(item.item)
+                spool.workable = false
+              }
             }
           }
           return job
