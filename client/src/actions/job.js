@@ -681,7 +681,17 @@ export const updateJob = (jobnum) => async (dispatch) => {
               multiplier: spool.multiplier,
             }
             // PUSH ITEM TO SPOOL
-            spool.items.push(item)
+            spool.items.map((one) => {
+              if (one.pos === item.pos) {
+                one.spool = spool.spool
+                one.status = item.status
+                one.po = item.po
+                one.scope = item.scope
+                one.quantity = item.quantity
+                one.unit = item.unit
+                one.multiplier = item.multiplier
+              }
+            })
             // PUSH SHORTS TO JOB
             if (item.status === 'No Material' || item.status === 'Purchased') {
               job.shorts.push(item)

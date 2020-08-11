@@ -48,7 +48,6 @@ const Reports = ({
         })
       })
       setItems(all_items)
-      console.log(all_items.length)
     }
   }, [job])
 
