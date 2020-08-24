@@ -57,16 +57,16 @@ const Reports = ({
         <Fragment>
           <div className='download-csv'>
             <CSVLink className='download-btn' data={job.spools}>
-              Download Spools
+              Spools
             </CSVLink>
             {items.length > 0 && (
               <CSVLink className='download-btn' data={items}>
-                Download Items
+                Items
               </CSVLink>
             )}
             {job.welds.length > 0 && (
               <CSVLink className='download-btn' data={job.welds}>
-                Download Welds
+                Welds
               </CSVLink>
             )}
             <div
@@ -76,7 +76,7 @@ const Reports = ({
                 downloadReport(job)
               }}
             >
-              {downloading ? 'Downloading...' : 'Download Summary'}
+              {downloading ? 'Downloading...' : 'Summary'}
             </div>
           </div>
           {/* JOB HEADING */}

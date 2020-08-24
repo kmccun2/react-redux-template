@@ -4,7 +4,7 @@ const SpoolShorts = ({
   job: {
     issued,
     total,
-    on_hold_no_shorts,
+    on_hold,
     issued_missing_item,
     workable_not_issued,
     spools_by_scope: {
@@ -96,7 +96,7 @@ const SpoolShorts = ({
             <div className='sh-col2'></div>
             <div className='sh-col3'></div>
             <div className='sh-col4'></div>
-            <div className='sh-col5 total-subheader'>{on_hold_no_shorts}</div>
+            <div className='sh-col5 total-subheader'>{on_hold}</div>
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader discrepancies'>
