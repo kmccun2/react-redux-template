@@ -92,7 +92,7 @@ const SpoolShorts = ({
             <div className='sh-col5 total-subheader'>{workable_not_issued}</div>
           </div>
           <div className='table-row'>
-            <div className='sh-col1 table-subheader'>On Hold (No Shorts)</div>
+            <div className='sh-col1 table-subheader'>On Hold</div>
             <div className='sh-col2'></div>
             <div className='sh-col3'></div>
             <div className='sh-col4'></div>

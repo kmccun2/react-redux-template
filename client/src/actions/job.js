@@ -589,7 +589,53 @@ export const updateJob = (jobnum) => async (dispatch) => {
         // Find schedule and class
         let itemsched = line.split(',')[be_sched_col]
         let itemclass = line.split(',')[be_class_col]
-        if (itemsched) itemclass = undefined
+        if (itemsched !== undefined && itemsched !== '') itemclass = undefined
+        // Find weld type
+        let itemweld = undefined
+        let itemdesc = line.split(',')[be_description_col].toUpperCase()
+        // Butt weld
+        if (
+          (itemdesc.includes(' BE;') && itemdesc.includes('X BE') === false) ||
+          itemdesc.includes('BE END') ||
+          itemdesc.includes('GRV END') ||
+          itemdesc.includes('FLG WN')
+        )
+          itemweld = 'BW'
+        // Socket weld
+        if (
+          (itemdesc.includes(' PE;') && itemdesc.includes('X PE') === false) ||
+          itemdesc.includes('PL END') ||
+          itemdesc.includes(' SW;') ||
+          itemdesc.includes(' PBE;') ||
+          (itemdesc.includes(' SW ') && itemdesc.includes(' SW X') === false)
+        )
+          itemweld = 'SW'
+        // Slip on
+        if (itemdesc.includes('FLG PL')) itemweld = 'SO'
+        // Olet
+        if (
+          itemdesc.includes('SOCKOLET') ||
+          itemdesc.includes('THREDOLET') ||
+          itemdesc.includes('FLATOLET')
+        )
+          itemweld = 'OLET'
+        // Olet by socket weld
+        if (itemdesc.includes('WELDOLET')) itemweld = 'OLET X SW'
+        // Threaded
+        if (itemdesc.includes('MNPT') || itemdesc.includes('FNPT'))
+          itemweld = 'THR'
+        // Socket weld by threaded
+        if (
+          itemdesc.includes('POE X TOE') ||
+          itemdesc.includes('PLE X TSE') ||
+          itemdesc.includes('SW X FNPT') ||
+          itemdesc.includes('SW X MNPT')
+        )
+          itemweld = 'SW X THR'
+        // Butt weld by socket weld
+        if (itemdesc.includes('BLE X PSE')) itemweld = 'BW X SW'
+        // No weld
+        if (itemdesc.includes('BLIND')) itemweld = 'NONE'
         job.spools.map((spool) => {
           // CREATE ITEM
           if (
@@ -600,26 +646,36 @@ export const updateJob = (jobnum) => async (dispatch) => {
               tag: line.split(',')[be_tag_col],
               item: line.split(',')[be_item_col],
               quantity: line.split(',')[be_quantity_col],
-              size: line.split(',')[be_size_col],
-              description: line.split(',')[be_description_col],
+              size: line
+                .split(',')
+                [be_size_col].replace('1/2', '.5')
+                .replace('1/2', '.5')
+                .replace('3/4', '.75')
+                .replace('3/4', '.75')
+                .replace('4-Mar', '.75')
+                .replace('2-Jan', '.5')
+                .replace(/\s/g, ''),
+              description: itemdesc,
               unit: line.split(',')[be_unit_col],
               pos: line.split(',')[be_position_col],
               status: 'Complete',
               schedule: itemsched,
               class: itemclass,
               material: spool.material,
+              weld_type: itemweld,
               shop: undefined,
             })
             // Push schedule and class to spool
             if (
-              spool.schedules.includes(line.split(',')[be_sched_col]) ===
-                false &&
-              line.split(',')[be_sched_col] !== undefined
+              spool.schedules.includes(line.split(',')[be_sched_col]) === false
             )
               spool.schedules.push(line.split(',')[be_sched_col])
             if (
-              spool.classes.includes(line.split(',')[be_class_col]) === false &&
-              line.split(',')[be_class_col] !== undefined
+              (line.split(',')[be_class_col] === '3000' ||
+                line.split(',')[be_class_col] === '6000' ||
+                line.split(',')[be_class_col] === '9000') &&
+              (line.split(',')[be_sched_col] === '' ||
+                line.split(',')[be_sched_col] === undefined)
             )
               spool.classes.push(line.split(',')[be_class_col])
           }
@@ -793,7 +849,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
         }
       })
       if (fc_spools.includes(spool.spool)) {
-        if (spool.issued !== undefined && spool.issued !== '') {
+        if (
+          spool.issued !== undefined &&
+          spool.issued !== '' &&
+          spool.shorts.length > 0
+        ) {
           job.discrepancies.fc_iss.push({
             spool: spool.spool,
             piecemark: spool.piecemark,
@@ -840,6 +900,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
       // TOTAL SPOOLS
       job.total += each.multiplier
       each.status = 'Not Workable'
+      // TOTAL ON HOLD
+      if (each.on_hold !== '' && each.on_hold !== undefined) {
+        job.on_hold += each.multiplier
+        each.status = 'On Hold'
+        each.workable = false
+      }
       // TOTAL WORKABLE
       if (each.workable) {
         job.workable += each.multiplier
@@ -878,11 +944,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         job.delivered += each.multiplier
         each.status = 'Delivered'
       }
-      // TOTAL ON HOLD
-      if (each.on_hold !== '' && each.on_hold !== undefined) {
-        job.on_hold += each.multiplier
-        each.status = 'On Hold'
-      }
+
       // AREAS
       if (areas_list.includes(each.area) === false) {
         areas_list.push(each.area)
@@ -1172,6 +1234,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
       findDays(spool.rts, spool.delivered, 'rts_d_np', false)
       findDays(spool.weldout, spool.delivered, 'w_d_np', false)
 
+      if (spool.status === 'On Hold') {
+        job.status.on_hold += spool.multiplier
+      }
       if (spool.status === 'Not Workable') {
         job.status.not_workable += spool.multiplier
       }
@@ -1196,9 +1261,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       if (spool.status === 'Delivered') {
         job.status.delivered += spool.multiplier
       }
-      if (spool.status === 'On Hold') {
-        job.status.on_hold += spool.multiplier
-      }
+
       // TOTAL WORKABLE
       // TOTAL ISSUED
       // TOTAL WELDED OUT
@@ -1437,6 +1500,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       ) {
         job.spools.map((spool) => {
           if (spool.piecemark === line.split(',')[weld_pm_col]) {
+            let weld_type = line.split(',')[weld_type_col].replace('SOF', 'SO')
             // Edit sizes to match manhour codes
             let weld_size = line.split(',')[weld_size_col]
             if (weld_size === '4-Mar') {
@@ -1445,22 +1509,58 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (weld_size === '2-Jan') {
               weld_size = '.5'
             }
-
+            weld_size = weld_size
+              .replace('1/2', '.5')
+              .replace('1/2', '.5')
+              .replace('3/4', '.75')
+              .replace('3/4', '.75')
+              .replace(/\s/g, '')
             // Edit material names to match manhour codes
             let weldmat = spool.material
             if (weldmat.toUpperCase() === 'ALUMINUM') weldmat = 'AL'
             if (weldmat.includes('304')) weldmat = 'SS'
 
             // Assign schedule
+            // Round 1
             let find_sched = undefined
-            if (spool.classes.length === 1) {
-              console.log(weld_size)
+            if (
+              spool.schedules.length === 1 &&
+              spool.schedules[0] !== undefined &&
+              spool.schedules[0] !== ''
+            ) {
+              find_sched = spool.schedules[0]
+            } else {
+              if (
+                spool.items.filter(
+                  (item) =>
+                    item.weld_type === weld_type &&
+                    item.size === weld_size &&
+                    item.class !== undefined &&
+                    item.class !== '' &&
+                    spool.classes.includes(item.class)
+                ).length > 0
+              ) {
+                // Declare class type
+                find_sched = spool.items.filter(
+                  (item) =>
+                    item.weld_type === weld_type &&
+                    item.size === weld_size &&
+                    item.class !== undefined &&
+                    item.class !== '' &&
+                    spool.classes.includes(item.class)
+                )[0].class
+                // Reassign spool.classes
+                spool.classes = spool.classes.splice(
+                  spool.classes.indexOf(find_sched),
+                  1
+                )
+              }
             }
 
             job.welds.push({
               spool: spool.spool,
               size: weld_size,
-              type: line.split(',')[weld_type_col],
+              type: weld_type,
               material: weldmat,
               schedule: find_sched,
             })

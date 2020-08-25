@@ -83,7 +83,8 @@ mat_perc_delivered = 'N'
 
 printout['A1'] = client_name + ': ' + job_number
 printout['C1'] = str(job['total']) + " Spools"
-printout['F1'] = str(job['workable']) + " Workable"
+printout['F1'] = str(
+    job['workable']) + " Workable"
 printout['I1'] = str(job['issued']) + " Issued"
 
 printout['A31'] = job_number + ' Areas Summary'
@@ -114,9 +115,10 @@ for area in job['areas']:
 printout['A'+str(printout.max_row+1)] = 'TOTALS'
 printout[mat_spools+str(printout.max_row)] = job['total']
 printout[mat_on_hold+str(printout.max_row)] = job['on_hold']
-printout[mat_workable+str(printout.max_row)] = job['workable']
+printout[mat_workable+str(printout.max_row)
+         ] = job['workable']+job['workable_not_issued']
 printout[mat_not_workable+str(printout.max_row)
-         ] = job['total']-job['workable']
+         ] = job['total']-job['workable']-job['workable_not_issued']
 printout[mat_weldout+str(printout.max_row)] = job['weldout']
 printout[mat_weldout_remaining +
          str(printout.max_row)] = job['total']-job['weldout']
