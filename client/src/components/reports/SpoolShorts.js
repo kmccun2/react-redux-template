@@ -6,6 +6,7 @@ const SpoolShorts = ({
     total,
     on_hold,
     issued_missing_item,
+    issued_on_hold,
     workable_not_issued,
     spools_by_scope: {
       valves,
@@ -76,13 +77,13 @@ const SpoolShorts = ({
             <div className='sh-col5 total-subheader'>{issued}</div>
           </div>
           <div className='table-row'>
-            <div className='sh-col1 table-subheader'>
-              Issued (Missing Items)
-            </div>
+            <div className='sh-col1 table-subheader'>Issued (Not Workable)</div>
             <div className='sh-col2'></div>
             <div className='sh-col3'></div>
             <div className='sh-col4'></div>
-            <div className='sh-col5 total-subheader'>{issued_missing_item}</div>
+            <div className='sh-col5 total-subheader'>
+              {issued_missing_item + issued_on_hold}
+            </div>
           </div>
           <div className='table-row'>
             <div className='sh-col1 table-subheader'>Workable (Not Issued)</div>

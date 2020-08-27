@@ -86,9 +86,7 @@ const Reports = ({
           {/* HIGHLIGHTS */}
           <div className='js-highlights'>
             <div className='js-highlight-item'>{job.total} Spools</div>
-            <div className='js-highlight-item'>
-              {job.workable + job.workable_not_issued} Workable
-            </div>
+            <div className='js-highlight-item'>{job.workable} Workable</div>
             <div className='js-highlight-item'>{job.issued} Issued</div>
           </div>
           {/* SUMMARY TABS */}

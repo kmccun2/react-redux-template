@@ -47,6 +47,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       },
       workable_not_issued: 0,
       issued_missing_item: 0,
+      issued_on_hold: 0,
       on_hold_no_shorts: 0,
       missingspools: {
         valves: { p: 0, c: 0, o: 0 },
@@ -589,7 +590,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         // Find schedule and class
         let itemsched = line.split(',')[be_sched_col]
         let itemclass = line.split(',')[be_class_col]
-        if (itemsched !== undefined && itemsched !== '') itemclass = undefined
+        if (itemsched !== 'None') itemclass = undefined
         // Find weld type
         let itemweld = undefined
         let itemdesc = line.split(',')[be_description_col].toUpperCase()
@@ -663,19 +664,17 @@ export const updateJob = (jobnum) => async (dispatch) => {
               class: itemclass,
               material: spool.material,
               weld_type: itemweld,
+              spool: spool.spool,
+              multiplier: spool.multiplier,
               shop: undefined,
             })
             // Push schedule and class to spool
-            if (
-              spool.schedules.includes(line.split(',')[be_sched_col]) === false
-            )
+            if (line.split(',')[be_sched_col] !== 'None')
               spool.schedules.push(line.split(',')[be_sched_col])
             if (
-              (line.split(',')[be_class_col] === '3000' ||
-                line.split(',')[be_class_col] === '6000' ||
-                line.split(',')[be_class_col] === '9000') &&
-              (line.split(',')[be_sched_col] === '' ||
-                line.split(',')[be_sched_col] === undefined)
+              line.split(',')[be_class_col] === '3000' ||
+              line.split(',')[be_class_col] === '6000' ||
+              line.split(',')[be_class_col] === '9000'
             )
               spool.classes.push(line.split(',')[be_class_col])
           }
@@ -799,16 +798,34 @@ export const updateJob = (jobnum) => async (dispatch) => {
             }
             // PUSH ITEM TO SPOOL
             spool.items.map((one) => {
+              // Find forecast/bom match and add attributes
               if (one.pos === item.pos) {
-                one.spool = spool.spool
                 one.status = item.status
                 one.po = item.po
-                one.scope = item.scope
                 one.quantity = item.quantity
                 one.unit = item.unit
-                one.multiplier = item.multiplier
+              }
+
+              // Set scope to items
+              one.scope = 'Other'
+              // 6951
+              if (job.number === '6951') {
+                if (spool.material === 'Chrome') {
+                  one.scope = 'Client'
+                } else {
+                  one.scope = 'Performance'
+                }
+              }
+              // 7052
+              if (job.number === '7052') {
+                if (one.item === 'VALVES / IN-LINE ITEMS') {
+                  one.scope = 'Client'
+                } else {
+                  one.scope = 'Performance'
+                }
               }
             })
+
             // PUSH SHORTS TO JOB
             if (item.status === 'No Material' || item.status === 'Purchased') {
               if (item.item !== 'PIPE') {
@@ -1404,7 +1421,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       if (spool.issued.includes('/') && spool.shorts.length > 0) {
         job.issued_missing_item += spool.multiplier
       }
-      // ON HOLD
+      // ON HOLD NO SHORTS
       if (
         spool.status === 'On Hold' &&
         spool.shorts.length === 0 &&
@@ -1429,6 +1446,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
         spool.missing_valve_only = true
       } else {
         spool.missing_valve_only = false
+      }
+      // ISSUED ON HOLD
+      if (spool.issued.includes('/') && spool.on_hold === 'HOLD') {
+        job.issued_on_hold += spool.multiplier
       }
 
       spool.items.map((item) => {
@@ -1488,8 +1509,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     })
 
     // ADD WELD DATA TO JOB
-    // Round 1
-
     count = 0
     lines.map((line) => {
       count += 1
@@ -1520,54 +1539,100 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (weldmat.toUpperCase() === 'ALUMINUM') weldmat = 'AL'
             if (weldmat.includes('304')) weldmat = 'SS'
 
-            // Assign schedule
-            // Round 1
-            let find_sched = undefined
-            if (
-              spool.schedules.length === 1 &&
-              spool.schedules[0] !== undefined &&
-              spool.schedules[0] !== ''
-            ) {
-              find_sched = spool.schedules[0]
-            } else {
-              if (
-                spool.items.filter(
-                  (item) =>
-                    item.weld_type === weld_type &&
-                    item.size === weld_size &&
-                    item.class !== undefined &&
-                    item.class !== '' &&
-                    spool.classes.includes(item.class)
-                ).length > 0
-              ) {
-                // Declare class type
-                find_sched = spool.items.filter(
-                  (item) =>
-                    item.weld_type === weld_type &&
-                    item.size === weld_size &&
-                    item.class !== undefined &&
-                    item.class !== '' &&
-                    spool.classes.includes(item.class)
-                )[0].class
-                // Reassign spool.classes
-                spool.classes = spool.classes.splice(
-                  spool.classes.indexOf(find_sched),
-                  1
-                )
-              }
-            }
-
             job.welds.push({
               spool: spool.spool,
               size: weld_size,
               type: weld_type,
               material: weldmat,
-              schedule: find_sched,
+              schedule: undefined,
             })
           }
         })
       }
     })
+
+    // SINGLE SCHEDULE WITH NO CLASSES
+    const assignSchedules = (job) => {
+      job.welds.map((weld) => {
+        job.spools.map((spool) => {
+          let numscheds = 0
+          let listscheds = []
+          spool.schedules.map((each) => {
+            if (listscheds.includes(each) === false) {
+              listscheds.push(each)
+              numscheds += 1
+            }
+          })
+          spool.items.map((item) => {
+            if (
+              spool.spool === weld.spool &&
+              numscheds === 1 &&
+              spool.classes.length === 0 &&
+              weld.schedule === undefined
+            ) {
+              weld.schedule = item.schedule
+
+              // Create variables for sched deletion
+              let scheditem = item.sched
+              let newarray = []
+
+              // Delete item schedfrom spool.schedules
+              spool.schedules.map((each) => {
+                if (each === scheditem) {
+                  scheditem = 'unique'
+                } else {
+                  newarray.push(each)
+                }
+              })
+              spool.schedules = newarray
+            }
+          })
+        })
+      })
+    }
+
+    // Classes
+    const assignClasses = (job) => {
+      job.welds.map((weld) => {
+        job.spools.map((spool) => {
+          spool.items.map((item) => {
+            if (
+              item.item !== 'SUPPORTS' &&
+              spool.spool == weld.spool &&
+              item.size === weld.size &&
+              item.weld_type === weld.type &&
+              spool.material === weld.material &&
+              item.class !== '' &&
+              spool.classes.includes(item.class)
+            ) {
+              // Assign class to weld
+              weld.schedule = item.class
+
+              // Create variables for class deletion
+              let classitem = item.class
+              let newarray = []
+
+              // Delete item class from spool.classes
+              spool.classes.map((each) => {
+                if (each === classitem) {
+                  classitem = 'unique'
+                } else {
+                  newarray.push(each)
+                }
+              })
+              spool.classes = newarray
+            }
+          })
+        })
+      })
+    }
+
+    assignSchedules(job)
+    assignClasses(job)
+    assignSchedules(job)
+    assignClasses(job)
+    assignSchedules(job)
+    assignClasses(job)
 
     // ////// //  // ///   /// ///   ///   //   /////  //    //
     // //     //  // // /// // // /// // //  // //  //  //  //
@@ -1591,6 +1656,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       stc: job.stc,
       delivered: job.delivered,
       workable_not_issued: job.workable_not_issued,
+      issued_on_hold: job.issued_on_hold,
       issued_missing_item: job.issued_missing_item,
       on_hold_no_shorts: job.on_hold_no_shorts,
       areas: job.areas,

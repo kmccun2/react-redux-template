@@ -21,7 +21,7 @@ bom[bomclass+'1'] = 'CLASS'
 
 for row in range(2, bom.max_row):
 
-    print_sched = None
+    print_sched = 'None'
     print_class = None
 
     for each in bom[desc+str(row)].value.split(';'):
