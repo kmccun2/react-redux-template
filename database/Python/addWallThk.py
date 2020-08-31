@@ -42,6 +42,9 @@ for row in range(2, bom.max_row):
         if each == ' XXS':
             print_sched = 'XXS'
 
+        if 'STD WT' in each:
+            print_sched = 'STD'
+
         if '3000#' in each:
             print_class = '3000'
 

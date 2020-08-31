@@ -288,6 +288,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
             shorts: [],
             schedules: [],
             classes: [],
+            manhours: 0,
+            welds_counted: 0,
+            welds: 0,
           })
 
           spools_list.push(line.split(',')[spool_col])
@@ -1545,6 +1548,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               type: weld_type,
               material: weldmat,
               schedule: undefined,
+              manhours: undefined,
             })
           }
         })
@@ -1565,8 +1569,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
           })
           spool.items.map((item) => {
             if (
+              item.item !== 'SUPPORTS' &&
               spool.spool === weld.spool &&
               numscheds === 1 &&
+              weld.type !== 'SW' &&
+              item.schedule !== 'None' &&
               spool.classes.length === 0 &&
               weld.schedule === undefined
             ) {
@@ -1586,6 +1593,32 @@ export const updateJob = (jobnum) => async (dispatch) => {
               })
               spool.schedules = newarray
             }
+            return item
+          })
+        })
+      })
+    }
+
+    // Classes
+    const assignSWs = (job) => {
+      job.welds.map((weld) => {
+        job.spools.map((spool) => {
+          let listclasses = []
+          spool.classes.map((one) => {
+            if (listclasses.includes(one) === false && one !== undefined) {
+              listclasses.push(one)
+            }
+          })
+          spool.items.map((item) => {
+            if (
+              item.item !== 'SUPPORTS' &&
+              spool.spool === weld.spool &&
+              weld.type === 'SW' &&
+              listclasses.length === 1
+            ) {
+              // Assign class to weld
+              weld.schedule = listclasses[0]
+            }
           })
         })
       })
@@ -1598,10 +1631,15 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.items.map((item) => {
             if (
               item.item !== 'SUPPORTS' &&
-              spool.spool == weld.spool &&
+              spool.spool === weld.spool &&
               item.size === weld.size &&
               item.weld_type === weld.type &&
-              spool.material === weld.material &&
+              // Material options
+              (spool.material === weld.material ||
+                (spool.material.includes('304/304L SS') &&
+                  weld.material === 'SS') ||
+                (spool.material === 'A333' && weld.material === 'CS') ||
+                (spool.material === 'ALUMINUM' && weld.material === 'AL')) &&
               item.class !== '' &&
               spool.classes.includes(item.class)
             ) {
@@ -1627,12 +1665,103 @@ export const updateJob = (jobnum) => async (dispatch) => {
       })
     }
 
+    // Mulitple schedules
+    const multipleSchedules = (job) => {
+      job.welds.map((weld) => {
+        job.spools.map((spool) => {
+          spool.items.map((item) => {
+            if (
+              item.item !== 'SUPPORTS' &&
+              spool.spool === weld.spool &&
+              item.size.includes(weld.size) &&
+              // Material options
+              (spool.material === weld.material ||
+                (spool.material.includes('304/304L SS') &&
+                  weld.material === 'SS') ||
+                (spool.material === 'A333' && weld.material === 'CS') ||
+                (spool.material === 'ALUMINUM' && weld.material === 'AL')) &&
+              item.schedule !== 'None' &&
+              weld.schedule === undefined
+            ) {
+              weld.schedule = item.schedule
+
+              // Create variables for sched deletion
+              let scheditem = item.sched
+              let newarray = []
+
+              // Delete item schedfrom spool.schedules
+              spool.schedules.map((each) => {
+                if (each === scheditem) {
+                  scheditem = 'unique'
+                } else {
+                  newarray.push(each)
+                }
+              })
+              spool.schedules = newarray
+            }
+            return item
+          })
+        })
+      })
+    }
+
     assignSchedules(job)
+    assignSWs(job)
     assignClasses(job)
     assignSchedules(job)
+    assignSWs(job)
     assignClasses(job)
     assignSchedules(job)
+    assignSWs(job)
     assignClasses(job)
+    multipleSchedules(job)
+
+    // Man hour codes
+    const res_mh = await axios.get('/api/csvs/manhour_codes')
+    let manhour_codes_csv = res_mh.data
+
+    // Find headers from manhour codes csv
+    lines = manhour_codes_csv.split('\n')
+    header = lines[0]
+    headers = header.split(',')
+
+    let mh_codes = []
+    count = 0
+
+    lines.map((line) => {
+      count += 1
+      if (line.split(',')[4] !== undefined && count > 1) {
+        mh_codes.push({
+          code: line.split(',')[4],
+          hours: line.split(',')[5],
+        })
+      }
+    })
+
+    // Match weld data to man hour codes
+    job.welds.map((weld) => {
+      mh_codes.map((code) => {
+        if (
+          weld.size + weld.type + weld.material + weld.schedule ===
+          code.code
+        ) {
+          weld.manhours = parseFloat(code.hours, 2)
+        }
+      })
+    })
+
+    // Add hours to spool
+    job.welds.map((weld) => {
+      job.spools.map((spool) => {
+        if (spool.spool === weld.spool) {
+          spool.welds += 1
+          if (weld.manhours != undefined) {
+            spool.manhours += weld.manhours
+            spool.welds_counted += 1
+          }
+        }
+      })
+    })
 
     // ////// //  // ///   /// ///   ///   //   /////  //    //
     // //     //  // // /// // // /// // //  // //  //  //  //
