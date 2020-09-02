@@ -49,6 +49,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
       issued_missing_item: 0,
       issued_on_hold: 0,
       on_hold_no_shorts: 0,
+      workable_manhours: 0,
+      workable_manhours_ss: 0,
+      workable_manhours_cs: 0,
       missingspools: {
         valves: { p: 0, c: 0, o: 0 },
         fittings: { p: 0, c: 0, o: 0 },
@@ -1485,6 +1488,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let weld_pipe_spec_col = undefined
     let weld_spool_col = undefined
     let weld_pm_col = undefined
+    let weld_schedule_col = undefined
 
     count = 0
     first_row = 1
@@ -1506,7 +1510,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
         weld_pipe_spec_col = count
       } else if (header === 'SPOOL-DRAWING-SEQUENCE-NUMBER') {
         weld_spool_col = count
+      } else if (header === 'SCHEDULE') {
+        weld_schedule_col = count
       }
+
       count += 1
       return header
     })
@@ -1522,7 +1529,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
       ) {
         job.spools.map((spool) => {
           if (spool.piecemark === line.split(',')[weld_pm_col]) {
-            let weld_type = line.split(',')[weld_type_col].replace('SOF', 'SO')
+            let weld_type = line
+              .split(',')
+              [weld_type_col].replace('SOF', 'SO')
+              .replace('SOB', 'N90')
             // Edit sizes to match manhour codes
             let weld_size = line.split(',')[weld_size_col]
             if (weld_size === '4-Mar') {
@@ -1537,6 +1547,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
               .replace('3/4', '.75')
               .replace('3/4', '.75')
               .replace(/\s/g, '')
+
+            let weld_schedule = undefined
+            if (line.split(',')[weld_schedule_col] !== '') {
+              weld_schedule = line.split(',')[weld_schedule_col]
+            }
+
             // Edit material names to match manhour codes
             let weldmat = spool.material
             if (weldmat.toUpperCase() === 'ALUMINUM') weldmat = 'AL'
@@ -1547,7 +1563,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               size: weld_size,
               type: weld_type,
               material: weldmat,
-              schedule: undefined,
+              schedule: weld_schedule,
               manhours: undefined,
             })
           }
@@ -1573,6 +1589,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               spool.spool === weld.spool &&
               numscheds === 1 &&
               weld.type !== 'SW' &&
+              weld.type !== 'N90' &&
               item.schedule !== 'None' &&
               spool.classes.length === 0 &&
               weld.schedule === undefined
@@ -1609,17 +1626,15 @@ export const updateJob = (jobnum) => async (dispatch) => {
               listclasses.push(one)
             }
           })
-          spool.items.map((item) => {
-            if (
-              item.item !== 'SUPPORTS' &&
-              spool.spool === weld.spool &&
-              weld.type === 'SW' &&
-              listclasses.length === 1
-            ) {
-              // Assign class to weld
-              weld.schedule = listclasses[0]
-            }
-          })
+          if (
+            spool.spool === weld.spool &&
+            weld.type === 'SW' &&
+            listclasses.length === 1 &&
+            weld.schedule === undefined
+          ) {
+            // Assign class to weld
+            weld.schedule = listclasses[0]
+          }
         })
       })
     }
@@ -1673,7 +1688,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (
               item.item !== 'SUPPORTS' &&
               spool.spool === weld.spool &&
-              item.size.includes(weld.size) &&
+              item.size === weld.size &&
+              weld.type !== 'N90' &&
               // Material options
               (spool.material === weld.material ||
                 (spool.material.includes('304/304L SS') &&
@@ -1681,6 +1697,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 (spool.material === 'A333' && weld.material === 'CS') ||
                 (spool.material === 'ALUMINUM' && weld.material === 'AL')) &&
               item.schedule !== 'None' &&
+              weld.type !== 'SW' &&
               weld.schedule === undefined
             ) {
               weld.schedule = item.schedule
@@ -1715,6 +1732,69 @@ export const updateJob = (jobnum) => async (dispatch) => {
     assignSWs(job)
     assignClasses(job)
     multipleSchedules(job)
+
+    // Extra calculations
+    job.spools.map((spool) => {
+      spool.items.map((item) => {
+        job.welds.map((weld) => {
+          // Match spool and weld and search only welds that are missing a schedule
+          if (spool.spool === weld.spool) {
+            // Fill in blank socket welds with #6000
+            if (weld.schedule === undefined && weld.type === 'SW') {
+              weld.schedule = '6000'
+            }
+            // Grab schedule of header for olets
+            if (weld.schedule === undefined && weld.type === 'OLET') {
+              let listscheds = []
+              spool.items.map((item) => {
+                if (
+                  listscheds.includes(item.schedule) === false &&
+                  item.schedule !== 'None'
+                ) {
+                  listscheds.push(item.schedule)
+                }
+              })
+              if (listscheds.length === 1) {
+                weld.schedule = listscheds[0]
+              }
+            }
+            // Grab class for SOs
+            if (weld.type === 'SO') {
+              weld.schedule = undefined
+              let listclasses = []
+              spool.items.map((item) => {
+                if (
+                  listclasses.includes(item.class) === false &&
+                  (item.class === '150' ||
+                    item.class === '300' ||
+                    item.class === '400' ||
+                    item.class === '600' ||
+                    item.class === '900')
+                ) {
+                  listclasses.push(item.class)
+                }
+              })
+              if (listclasses.length === 1) {
+                weld.schedule = listclasses[0]
+              }
+            }
+            // Grab schedule for N90s
+            if (weld.type === 'N90' && weld.schedule === undefined) {
+              let maxuse = 0
+              spool.items.map((item) => {
+                if (
+                  item.item === 'PIPE' &&
+                  item.quantity > maxuse &&
+                  item.schedule !== 'None'
+                ) {
+                  weld.schedule = item.schedule
+                }
+              })
+            }
+          }
+        })
+      })
+    })
 
     // Man hour codes
     const res_mh = await axios.get('/api/csvs/manhour_codes')
@@ -1759,6 +1839,25 @@ export const updateJob = (jobnum) => async (dispatch) => {
             spool.manhours += weld.manhours
             spool.welds_counted += 1
           }
+          if (
+            spool.status === 'Workable' ||
+            spool.status === 'Issued' ||
+            spool.status === 'Pulled'
+          ) {
+            job.workable_manhours += weld.manhours
+
+            // 7052
+            if (job.number === '7052') {
+              if (
+                spool.material.includes('304') ||
+                spool.material.toUpperCase().includes('ALUM')
+              ) {
+                job.workable_manhours_ss += weld.manhours
+              } else {
+                job.workable_manhours_cs += weld.manhours
+              }
+            }
+          }
         }
       })
     })
@@ -1785,6 +1884,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
       stc: job.stc,
       delivered: job.delivered,
       workable_not_issued: job.workable_not_issued,
+      workable_manhours: job.workable_manhours.toFixed(0),
+      workable_manhours_ss: job.workable_manhours_ss,
+      workable_manhours_cs: job.workable_manhours_cs,
       issued_on_hold: job.issued_on_hold,
       issued_missing_item: job.issued_missing_item,
       on_hold_no_shorts: job.on_hold_no_shorts,
@@ -1933,7 +2035,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // SPOOLS BY SCOPE
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     let spoollist = []
     let spools_valves = []
     let spools_pipe = []

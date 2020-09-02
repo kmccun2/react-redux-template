@@ -82,12 +82,17 @@ mat_perc_weldout = 'M'
 mat_perc_delivered = 'N'
 
 printout['A1'] = client_name + ': ' + job_number
-printout['C1'] = str(job['total']) + " Spools"
-printout['F1'] = str(
-    job['workable']) + " Workable"
-printout['I1'] = str(job['issued']) + " Issued"
+printout['C1'] = str(job['total']) + "  Spools"
+printout['E1'] = str(
+    job['workable']) + "  Workable"
+printout['G1'] = str(job['issued']) + "  Issued"
+printout['I1'] = str(job['workable_manhours']) + "  Workable Man Hours"
+printout['I5'] = round(job['workable_manhours_cs'])
+printout['J5'] = round(job['workable_manhours_ss'])
+printout['K5'] = round(float(job['workable_manhours_cs']) +
+                       float(job['workable_manhours_ss']))
 
-printout['A31'] = job_number + ' Areas Summary'
+printout['A32'] = job_number + ' Areas Summary'
 for area in job['areas']:
     printout[mat_area+str(printout.max_row+1)] = str(area['area'])
     printout[mat_priority+str(printout.max_row)] = str(area['priority'])
