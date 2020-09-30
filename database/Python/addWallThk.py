@@ -15,20 +15,27 @@ bom = bom_wb.active
 desc = 'E'
 sched = 'N'
 bomclass = 'O'
+item = 'I'
 
 bom[sched+'1'] = 'SCHEDULE'
 bom[bomclass+'1'] = 'CLASS'
+
+# Delimiter
+if jobnum == '7052':
+    desc_del = ';'
+if jobnum == '7079':
+    desc_del = ','
 
 for row in range(2, bom.max_row):
 
     print_sched = 'None'
     print_class = None
 
-    for each in bom[desc+str(row)].value.split(';'):
+    for each in bom[desc+str(row)].value.split(desc_del):
 
-        if 'SCH' in each:
+        if 'SCH' in each or 'S-' in each:
             print_sched = each.replace(' X ', 'x').replace(
-                ' ', '').replace('SCH', '')
+                ' ', '').replace('SCH', '').replace('S-', '')
 
         if ' CL' in each:
             for i in range(len(each.split(' '))):
@@ -59,6 +66,9 @@ for row in range(2, bom.max_row):
                 ' ', '').replace('WT', '')
             if 'PORT' in print_sched or 'CORPORATE' in print_sched or 'CPLG' in print_sched:
                 print_sched = 'STD'
+
+        if bom[item+str(row)].value == 'SUPPORTS':
+            print_sched = 'None'
 
     # PRINT TO WORKBOOK
     bom[sched+str(row)] = print_sched

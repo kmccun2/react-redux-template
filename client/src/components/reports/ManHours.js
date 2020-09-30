@@ -1,7 +1,7 @@
 import React from 'react'
 
 const ManHours = () => {
-  return <div>Man Hours</div>
+  return <div>Manhours</div>
 }
 
 export default ManHours

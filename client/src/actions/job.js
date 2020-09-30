@@ -155,7 +155,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
         spool_col = count
         // } else if (header === 'Priority Group') {
         //   priority_group_col = count
-      } else if (header === 'Priority #' || header === 'Individual Priority') {
+      } else if (
+        header === 'Priority #' ||
+        header === 'Individual Priority' ||
+        header === 'Priority'
+      ) {
         priority_col = count
       } else if (header.toUpperCase() === 'AREA') {
         area_col = count
@@ -282,7 +286,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             detailing: line.split(',')[detailing_col],
             checking: line.split(',')[checking_col],
             shop: line.split(',')[shop_col],
-            on_hold: line.split(',')[on_hold_col],
+            on_hold: line.split(',')[on_hold_col].toUpperCase(),
             multiplier: 1,
             jobnum: jobnum,
             client: job.client,
@@ -848,7 +852,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 spool.status = 'Not Workable'
               }
             }
-            if (spool.on_hold == 'HOLD') {
+            if (spool.on_hold.toUpperCase() == 'HOLD') {
+              spool.status = 'On Hold'
               spool.workable = false
             }
           }
@@ -923,15 +928,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
       // TOTAL SPOOLS
       job.total += each.multiplier
       each.status = 'Not Workable'
-      // TOTAL ON HOLD
-      if (each.on_hold !== '' && each.on_hold !== undefined) {
-        job.on_hold += each.multiplier
-        each.status = 'On Hold'
-        each.workable = false
-      }
       // TOTAL WORKABLE
       if (each.workable) {
-        job.workable += each.multiplier
         each.status = 'Workable'
       }
       // TOTAL ISSUED
@@ -967,6 +965,19 @@ export const updateJob = (jobnum) => async (dispatch) => {
         job.delivered += each.multiplier
         each.status = 'Delivered'
       }
+      // SHORTS AFTER ISSUE
+      if (each.workable === false) {
+        each.status = 'Not Workable'
+      }
+      // TOTAL ON HOLD
+      if (each.on_hold !== '' && each.on_hold !== undefined) {
+        job.on_hold += each.multiplier
+        each.status = 'On Hold'
+        each.workable = false
+      }
+
+      // COUNT WORKABLE AFTER ALL OTHER CALCULATIONS
+      if (each.workable === true) job.workable += each.multiplier
 
       // AREAS
       if (areas_list.includes(each.area) === false) {
@@ -1567,8 +1578,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
               manhours: undefined,
             })
           }
+          return spool
         })
       }
+      return line
     })
 
     // SINGLE SCHEDULE WITH NO CLASSES
@@ -1613,6 +1626,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             return item
           })
         })
+        return weld
       })
     }
 
@@ -1625,6 +1639,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (listclasses.includes(one) === false && one !== undefined) {
               listclasses.push(one)
             }
+            return one
           })
           if (
             spool.spool === weld.spool &&
@@ -1635,7 +1650,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
             // Assign class to weld
             weld.schedule = listclasses[0]
           }
+          return spool
         })
+        return weld
       })
     }
 
