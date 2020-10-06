@@ -6,69 +6,81 @@ from datetime import date, datetime
 import json
 
 # LOAD WORKBOOKS
-jobnum = '7052'
+jobnum = '7114'
 bom_wb = load_workbook(filename='database/'+jobnum+'/bom_import.xlsx')
 
 # ACTIVATE SHEETS
 bom = bom_wb.active
 
+size = 'D'
+item = 'I'
 desc = 'E'
 sched = 'N'
 bomclass = 'O'
-item = 'I'
+
 
 bom[sched+'1'] = 'SCHEDULE'
 bom[bomclass+'1'] = 'CLASS'
 
-# Delimiter
-if jobnum == '7052':
-    desc_del = ';'
-if jobnum == '7079':
-    desc_del = ','
-
-for row in range(2, bom.max_row):
+for row in range(2, bom.max_row+1):
 
     print_sched = 'None'
     print_class = None
 
-    for each in bom[desc+str(row)].value.split(desc_del):
+    if 'X' in bom[size+str(row)].value.upper():
+        itemsize = float(bom[size+str(row)].value.upper().split('X')[0].replace('1 1/2', '1.5').replace(
+            '1 1/4', '1.25').replace('2 1/2', '2.5').replace('3/4', '.75').replace('1/2', '.5').replace('1/4', '.25'))
+    else:
+        itemsize = float(bom[size+str(row)].value.replace('1 1/2', '1.5').replace(
+            '1 1/4', '1.25').replace('2 1/2', '2.5').replace('3/4', '.75').replace('1/2', '.5').replace('1/4', '.25'))
+    newdesc = bom[desc+str(row)].value.replace('SCH ',
+                                               'S-').replace('SCH', 'S-').replace(' WT', '').split(' ')
 
-        if 'SCH' in each or 'S-' in each:
-            print_sched = each.replace(' X ', 'x').replace(
-                ' ', '').replace('SCH', '').replace('S-', '')
+    if ' X ' in bom[desc+str(row)].value.replace('SCH ',
+                                                 'S-').replace('SCH', 'S-').replace(' WT', ''):
+        for each in newdesc:
+            if each == 'X':
+                for i in range(len(newdesc)):
+                    if newdesc[i] == 'X':
+                        print_sched = newdesc[i-1] + 'X' + newdesc[i+1]
+    else:
+        for each in newdesc:
+            if 'S-' in each:
+                print_sched = each.replace(' X ', 'x').replace(
+                    ' ', '').replace('S-', '')
 
-        if ' CL' in each:
-            for i in range(len(each.split(' '))):
-                if each.split(' ')[i] == 'CL':
-                    if each.split(' ')[i+1] != '1':
-                        print_class = each.split(' ')[i+1]
+            elif 'CL' in each:
+                print_class = each.replace('CL', '')
 
-        if each == ' XS':
-            print_sched = 'XS'
+            elif each == 'XS':
+                print_sched = 'XS'
 
-        if each == ' XXS':
-            print_sched = 'XXS'
+            elif each == '10S':
+                print_sched = '10S'
 
-        if 'STD WT' in each:
-            print_sched = 'STD'
+            elif each == 'XXS':
+                print_sched = 'XXS'
 
-        if '3000#' in each:
-            print_class = '3000'
-
-        if '150#' in each:
-            print_class = '150'
-
-        if '800#' in each:
-            print_class = '800'
-
-        if 'STD' in each and print_sched == None:
-            print_sched = each.replace(' X ', 'x').replace(
-                ' ', '').replace('WT', '')
-            if 'PORT' in print_sched or 'CORPORATE' in print_sched or 'CPLG' in print_sched:
+            elif 'STD' in each:
                 print_sched = 'STD'
 
-        if bom[item+str(row)].value == 'SUPPORTS':
-            print_sched = 'None'
+            elif '3000#' in each or each == '3M':
+                print_class = '3000'
+
+            elif '150#' in each:
+                print_class = '150'
+
+            elif '800#' in each:
+                print_class = '800'
+
+            if bom[item+str(row)].value == 'SUPPORTS':
+                print_sched = 'None'
+
+            # Change sizes of 40 and 80
+            if itemsize < 12 and print_sched == '40':
+                print_sched = 'STD'
+            if itemsize < 10 and print_sched == '80':
+                print_sched = 'XS'
 
     # PRINT TO WORKBOOK
     bom[sched+str(row)] = print_sched

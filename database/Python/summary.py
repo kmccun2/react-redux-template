@@ -86,11 +86,11 @@ printout['C1'] = str(job['total']) + "  Spools"
 printout['E1'] = str(
     job['workable']) + "  Workable"
 printout['G1'] = str(job['issued']) + "  Issued"
-# printout['I1'] = str(job['workable_manhours']) + "  Workable Man Hours"
-# printout['I5'] = round(job['workable_manhours_cs'])
-# printout['J5'] = round(job['workable_manhours_ss'])
-# printout['K5'] = round(float(job['workable_manhours_cs']) +
-#                        float(job['workable_manhours_ss']))
+printout['I1'] = str(job['workable_manhours']) + "  Workable Man Hours"
+printout['I5'] = round(job['workable_manhours_cs'])
+printout['J5'] = round(job['workable_manhours_ss'])
+printout['K5'] = round(float(job['workable_manhours_cs']) +
+                       float(job['workable_manhours_ss']))
 
 printout['A32'] = job_number + ' Areas Summary'
 for area in job['areas']:

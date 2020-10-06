@@ -117,6 +117,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       if (line.split(',')[0].toUpperCase().includes('CLIENT NAME')) {
         job.client = line.split(',')[1]
       }
+
       count += 1
       if (
         line.toUpperCase().includes('ISO') &&
@@ -161,7 +162,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
         header === 'Priority'
       ) {
         priority_col = count
-      } else if (header.toUpperCase() === 'AREA') {
+      } else if (
+        header.toUpperCase() === 'AREA' ||
+        header.toUpperCase() === 'PHASE'
+      ) {
         area_col = count
       } else if (header.toUpperCase() === 'ISO' || header === 'Iso No.') {
         iso_col = count
@@ -251,12 +255,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
     lines.map((line) => {
       count += 1
       if (
-        line.split(',')[spool_col] !== '' &&
-        line.split(',')[spool_col] !== undefined &&
+        line.split(',')[piecemark_col] !== '' &&
+        line.split(',')[piecemark_col] !== undefined &&
         count >= first_row
       ) {
-        if (spools_list.includes(line.split(',')[spool_col]) === false) {
-          // Rename spools that were converted to month/day
+        if (spools_list.includes(line.split(',')[piecemark_col]) === false) {
+          // Rename sketch numbers that were converted to month/day
           let fix_spool = line.split(',')[spool_col]
           if (line.split(',')[spool_col] === '1-Jan') fix_spool = '1-1'
           if (line.split(',')[spool_col] === '1-Feb') fix_spool = '2-1'
@@ -299,12 +303,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
             welds_counted: 0,
             welds: 0,
           })
-
-          spools_list.push(line.split(',')[spool_col])
+          spools_list.push(line.split(',')[piecemark_col])
           ll_pms.push(line.split(',')[piecemark_col])
         } else {
           job.spools.map((spool) => {
-            if (spool.spool === line.split(',')[spool_col]) {
+            if (spool.piecemark_col === line.split(',')[piecemark_col]) {
               spool.multiplier += 1
             }
             return job
@@ -420,44 +423,38 @@ export const updateJob = (jobnum) => async (dispatch) => {
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "DATE PULL".'
+          ' status report! Pull header should be titled "DATE PULL".'
       )
     if (weldout_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "WELD OUT".'
+          ' status report! Weld out header should be titled "WELD OUT".'
       )
     if (rts_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "READY TO SHIP".'
+          ' status report! Ready to ship header should be titled "READY TO SHIP".'
       )
     if (rtsc_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "READY TO SHIP COATING".'
+          ' status report! Ready to ship to coating header should be titled "READY TO SHIP COATING".'
       )
     if (stc_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "SHIP TO COATING".'
+          ' status report! Shipped to coating header should be titled "SHIP TO COATING".'
       )
     if (delivered_col === undefined)
       alert(
         'Error on ' +
           jobnum +
-          ' status report! Piecemark header should be titled "TO SITE".'
+          ' status report! Delivered header should be titled "TO SITE".'
       )
-    // if (sr_on_hold_col === undefined)
-    //   alert(
-    //     'Error on ' +
-    //       jobnum +
-    //       ' status report! Piecemark header should be titled "ON HOLD".'
-    //   )
 
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0
@@ -551,7 +548,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     })
 
     // ASSIGN COLUMN NUMBER TO EACH HEADER
-    let be_bom_path_col = undefined
     let be_description_col = undefined
     let be_tag_col = undefined
     let be_position_col = undefined
@@ -561,12 +557,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let be_size_col = undefined
     let be_sched_col = undefined
     let be_class_col = undefined
+    let be_pm_col = undefined
     count = 0
 
     headers.map((header) => {
-      if (header === '﻿BOM PATH' || header === 'BOM PATH') {
-        be_bom_path_col = count
-      } else if (header === ' TAG NUMBER') {
+      if (header === ' TAG NUMBER') {
         be_tag_col = count
       } else if (header === ' POS') {
         be_position_col = count
@@ -580,6 +575,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         be_description_col = count
       } else if (header === ' SIZE') {
         be_size_col = count
+      } else if (header === ' SKETCH') {
+        be_pm_col = count
       } else if (header === 'SCHEDULE') {
         be_sched_col = count
       } else if (header === 'CLASS') {
@@ -593,8 +590,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
     count = lines.map((line) => {
       count += 1
       if (
-        line.split(',')[be_bom_path_col] !== '' &&
-        line.split(',')[be_bom_path_col] !== undefined &&
+        line.split(',')[be_pm_col] !== '' &&
+        line.split(',')[be_pm_col] !== undefined &&
         count >= first_row
       ) {
         // Find schedule and class
@@ -649,10 +646,56 @@ export const updateJob = (jobnum) => async (dispatch) => {
         if (itemdesc.includes('BLIND')) itemweld = 'NONE'
         job.spools.map((spool) => {
           // CREATE ITEM
-          if (
-            line.split(',')[be_bom_path_col].split('/').slice(-1)[0] ===
-            spool.spool
-          ) {
+          if (line.split(',')[be_pm_col] === spool.piecemark) {
+            // Assign material to item
+            let calcmaterial = ''
+            if (spool.material === '' || spool.material === undefined) {
+              // Search for material in item
+              if (itemdesc.replace(' ', '').includes('304'))
+                calcmaterial = '304'
+              else if (itemdesc.replace(' ', '').includes('316'))
+                calcmaterial = '316'
+              else if (itemdesc.replace(' ', '').includes('A106'))
+                calcmaterial = 'A106'
+              else if (itemdesc.replace(' ', '').includes('A105'))
+                calcmaterial = 'A105'
+              else if (itemdesc.replace(' ', '').includes('A53'))
+                calcmaterial = 'A53'
+              else if (itemdesc.replace(' ', '').includes('A403'))
+                calcmaterial = 'A403'
+              else if (itemdesc.replace(' ', '').includes('A234'))
+                calcmaterial = 'A234'
+              else if (itemdesc.replace(' ', '').includes('A587'))
+                calcmaterial = 'A587'
+              else if (itemdesc.replace(' ', '').includes('A351'))
+                calcmaterial = 'A351'
+              else if (itemdesc.replace(' ', '').includes('A216'))
+                calcmaterial = 'A216'
+              else if (itemdesc.replace(' ', '').includes('P22'))
+                calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('F22'))
+                calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('P9'))
+                calcmaterial = 'P9'
+              else if (itemdesc.replace(' ', '').includes('F9'))
+                calcmaterial = 'P9'
+              else if (itemdesc.replace(' ', '').includes('P11'))
+                calcmaterial = 'P11'
+              else if (itemdesc.replace(' ', '').includes('F11'))
+                calcmaterial = 'P11'
+              else if (itemdesc.replace(' ', '').includes('P91'))
+                calcmaterial = 'P91'
+              else if (itemdesc.replace(' ', '').includes('F91'))
+                calcmaterial = 'P91'
+              else if (itemdesc.replace(' ', '').includes('P22'))
+                calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('F22'))
+                calcmaterial = 'P22'
+              // Assign item material to spool material
+              spool.material = calcmaterial
+            } else {
+              calcmaterial = spool.material
+            }
             spool.items.push({
               tag: line.split(',')[be_tag_col],
               item: line.split(',')[be_item_col],
@@ -672,7 +715,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               status: 'Complete',
               schedule: itemsched,
               class: itemclass,
-              material: spool.material,
+              material: calcmaterial,
               weld_type: itemweld,
               spool: spool.spool,
               multiplier: spool.multiplier,
@@ -722,7 +765,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     })
 
     // ASSIGN COLUMN NUMBER TO EACH HEADER
-    let bom_path_col = undefined
+    let fc_pm_col = undefined
     let tag_col = undefined
     let position_col = undefined
     let item_col = undefined
@@ -734,8 +777,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
     count = 0
 
     headers.map((header) => {
-      if (header === 'BOM PATH') {
-        bom_path_col = count
+      if (header === ' SKETCH') {
+        fc_pm_col = count
       } else if (header === ' TAG NUMBER') {
         tag_col = count
       } else if (header === ' POS') {
@@ -761,16 +804,16 @@ export const updateJob = (jobnum) => async (dispatch) => {
     lines.map((line) => {
       count += 1
       if (
-        line.split(',')[bom_path_col] !== '' &&
-        line.split(',')[bom_path_col] !== undefined &&
+        line.split(',')[fc_pm_col] !== '' &&
+        line.split(',')[fc_pm_col] !== undefined &&
         count >= first_row
       ) {
-        fc_spools.push(line.split(',')[bom_path_col].split('/').slice(-1)[0])
+        fc_spools.push(line.split(',')[fc_pm_col])
         job.spools.map((spool) => {
           // FIND SPOOL BY MATCHING BOM PATH TO SPOOL NAME
           if (
-            line.split(',')[bom_path_col].split('/').slice(-1)[0] ===
-            spool.spool
+            line.split(',')[fc_pm_col].split('/').slice(-1)[0] ===
+            spool.piecemark
           ) {
             // SET SCOPE
             let item_scope = 'Other'
@@ -852,6 +895,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 spool.status = 'Not Workable'
               }
             }
+            // Set spools on hold to Not Workable
             if (spool.on_hold.toUpperCase() == 'HOLD') {
               spool.status = 'On Hold'
               spool.workable = false
@@ -876,7 +920,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.scope = 'Client'
         }
       })
-      if (fc_spools.includes(spool.spool)) {
+      if (fc_spools.includes(spool.piecemark)) {
         if (
           spool.issued !== undefined &&
           spool.issued !== '' &&
@@ -925,6 +969,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
     job.delivered = 0
 
     job.spools.map((each) => {
+      if (each.items.length === 0) {
+        each.status = 'Not in SP'
+        each.workable = false
+      }
       // TOTAL SPOOLS
       job.total += each.multiplier
       each.status = 'Not Workable'
@@ -1552,9 +1600,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
             if (weld_size === '2-Jan') {
               weld_size = '.5'
             }
+            if (weld_size === '4-Jan') {
+              weld_size = '.25'
+            }
             weld_size = weld_size
               .replace('1/2', '.5')
               .replace('1/2', '.5')
+              .replace('1/4', '.25')
+              .replace('1/4', '.25')
               .replace('3/4', '.75')
               .replace('3/4', '.75')
               .replace(/\s/g, '')
@@ -1567,15 +1620,24 @@ export const updateJob = (jobnum) => async (dispatch) => {
             // Edit material names to match manhour codes
             let weldmat = spool.material
             if (weldmat.toUpperCase() === 'ALUMINUM') weldmat = 'AL'
-            if (weldmat.includes('304')) weldmat = 'SS'
+            if (weldmat.includes('304') || weldmat.includes('316'))
+              weldmat = 'SS'
+            if (weldmat.includes('CS')) weldmat = 'CS'
+
+            // Spools not in SP
+            let jobmanhours = undefined
+            if (spool.items.length == 0) {
+              jobmanhours = 'Not in SP'
+            }
 
             job.welds.push({
               spool: spool.spool,
+              spec: line.split(',')[weld_pipe_spec_col],
               size: weld_size,
               type: weld_type,
               material: weldmat,
               schedule: weld_schedule,
-              manhours: undefined,
+              manhours: jobmanhours,
             })
           }
           return spool
@@ -1852,27 +1914,31 @@ export const updateJob = (jobnum) => async (dispatch) => {
       job.spools.map((spool) => {
         if (spool.spool === weld.spool) {
           spool.welds += 1
-          if (weld.manhours != undefined) {
+          if (
+            weld.manhours != undefined &&
+            weld.manhours != 'Not in SP' &&
+            weld.manhours != 'Omit'
+          ) {
             spool.manhours += weld.manhours
             spool.welds_counted += 1
           }
+          // Workable man hours
           if (
-            spool.status === 'Workable' ||
-            spool.status === 'Issued' ||
-            spool.status === 'Pulled'
+            (spool.status === 'Workable' ||
+              spool.status === 'Issued' ||
+              spool.status === 'Pulled') &&
+            weld.manhours !== 'Not in SP' &&
+            weld.manhours != 'Omit'
           ) {
             job.workable_manhours += weld.manhours
-
-            // 7052
-            if (job.number === '7052') {
-              if (
-                spool.material.includes('304') ||
-                spool.material.toUpperCase().includes('ALUM')
-              ) {
-                job.workable_manhours_ss += weld.manhours
-              } else {
-                job.workable_manhours_cs += weld.manhours
-              }
+            if (
+              spool.material.includes('304') ||
+              spool.material.includes('316') ||
+              spool.material.toUpperCase().includes('ALUM')
+            ) {
+              job.workable_manhours_ss += weld.manhours
+            } else {
+              job.workable_manhours_cs += weld.manhours
             }
           }
         }

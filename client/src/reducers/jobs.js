@@ -7,8 +7,7 @@ import {
 
 const initialState = {
   loading: false,
-  jobnums: ['7052'],
-  // jobnums: ['7052', '6973', '6951', '6112'],
+  jobnums: ['7052', '7114', '7116'],
   all_shops: ['', 'BR', 'PA', 'TX', 'M'],
   all_statuses: [
     'Not Workable',
