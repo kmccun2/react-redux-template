@@ -6,7 +6,7 @@ from datetime import date, datetime
 import json
 
 # LOAD WORKBOOKS
-jobnum = '7114'
+jobnum = '7052'
 bom_wb = load_workbook(filename='database/'+jobnum+'/bom_import.xlsx')
 
 # ACTIVATE SHEETS
@@ -18,6 +18,8 @@ desc = 'E'
 sched = 'N'
 bomclass = 'O'
 
+listofscheds = ['10', '10S', '40', 'STD', '40S', '80',
+                '80S', 'XS', 'XXS', '3000', '6000', '9000', '160']
 
 bom[sched+'1'] = 'SCHEDULE'
 bom[bomclass+'1'] = 'CLASS'
@@ -34,15 +36,16 @@ for row in range(2, bom.max_row+1):
         itemsize = float(bom[size+str(row)].value.replace('1 1/2', '1.5').replace(
             '1 1/4', '1.25').replace('2 1/2', '2.5').replace('3/4', '.75').replace('1/2', '.5').replace('1/4', '.25'))
     newdesc = bom[desc+str(row)].value.replace('SCH ',
-                                               'S-').replace('SCH', 'S-').replace(' WT', '').split(' ')
+                                               'S-').replace('SCH', 'S-').replace(' WT', '').replace(';', '').split(' ')
 
     if ' X ' in bom[desc+str(row)].value.replace('SCH ',
                                                  'S-').replace('SCH', 'S-').replace(' WT', ''):
         for each in newdesc:
             if each == 'X':
                 for i in range(len(newdesc)):
-                    if newdesc[i] == 'X':
-                        print_sched = newdesc[i-1] + 'X' + newdesc[i+1]
+                    if newdesc[i] == 'X' and newdesc[i-1].replace('S-', '') in listofscheds:
+                        print_sched = newdesc[i-1].replace(
+                            'S-', '') + 'X' + newdesc[i+1].replace('S-', '')
     else:
         for each in newdesc:
             if 'S-' in each:

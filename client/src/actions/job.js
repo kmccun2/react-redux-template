@@ -164,7 +164,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         priority_col = count
       } else if (
         header.toUpperCase() === 'AREA' ||
-        header.toUpperCase() === 'PHASE'
+        header.toUpperCase() === 'PHASE' ||
+        header.toUpperCase() === 'PHASE / JOB NO.'
       ) {
         area_col = count
       } else if (header.toUpperCase() === 'ISO' || header === 'Iso No.') {
@@ -364,7 +365,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let rtsc_col = undefined
     let stc_col = undefined
     let delivered_col = undefined
-    // let sr_on_hold_col = undefined
+    let loadno_col = undefined
 
     count = 0
     headers.map((header) => {
@@ -408,6 +409,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         header.toUpperCase() === 'TO SITE'
       ) {
         delivered_col = count
+      } else if (header.toUpperCase() === 'IDFILLOADN') {
+        loadno_col = count
       }
       count += 1
       return headers
@@ -476,7 +479,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
           rtsc: line.split(',')[rtsc_col],
           stc: line.split(',')[stc_col],
           delivered: line.split(',')[delivered_col],
-          // on_hold: line.split(',')[sr_on_hold_col],
+          loadno: line.split(',')[loadno_col],
         })
       }
       return line
@@ -495,6 +498,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
           spool.rtsc = pm.rtsc
           spool.stc = pm.stc
           spool.delivered = pm.delivered
+          spool.load_no = pm.loadno
         }
         return pm
       })
@@ -971,7 +975,6 @@ export const updateJob = (jobnum) => async (dispatch) => {
     job.spools.map((each) => {
       if (each.items.length === 0) {
         each.status = 'Not in SP'
-        each.workable = false
       }
       // TOTAL SPOOLS
       job.total += each.multiplier
