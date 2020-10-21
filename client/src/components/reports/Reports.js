@@ -88,9 +88,9 @@ const Reports = ({
             <div className='js-highlight-item'>{job.total} Spools</div>
             <div className='js-highlight-item'>{job.workable} Workable</div>
             <div className='js-highlight-item'>{job.issued} Issued</div>
-            <div className='js-highlight-item'>
+            {/* <div className='js-highlight-item'>
               {job.workable_manhours} Workable Man Hours
-            </div>
+            </div> */}
           </div>
           {/* SUMMARY TABS */}
           <div className='js-tabs'>

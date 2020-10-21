@@ -46,16 +46,8 @@ const AreasSummary = ({ job, header }) => {
           <div className='col2'></div>
           <div className='col3'>{job.total}</div>
           <div className='col4'>{job.on_hold}</div>
-          <div className='col5'>
-            {job.workable_not_issued
-              ? job.workable + job.workable_not_issued
-              : job.workable}
-          </div>
-          <div className='col6'>
-            {job.workable_not_issued
-              ? job.total - job.workable - job.workable_not_issued
-              : job.total - job.workable}
-          </div>
+          <div className='col5'>{job.workable}</div>
+          <div className='col6'>{job.total - job.workable}</div>
           <div className='col7'>{job.weldout}</div>
           <div className='col8'>{job.total - job.weldout}</div>
           <div className='col9'>{job.stc}</div>

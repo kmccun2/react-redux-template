@@ -35,8 +35,8 @@ for row in range(2, bom.max_row+1):
     else:
         itemsize = float(bom[size+str(row)].value.replace('1 1/2', '1.5').replace(
             '1 1/4', '1.25').replace('2 1/2', '2.5').replace('3/4', '.75').replace('1/2', '.5').replace('1/4', '.25'))
-    newdesc = bom[desc+str(row)].value.replace('SCH ',
-                                               'S-').replace('SCH', 'S-').replace(' WT', '').replace(';', '').split(' ')
+    newdesc = bom[desc+str(row)].value.upper().replace('SCH ',
+                                                       'S-').replace('SCH', 'S-').replace(' WT', '').replace(';', '').split(' ')
 
     if ' X ' in bom[desc+str(row)].value.replace('SCH ',
                                                  'S-').replace('SCH', 'S-').replace(' WT', ''):
@@ -52,20 +52,25 @@ for row in range(2, bom.max_row+1):
                 print_sched = each.replace(' X ', 'x').replace(
                     ' ', '').replace('S-', '')
 
-            elif 'CL' in each:
-                print_class = each.replace('CL', '')
+            # Schedules
+            elif 'STD' in each:
+                print_sched = 'STD'
 
-            elif each == 'XS':
+            elif each == 'XS' or 'XH' in each:
                 print_sched = 'XS'
 
             elif each == '10S':
                 print_sched = '10S'
 
+            elif each == '40S':
+                print_sched = '40S'
+
             elif each == 'XXS':
                 print_sched = 'XXS'
 
-            elif 'STD' in each:
-                print_sched = 'STD'
+            # Classes
+            if 'CL' in each:
+                print_class = each.replace('CL', '')
 
             elif '3000#' in each or each == '3M':
                 print_class = '3000'

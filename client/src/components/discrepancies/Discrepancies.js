@@ -8,6 +8,7 @@ const Discrepancies = ({ discrepancies, job, type }) => {
     sr_not_ll: [],
     notfc_notiss: [],
     fc_iss: [],
+    bom_not_line_list: [],
   })
 
   useEffect(() => {
@@ -123,6 +124,37 @@ const Discrepancies = ({ discrepancies, job, type }) => {
                     <div key={each.spool} className='table-row'>
                       <div className='disc-col'>{each.jobnum}</div>
                       <div className='disc-col'>{each.spool}</div>
+                    </div>
+                  ))}
+                </Fragment>
+              )}
+            </Fragment>
+          </div>
+        </div>
+        {/* TAG ON BOM (NOT LINELIST) */}
+        <div>
+          {' '}
+          <div className='table-row disc-table-label'>
+            Tag on BOM, Not Line List
+          </div>
+          <div className='table-container disc-table'>
+            <div className='table-header table-row' style={{ width: 200 }}>
+              <div className='disc-col'>Tag</div>
+            </div>
+            <Fragment>
+              {used.bom_not_line_list === 0 ? (
+                <div className='no-discrepancies'>No Discrepancies</div>
+              ) : (
+                <Fragment>
+                  {used.bom_not_line_list.map((each) => (
+                    <div
+                      key={each.spool}
+                      className='table-row'
+                      style={{ width: 200 }}
+                    >
+                      <div className='disc-col' style={{ width: 200 }}>
+                        {each}
+                      </div>
                     </div>
                   ))}
                 </Fragment>

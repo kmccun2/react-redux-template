@@ -87,8 +87,8 @@ printout['E1'] = str(
     job['workable']) + "  Workable"
 printout['G1'] = str(job['issued']) + "  Issued"
 # printout['I1'] = str(job['workable_manhours']) + "  Workable Man Hours"
-# printout['I5'] = round(job['workable_manhours_cs'])
-# printout['J5'] = round(job['workable_manhours_ss'])
+# printout['I5'] = round(float(job['workable_manhours_cs']))
+# printout['J5'] = round(float(job['workable_manhours_ss']))
 # printout['K5'] = round(float(job['workable_manhours_cs']) +
 #                        float(job['workable_manhours_ss']))
 
@@ -121,9 +121,9 @@ printout['A'+str(printout.max_row+1)] = 'TOTALS'
 printout[mat_spools+str(printout.max_row)] = job['total']
 printout[mat_on_hold+str(printout.max_row)] = job['on_hold']
 printout[mat_workable+str(printout.max_row)
-         ] = job['workable']+job['workable_not_issued']
+         ] = job['workable']
 printout[mat_not_workable+str(printout.max_row)
-         ] = job['total']-job['workable']-job['workable_not_issued']
+         ] = job['total']-job['workable']
 printout[mat_weldout+str(printout.max_row)] = job['weldout']
 printout[mat_weldout_remaining +
          str(printout.max_row)] = job['total']-job['weldout']
