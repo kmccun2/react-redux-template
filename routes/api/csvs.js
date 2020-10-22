@@ -1,5 +1,4 @@
 const express = require('express')
-const createCsvWriter = require('csv-writer').createArrayCsvWriter
 const router = express.Router()
 let fs = require('fs')
 

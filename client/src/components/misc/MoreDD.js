@@ -8,11 +8,14 @@ const MoreDD = ({ show }) => {
       className={show ? 'reports-dropdown' : 'reports-dropdown hide'}
     >
       <Fragment>
-        <Link to={'/discrepancies'}>
-          <div className='reports-job'>Discrepancies</div>
-        </Link>
         <Link to={'/compare_tags'}>
           <div className='reports-job'>Compare Tags</div>
+        </Link>
+        <Link to={'/compare_spools'}>
+          <div className='reports-job'>Compare Spools</div>
+        </Link>
+        <Link to={'/compare_items'}>
+          <div className='reports-job'>Compare Items</div>
         </Link>
       </Fragment>
     </div>

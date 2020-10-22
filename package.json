@@ -24,7 +24,8 @@
     "axios": "^0.19.2",
     "csv-writer": "^1.6.0",
     "express": "^4.17.1",
-    "python-shell": "^2.0.1"
+    "python-shell": "^2.0.1",
+    "xlsx": "^0.16.8"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
