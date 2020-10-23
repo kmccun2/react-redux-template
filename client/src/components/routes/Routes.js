@@ -13,7 +13,7 @@ import Discrepancies from '../discrepancies/Discrepancies'
 import CompareTags from '../reports/Comparisons/CompareTags'
 import CompareSpools from '../reports/Comparisons/CompareSpools'
 import CompareItems from '../reports/Comparisons/CompareItems'
-import NewCodes from '../reports/Comparisons/NewCodes'
+import NewCodes from '../reports/Comparisons/CompareItems'
 
 const Routes = ({ jobnums, updateJobs, jobs }) => {
   useEffect(() => {
