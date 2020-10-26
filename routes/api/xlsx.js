@@ -8,7 +8,6 @@ const xlsx = require('xlsx')
 router.get('/input', async (req, res) => {
   try {
     let wb = xlsx.readFile('database/Comparisons/input.xlsx')
-    let origwb = wb
     let sheet_name_list = wb.SheetNames
     let jobnum = undefined
     let type = undefined
@@ -47,6 +46,40 @@ router.get('/input', async (req, res) => {
       rows: xlsx.utils.sheet_to_json(wb.Sheets[sheet_name_list[0]]),
       jobnum: jobnum,
       type: type,
+      headers: headers,
+    }
+
+    // Send data to compareItems.js
+    res.json(workbook)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error')
+  }
+})
+
+// @route    GET api/xlsx/po
+// @desc     Grab po file
+router.get('/po', async (req, res) => {
+  try {
+    let wb = xlsx.readFile('database/Comparisons/po.xlsx')
+    let sheet_name_list = wb.SheetNames
+    let headers = []
+
+    // Rename headers
+    for (let i = 0; i < 100; i++) {
+      // Create a cell reference
+      cell = xlsx.utils.encode_cell({ c: i, r: 0 })
+      cell2 = xlsx.utils.encode_cell({ c: i, r: 1 })
+
+      // Avoid blank cells on header row
+      if (wb.Sheets[sheet_name_list[0]][cell] != undefined) {
+        headers.push(wb.Sheets[sheet_name_list[0]][cell].v)
+      }
+    }
+
+    // Create wb object to send to front end
+    let workbook = {
+      rows: xlsx.utils.sheet_to_json(wb.Sheets[sheet_name_list[0]]),
       headers: headers,
     }
 

@@ -1,8 +1,9 @@
-import { COMPARE_ITEMS } from '../actions/types'
+import { ADD_MATCH, COMPARE_ITEMS } from '../actions/types'
 
 const initialState = {
   loading: false,
   sp_items: [],
+  po_items: [],
 }
 
 export default function (state = initialState, action) {
@@ -14,9 +15,19 @@ export default function (state = initialState, action) {
         ...state,
         loading: false,
         sp_items: payload.sp_items,
-        headers: payload.headers,
+        po_items: payload.po_items,
+        sp_headers: payload.sp_headers,
+        po_headers: payload.po_headers,
+        discrepancies: payload.discrepancies,
       }
-
+    case ADD_MATCH:
+      return {
+        ...state,
+        loading: false,
+        sp_items: payload.sp_items,
+        po_items: payload.po_items,
+        discrepancies: payload.discrepancies,
+      }
     default:
       return state
   }
