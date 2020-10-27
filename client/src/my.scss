@@ -758,10 +758,12 @@ body {
 .comp2 {
   min-width: 600px;
   text-align: left;
+  flex-grow: 1;
 }
 .comp3 {
   display: flex;
   align-items: flex-end;
+  padding-right: 10px;
 }
 tr {
   display: flex;
@@ -771,6 +773,7 @@ tr {
   padding: 7px 0;
   font-weight: bold;
   color: white;
+  cursor: pointer;
 }
 .hide {
   display: hidden;

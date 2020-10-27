@@ -40,6 +40,11 @@ const NewCodes = ({
     setPoItems(po_items.filter((po_item) => po_item.breakpoint !== undefined))
   }
 
+  // Sort headers
+  const sortHeaders = (header) => {
+    console.log(header)
+  }
+
   return (
     <div className={'compare-container'}>
       {sp_items.length > 0 ? (
@@ -61,9 +66,15 @@ const NewCodes = ({
             <table>
               <thead>
                 <tr className='compare-header'>
-                  <td className='comp1'>Breakpoint</td>
-                  <td className='comp2'>Description</td>
-                  <td className='comp3'></td>
+                  <td className='comp1' onClick={() => sortHeaders('breakpoint')}>
+                    Breakpoint
+                  </td>
+                  <td className='comp2' onClick={() => sortHeaders('description')}>
+                    Description
+                  </td>
+                  <td className='comp3' onClick={() => sortHeaders('suggestions')}>
+                    Suggestions
+                  </td>
                 </tr>
               </thead>
               <tbody className='unmatched-body'>

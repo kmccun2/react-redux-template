@@ -126,7 +126,7 @@ export const compareItems = () => async (dispatch) => {
     )
       sp_item.end_type = 'Beveled'
 
-    if (sp_item.newdesc.includes(' PXT') || sp_item.newdesc.includes(' TXP')) sp_item.end_type = 'xx Threaded'
+    if (sp_item.newdesc.includes(' PXT') || sp_item.newdesc.includes(' TXP')) sp_item.end_type = 'Plain x Threaded'
     if (sp_item.newdesc.includes(' BXT') || sp_item.newdesc.includes(' TXB')) sp_item.end_type = 'Beveled x Threaded'
     if (sp_item.newdesc.includes(' BXP') || sp_item.newdesc.includes(' TBE')) sp_item.end_type = 'Beveled x Plain'
     if (sp_item.newdesc.includes(' NPT')) sp_item.end_type = 'Threaded'
@@ -165,11 +165,14 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.newdesc.includes('BE')) sp_item.item_detail = 'Weldolet'
     }
     // Concentric Reducer
-    if (sp_item.newdesc.includes('CON') && (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUCER')))
+    if (
+      sp_item.newdesc.includes('CONC') ||
+      (sp_item.newdesc.includes('CON ') && (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUCER')))
+    )
       sp_item.item_detail = 'Concentric Reducer'
     // Eccentric Reducer
     if (sp_item.newdesc.includes('ECC') && (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUCER')))
-      sp_item.item_detail = 'Concentric Reducer'
+      sp_item.item_detail = 'Eccentric Reducer'
     // Elbows
     if (sp_item.newdesc.includes('ELBOW') || sp_item.newdesc.includes('ELL ')) {
       if (sp_item.newdesc.includes('90')) sp_item.item_detail = '90 Degree Elbow'
@@ -177,15 +180,16 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.newdesc.includes('SR ') || sp_item.newdesc.includes('SHORT')) {
         sp_item.item_detail = sp_item.item_detail + ' - Short'
       }
+      if (sp_item.newdesc.includes('RED')) sp_item.item_detail = sp_item.item_detail + ' - Reducing'
     }
     // Nipple
     if (sp_item.newdesc.includes('NIPP')) sp_item.item_detail = 'Nipple'
     // Tee
     if (sp_item.newdesc.includes('TEE')) sp_item.item_detail = 'Tee'
     // Concentric Swage
-    if (sp_item.newdesc.includes('CON') || sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Concentric Swage'
+    if (sp_item.newdesc.includes('CON') && sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Concentric Swage'
     // Eccentric Swage
-    if (sp_item.newdesc.includes('ECC') || sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Eccentric Swage'
+    if (sp_item.newdesc.includes('ECC') && sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Eccentric Swage'
     // Cap
     if (sp_item.newdesc.includes('CAP ') || sp_item.newdesc.includes('CAP,') || sp_item.newdesc.includes('CAP;'))
       sp_item.item_detail = 'Cap'
@@ -202,7 +206,7 @@ export const compareItems = () => async (dispatch) => {
     // Reinforcment Pad
     if (sp_item.newdesc.includes('REINFORCE')) sp_item.item_detail = 'Reinforcment Pad'
     // Insert
-    if (sp_item.newdesc.includes('SW INSERT')) sp_item.item_detail = 'Insert'
+    if (sp_item.newdesc.includes(' INSERT')) sp_item.item_detail = 'Insert'
     // Cross
     if (sp_item.newdesc.includes('CROSS')) sp_item.item_detail = 'Cross'
     // Pipe
@@ -229,13 +233,23 @@ export const compareItems = () => async (dispatch) => {
       .replaceAll('3/4', '.75')
       .replaceAll('1/2', '.5')
       .replaceAll('1/4', '.25')
-    if (sp_item.size.includes('x') && sp_item.size.split('x')[0] < sp_item.size.split('x')[1] && sp_item.item_detail !== 'Nipple')
+      .replaceAll('0.', '.')
+    // Reverse swapped sizes
+    if (
+      sp_item.size.includes('x') &&
+      parseFloat(sp_item.size.split('x')[0]) < parseFloat(sp_item.size.split('x')[1]) &&
+      sp_item.item_detail !== 'Nipple'
+    )
       sp_item.size = sp_item.size.split('x')[1] + 'x' + sp_item.size.split('x')[0]
-    if (sp_item.item_detail !== undefined)
-      if (sp_item.item_detail.includes('Elbow') && sp_item.size.includes('x')) sp_item.size = sp_item.size.split('x')[0]
-    if (sp_item.item_detail === 'Tee' && sp_item.size.includes('x')) {
-      if (sp_item.size.split('x')[0] > sp_item.size.split('x')[1]) sp_item.item_detail = 'Reducing Tee'
-    } else if (sp_item.size.split('x')[0] === sp_item.size.split('x')[1]) sp_item.size = sp_item.size.split('x')[0]
+    // Remove repeated size
+    if (sp_item.size.split('x')[0] === sp_item.size.split('x')[1]) sp_item.size = sp_item.size.split('x')[0]
+    // Rename tees
+    if (sp_item.item_detail === 'Tee') {
+      if (sp_item.size.includes('x')) {
+        if (sp_item.size.split('x')[0] > sp_item.size.split('x')[1]) sp_item.item_detail = 'Reducing Tee'
+        else sp_item.item_detail = 'Equal Tee'
+      } else sp_item.item_detail = 'Equal Tee'
+    }
     // Shcedule
     //CALC
     if (sp_item.newdesc.includes('CALC,')) sp_item.schedule = 'CALC'
@@ -358,17 +372,10 @@ export const compareItems = () => async (dispatch) => {
         .replaceAll('AAEA2TB', 'AAEA200')
         .replaceAll('AAEA20A', 'AAEA200')
         .replaceAll('A0EH200', 'AAEA200')
-      // Size
-      sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
-      if (sp_item.item_detail === 'Nipple' && sp_item.size.includes('x') === false) {
-        if (sp_item.newdesc.includes('J_')) sp_item.size = sp_item.size + 'x2'
-        if (sp_item.newdesc.includes('L_')) sp_item.size = sp_item.size + 'x3'
-        if (sp_item.newdesc.includes('N_')) sp_item.size = sp_item.size + 'x4'
-        if (sp_item.newdesc.includes('R_')) sp_item.size = sp_item.size + 'x6'
-        if (sp_item.newdesc.includes('R_')) sp_item.size = sp_item.size + 'x9'
-      }
       //Material
       if (sp_item.material === 'A587') sp_item.material = 'A106'
+      // Size
+      sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
       // Change all A material that isn't pipe to CS
       if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
         sp_item.material.replace('A105', 'CS').replace('A53', 'CS').replace('A234', 'CS').replace('A106', 'CS')
@@ -448,6 +455,15 @@ export const compareItems = () => async (dispatch) => {
         if (sp_item.seam === 'Welded') sp_item['NEW TAG'] = sp_item.material + 'W-' + sp_item['NEW TAG']
         else sp_item['NEW TAG'] = sp_item.material + '-' + sp_item['NEW TAG']
     }
+
+    // Add lengths to nipples
+    if (sp_item.item_detail === 'Nipple' && sp_item.size.includes('x') === false) {
+      if (sp_item['NEW TAG'].includes('J_')) sp_item.size = sp_item.size + 'x2'
+      if (sp_item['NEW TAG'].includes('L_')) sp_item.size = sp_item.size + 'x3'
+      if (sp_item['NEW TAG'].includes('N_')) sp_item.size = sp_item.size + 'x4'
+      if (sp_item['NEW TAG'].includes('R_')) sp_item.size = sp_item.size + 'x6'
+      if (sp_item['NEW TAG'].includes('R_')) sp_item.size = sp_item.size + 'x9'
+    }
   })
 
   // // Iterate PO file items and add info
@@ -499,8 +515,8 @@ export const compareItems = () => async (dispatch) => {
     if (po_item.newdesc.includes('TBE') || po_item.newdesc.includes('NPT') || po_item.newdesc.includes('THR '))
       po_item.end_type = 'Threaded'
     if (po_item.newdesc.includes(' PXT') || po_item.newdesc.includes('SWXTHR')) po_item.end_type = 'Plain x Threaded'
-    if (po_item.newdesc.includes('TXP') || po_item.newdesc.includes('BXT')) po_item.end_type = 'Beveled x Threaded'
-    if (po_item.newdesc.includes('BXP') || po_item.newdesc.includes('BXT')) po_item.end_type = 'Beveled x Plain'
+    if (po_item.newdesc.includes('TXB') || po_item.newdesc.includes('BXT')) po_item.end_type = 'Beveled x Threaded'
+    if (po_item.newdesc.includes('BXP') || po_item.newdesc.includes('PXB')) po_item.end_type = 'Beveled x Plain'
     // Item Detail
     // Weldneck Flange
     if (po_item.newdesc.includes('WN ') || po_item.newdesc.includes('NECK')) {
@@ -573,7 +589,7 @@ export const compareItems = () => async (dispatch) => {
       po_item.item = 'FITTINGS'
     }
     // Concentric Reducer
-    if (po_item.newdesc.includes('CON') && po_item.newdesc.includes('RED')) {
+    if ((po_item.newdesc.includes('CONC') || po_item.newdesc.includes('CON ')) && po_item.newdesc.includes('RED')) {
       po_item.item_detail = 'Concentric Reducer'
       po_item.item = 'FITTINGS'
     }
@@ -588,6 +604,9 @@ export const compareItems = () => async (dispatch) => {
       if (po_item.newdesc.includes('45')) po_item.item_detail = '45 Degree Elbow'
       if (po_item.newdesc.includes('SR ') || po_item.newdesc.includes('SHORT')) {
         po_item.item_detail = po_item.item_detail + ' - Short'
+      }
+      if (po_item.newdesc.includes('RED')) {
+        po_item.item_detail = po_item.item_detail + ' - Reducing'
       }
       po_item.item = 'FITTINGS'
     }
@@ -706,8 +725,10 @@ export const compareItems = () => async (dispatch) => {
     // Sizes for tees
     if (po_item.item_detail === 'Tee') {
       if (po_item.size.includes('X')) {
-        if (po_item.size.split('X')[0] === po_item.size.split('X')[1]) po_item.item_detail = 'Eqaul Tee'
-        else po_item.item_detail = 'Reducing Tee'
+        if (po_item.size.split('X')[0] === po_item.size.split('X')[1]) {
+          po_item.item_detail = 'Eqaul Tee'
+          po_item.size = po_item.size.split('X')[0]
+        } else po_item.item_detail = 'Reducing Tee'
       } else {
         po_item.item_detail = 'Equal Tee'
       }
@@ -721,6 +742,7 @@ export const compareItems = () => async (dispatch) => {
       .replaceAll('1/2', '.5')
       .replaceAll('3/8', '.375')
       .replaceAll('1/4', '.25')
+      .replaceAll('0.', '.')
     // Schedules by size
     let usesize = 100
     let usesize2 = 100
@@ -757,6 +779,7 @@ export const compareItems = () => async (dispatch) => {
     po_item.breakpoints = []
     po_item.suggestions = []
     po_item.matches = []
+    let suggestionlist = []
     sp_items.map((sp_item) => {
       let itemmatch = false
       let itemdetmatch = false
@@ -771,16 +794,25 @@ export const compareItems = () => async (dispatch) => {
       // Check item details match
       if (po_item.item_detail === sp_item.item_detail) itemdetmatch = true
       // Check size match
-      if (po_item.size.includes('-') && po_item.size.includes('X'))
+      if (po_item.size.includes('-') && po_item.size.includes('X')) {
+        // Check if size falls within a size range
         if (
           parseFloat(sp_item.size.split('x')[0]) < parseFloat(po_item.size.split('X')[0].split('-')[0]) &&
           parseFloat(sp_item.size.split('x')[0]) > parseFloat(po_item.size.split('X')[0].split('-')[1]) &&
           parseFloat(sp_item.size.split('x')[1]) === parseFloat(po_item.size.split('X')[1])
-        )
-          // Check if size falls within a size range
+        ) {
           sizematch = true
-        // If no reange, just check size straight up
-        else if (sp_item.size === po_item.size) sizematch = true
+        }
+        // Check if sizes with X match
+      } else if (po_item.size.includes('X')) {
+        if (
+          parseFloat(sp_item.size.split('x')[0]) === parseFloat(po_item.size.split('X')[0]) &&
+          parseFloat(sp_item.size.split('x')[1]) === parseFloat(po_item.size.split('X')[1])
+        )
+          sizematch = true
+      }
+      // If no reange or X, just check size straight up
+      else if (parseFloat(sp_item.size) === parseFloat(po_item.size)) sizematch = true
       // Check if materials match
       if (po_item.material === sp_item.material) materialmatch = true
       // Check if schedules/classes match and not 3000, 6000 or 9000
@@ -788,50 +820,153 @@ export const compareItems = () => async (dispatch) => {
         po_item.schedule === sp_item.schedule &&
         po_item.schedule !== undefined &&
         (po_item.class !== '3000' || po_item.class !== '6000' || po_item.class !== '9000')
-      )
+      ) {
         schedulematch = true
+      }
       // Check if classes match that are 3000, 6000 or 9000
-      else if (po_item.class === sp_item.class && (po_item.class === '3000' || po_item.class === '6000' || po_item.class === '9000'))
+      else if (po_item.class === sp_item.class && (po_item.class === '3000' || po_item.class === '6000' || po_item.class === '9000')) {
         schedulematch = true
+      }
       // Check if classes match and item is lap, slip on or blind flange
       else if (
         po_item.class === sp_item.class &&
         po_item.class !== undefined &&
         (po_item.item_detail === 'Lap Joint Flange' || po_item.item_detail === 'Slip On Flange' || po_item.item_detail === 'Blind Flange')
-      )
+      ) {
         schedulematch = true
+      }
       // Check if 40S and STD matches
       else if (
         parseFloat(po_item.size.split('X')[0]) < 12 &&
         ((po_item.schedule === '40S' && sp_item.schedule == 'STD') || (po_item.schedule === 'STD' && sp_item.schedule === '40S'))
-      )
+      ) {
         schedulematch = true
+      }
       // Check if 80S and XS matches
       else if (
         parseFloat(po_item.size.split('X')[0]) < 10 &&
         ((po_item.schedule === '80S' && sp_item.schedule == 'XS') || (po_item.schedule === 'XS' && sp_item.schedule === '80S'))
-      )
+      ) {
         schedulematch = true
+      }
       // Check if seams match
-      if (po_item.seam === sp_item.seam) seammatch = true
+      if (po_item.seam === sp_item.seam) {
+        seammatch = true
+      }
       // Check end types
-      if (po_item.end_type === sp_item.end_type || sp_item.end_type === undefined || po_item.end_type === undefined) endtypematch = true
+      if (po_item.end_type === sp_item.end_type || sp_item.end_type === undefined || po_item.end_type === undefined) {
+        endtypematch = true
+      }
       // Check faces
-      if (po_item.face === sp_item.face || sp_item.face === undefined || po_item.face === undefined) facematch = true
+      if (po_item.face === sp_item.face || sp_item.face === undefined || po_item.face === undefined) {
+        facematch = true
+      }
       // If everything matches, push the tag of the SP item to the po matches array
       if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && endtypematch && facematch) {
         sp_item.matched = true
+        po_item.breakpoints.push('Match')
         if (po_item.matches.includes(sp_item['NEW TAG']) === false) po_item.matches.push(sp_item['NEW TAG'])
-      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && endtypematch)
-        po_item.breakpoint = 'Face'
-      else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch) po_item.breakpoint = 'End Type'
-      else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch) po_item.breakpoint = 'Seam'
-      else if (itemmatch && itemdetmatch && sizematch && materialmatch) po_item.breakpoint = 'Schedule/Class'
-      else if (itemmatch && itemdetmatch && sizematch) po_item.breakpoint = 'Material'
-      else if (itemmatch && itemdetmatch) po_item.breakpoint = 'Size'
-      else if (itemmatch) po_item.breakpoint = 'Item Detail'
-      else po_item.breakpoint = 'Item'
-      // Add suggestions
+        // Breaks at face
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && endtypematch && !facematch) {
+        // If first break, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Face') === false) {
+          po_item.suggestions = []
+          po_item.breakpoints.push('Face')
+        }
+        if (suggestionlist.includes(sp_item.description) === false) {
+          suggestionlist.push(sp_item.description)
+          po_item.suggestions.push(sp_item)
+        }
+        // Breaks at end type
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && !endtypematch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('End Type') === false) po_item.breakpoints.push('End Type')
+        if (po_item.breakpoints.includes('End Type') === false && po_item.breakpoints.includes('Face') === false) {
+          po_item.suggestions = []
+        }
+        if (po_item.breakpoints.includes('Face') === false && suggestionlist.includes(sp_item.description) === false) {
+          suggestionlist.push(sp_item.description)
+          po_item.suggestions.push(sp_item)
+        }
+
+        // Breaks at seam
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && !seammatch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Seam') === false) po_item.breakpoints.push('Seam')
+        if (
+          po_item.breakpoints.includes('Seam') === false &&
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false
+        ) {
+          po_item.suggestions = []
+        }
+        if (
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false &&
+          suggestionlist.includes(sp_item.description) === false
+        ) {
+          suggestionlist.push(sp_item.description)
+          po_item.suggestions.push(sp_item)
+        }
+      } // Breaks at schedule/class
+      else if (itemmatch && itemdetmatch && sizematch && materialmatch && !schedulematch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Schedule/Class') === false) po_item.breakpoints.push('Schedule/Class')
+        if (
+          po_item.breakpoints.includes('Schedule/Class') === false &&
+          po_item.breakpoints.includes('Seam') === false &&
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false
+        ) {
+          po_item.suggestions = []
+        }
+        if (
+          po_item.breakpoints.includes('Seam') === false &&
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false &&
+          suggestionlist.includes(sp_item.description) === false
+        ) {
+          suggestionlist.push(sp_item.description)
+          po_item.suggestions.push(sp_item)
+        }
+      } // Breaks at material
+      else if (itemmatch && itemdetmatch && sizematch && !materialmatch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Material') === false) po_item.breakpoints.push('Material')
+        if (
+          po_item.breakpoints.includes('Material') === false &&
+          po_item.breakpoints.includes('Schedule/Class') === false &&
+          po_item.breakpoints.includes('Seam') === false &&
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false
+        ) {
+          po_item.suggestions = []
+        }
+        if (
+          po_item.breakpoints.includes('Schedule/Class') === false &&
+          po_item.breakpoints.includes('Seam') === false &&
+          po_item.breakpoints.includes('End Type') === false &&
+          po_item.breakpoints.includes('Face') === false &&
+          suggestionlist.includes(sp_item.description) === false
+        ) {
+          suggestionlist.push(sp_item.description)
+          po_item.suggestions.push(sp_item)
+        }
+      } // Breaks at size
+      else if (itemmatch && itemdetmatch && !sizematch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Size') === false) po_item.breakpoints.push('Size')
+        // Breaks at item detail
+      } else if (itemmatch && !itemdetmatch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Item Detail') === false) po_item.breakpoints.push('Item Detail')
+        // Breaks at item
+      } else if (itemmatch && !itemdetmatch) {
+        // If first break this late in checking, clear suggestion and add to breakpoints
+        if (po_item.breakpoints.includes('Item') === false) po_item.breakpoints.push('Item')
+      }
+      // Error check formulas
+      // if (po_item.item_detail === '45 Degree Elbow' && itemdetmatch && sizematch) console.log(sp_item.size, po_item.size)
     })
     // Decide breakpoint for each item
     if (po_item.breakpoints.includes('Match')) po_item.breakpoint = undefined

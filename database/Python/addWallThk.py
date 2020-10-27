@@ -6,7 +6,7 @@ from datetime import date, datetime
 import json
 
 # LOAD WORKBOOKS
-jobnum = '7052'
+jobnum = '7114'
 bom_wb = load_workbook(filename='database/'+jobnum+'/bom_import.xlsx')
 
 # ACTIVATE SHEETS
