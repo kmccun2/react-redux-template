@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { compareItems, downloadSP, downloadPO, downloadCompare, setMatch } from '../../../actions/compareItems'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 const NewCodes = ({
   compareItems,
@@ -16,6 +17,7 @@ const NewCodes = ({
 }) => {
   const [poItems, setPoItems] = useState([])
   const [show, setShow] = useState('')
+  const [desc, setDesc] = useState(false)
 
   // Grab and calculate data on page load
   useEffect(() => {
@@ -41,8 +43,14 @@ const NewCodes = ({
   }
 
   // Sort headers
-  const sortHeaders = (header) => {
-    console.log(header)
+  const sortHeaders = (header, poItems, desc) => {
+    if (desc) {
+      setPoItems(_.orderBy(poItems, [header], 'asc'))
+      setDesc(false)
+    } else {
+      setPoItems(_.orderBy(poItems, [header], 'desc'))
+      setDesc(true)
+    }
   }
 
   return (
@@ -66,20 +74,20 @@ const NewCodes = ({
             <table>
               <thead>
                 <tr className='compare-header'>
-                  <td className='comp1' onClick={() => sortHeaders('breakpoint')}>
+                  <td className='comp1' onClick={() => sortHeaders('breakpoint', poItems, desc)}>
                     Breakpoint
                   </td>
-                  <td className='comp2' onClick={() => sortHeaders('description')}>
+                  <td className='comp2' onClick={() => sortHeaders('description', poItems, desc)}>
                     Description
                   </td>
-                  <td className='comp3' onClick={() => sortHeaders('suggestions')}>
+                  <td className='comp3' onClick={() => sortHeaders('suggestions', poItems, desc)}>
                     Suggestions
                   </td>
                 </tr>
               </thead>
               <tbody className='unmatched-body'>
                 {poItems.map((poItem) => (
-                  <Fragment>
+                  <Fragment key={Math.random()}>
                     <tr className='po-item' onClick={() => handleItemClick(poItem)}>
                       <td className='comp1'>{poItem.breakpoint}</td>
                       <td className='comp2'>{poItem.description}</td>

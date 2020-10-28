@@ -349,7 +349,8 @@ export const compareItems = () => async (dispatch) => {
         if (sp_item.size.split('x')[0] < 10 && sp_item.schedule === '80') sp_item.schedule = 'XS'
         if (sp_item.size.split('x')[0] < 12 && sp_item.schedule.includes('40X')) sp_item.schedule = sp_item.schedule.replace('40X', 'STDX')
         if (sp_item.size.split('x')[0] < 10 && sp_item.schedule.includes('80X')) sp_item.schedule = sp_item.schedule.replace('80X', 'XSX')
-        if (sp_item.size.split('x')[1] < 12 && sp_item.schedule.includes('X40')) sp_item.schedule = sp_item.schedule.replace('X40', 'XSTD')
+        if (sp_item.size.split('x')[1] < 12 && sp_item.schedule.includes('X40') && sp_item.schedule.includes('X40S') === false)
+          sp_item.schedule = sp_item.schedule.replace('X40', 'XSTD')
         if (sp_item.size.split('x')[1] < 10 && sp_item.schedule.includes('X80')) sp_item.schedule = sp_item.schedule.replace('X80', 'XXS')
       } else {
         if (sp_item.size < 12 && sp_item.schedule === '40') sp_item.schedule = 'STD'
@@ -362,38 +363,38 @@ export const compareItems = () => async (dispatch) => {
   if (type !== 'CVC') {
     // Filter by material
     sp_items = sp_items.filter((item) => item.item.includes('FITTING') || item.item.includes('PIPE') || item.item.includes('FLANGE'))
-    // Iterete for edits
-    sp_items.map((sp_item) => {
-      // Description
-      sp_item.newdesc = sp_item.description.replaceAll('TRIMMED ', '').replaceAll('W/BRANCH.CONN ', '')
-      // Tag
-      sp_item.tag = sp_item.tag
-        .replaceAll('AAEA20T', 'AAEA200')
-        .replaceAll('AAEA2TB', 'AAEA200')
-        .replaceAll('AAEA20A', 'AAEA200')
-        .replaceAll('A0EH200', 'AAEA200')
-      //Material
-      if (sp_item.material === 'A587') sp_item.material = 'A106'
-      // Size
-      sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
-      // Change all A material that isn't pipe to CS
-      if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
-        sp_item.material.replace('A105', 'CS').replace('A53', 'CS').replace('A234', 'CS').replace('A106', 'CS')
-      // Change all A106 pipe to seamless
-      if (
-        sp_item.item_detail === 'Pipe' &&
-        sp_item.material === 'A106' &&
-        (sp_item.size.split('x')[0] < 2 || (sp_item.size.split('x')[0] === 2 && sp_item.schedule === 'XS'))
-      ) {
-        sp_item.seam = undefined
-      } else {
-        if (sp_item.newdesc.includes('SMLS OR WELDED')) {
-          sp_item.seam = 'Welded'
-        }
-      }
-      return sp_item
-    })
   }
+  // Iterete for edits
+  sp_items.map((sp_item) => {
+    // Description
+    sp_item.newdesc = sp_item.description.replaceAll('TRIMMED ', '').replaceAll('W/BRANCH.CONN ', '')
+    // Tag
+    sp_item.tag = sp_item.tag
+      .replaceAll('AAEA20T', 'AAEA200')
+      .replaceAll('AAEA2TB', 'AAEA200')
+      .replaceAll('AAEA20A', 'AAEA200')
+      .replaceAll('A0EH200', 'AAEA200')
+    //Material
+    if (sp_item.material === 'A587') sp_item.material = 'A106'
+    // Size
+    sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
+    // Change all A material that isn't pipe to CS
+    if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
+      sp_item.material = sp_item.material.replace('A105', 'CS').replace('A53', 'CS').replace('A234', 'CS').replace('A106', 'CS')
+    // Change all A106 pipe to seamless
+    if (
+      sp_item.item_detail === 'Pipe' &&
+      sp_item.material === 'A106' &&
+      (parseFloat(sp_item.size.split('x')[0]) < 2 || (parseFloat(sp_item.size.split('x')[0]) === 2 && sp_item.schedule === 'XS'))
+    ) {
+      sp_item.seam = undefined
+    } else {
+      if (sp_item.newdesc.includes('SMLS OR WELDED')) {
+        sp_item.seam = 'Welded'
+      }
+    }
+    return sp_item
+  })
 
   // Edits for 7116
   if (type !== 'CVC') {
@@ -419,6 +420,7 @@ export const compareItems = () => async (dispatch) => {
     // Find abreviated code
     let abrcode = sp_item.tag.split('~')[0]
     if (abrcode.includes('-')) abrcode = abrcode.replace(abrcode.split('-')[0], '').replace('-', '')
+    if (abrcode.includes('-')) abrcode = abrcode.replace(abrcode.split('-')[1], '').replace('-', '')
     if (abrcode.includes('_')) abrcode = abrcode.replace(abrcode.split('_')[1], '').replace('_', '')
     if (abrcode.includes('/')) abrcode = abrcode.split('/')[1]
 
@@ -429,17 +431,17 @@ export const compareItems = () => async (dispatch) => {
         sp_item['NEW TAG'] = abrcode + '_' + sp_item.class + '~' + sp_item.origsize
       else {
         // Should have schedule but doesn't
-        if (sp_item.schedule === undefined) sp_item['NEW TAG'] = abrcode + '_???~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
+        if (sp_item.schedule === undefined) sp_item['NEW TAG'] = abrcode + '_~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
         // Has a schedule
         else sp_item['NEW TAG'] = abrcode + '_' + sp_item.schedule + '~' + sp_item.origsize
         // Special cases where class should be used with the schedule
         if (sp_item.item_detail !== undefined)
           if (sp_item.item_detail === 'Socketweld Flange' || sp_item.item_detail === 'Weldneck Flange')
             if (sp_item.schedule === undefined)
-              sp_item['NEW TAG'] = abrcode + '_???' + ':' + sp_item.class + sp_item.origsize + ' (NO SCHEDULE FOUND)'
+              sp_item['NEW TAG'] = abrcode + '_' + ':' + sp_item.class + sp_item.origsize + ' (NO SCHEDULE FOUND)'
             // Has a schedule
             else if (sp_item.class === undefined)
-              sp_item['NEW TAG'] = abrcode + '_' + sp_item.schedule + ':' + '???~' + sp_item.origsize + ' (NO CLASS FOUND)'
+              sp_item['NEW TAG'] = abrcode + '_' + sp_item.schedule + ':' + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
             else sp_item['NEW TAG'] = abrcode + '_' + sp_item.schedule + ':' + sp_item.class + '~' + sp_item.origsize
           // Special cases where class should only be used
           else if (
@@ -447,7 +449,7 @@ export const compareItems = () => async (dispatch) => {
             sp_item.item_detail === 'Slip On Flange' ||
             sp_item.item_detail === 'Lap Joint Flange'
           )
-            if (sp_item.class === undefined) sp_item['NEW TAG'] = abrcode + '???~' + sp_item.origsize + ' (NO CLASS FOUND)'
+            if (sp_item.class === undefined) sp_item['NEW TAG'] = abrcode + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
             else sp_item['NEW TAG'] = abrcode + '_' + sp_item.class + '~' + sp_item.origsize
       }
       // Add material and welds for 7114
@@ -778,14 +780,24 @@ export const compareItems = () => async (dispatch) => {
     // Create item breakpoints array for each po item
     po_item.breakpoints = []
     po_item.suggestions = []
-    po_item.matches = []
+    po_item.matches = [undefined]
+    // Add force matches
+    if (
+      po_item['ForceMatch'] !== undefined &&
+      po_item['ForceMatch'] !== 'OMIT' &&
+      po_item['ForceMatch'] !== 'Import' &&
+      po_item['ForceMatch'] !== 'No Match'
+    ) {
+      po_item.matches[0] = po_item['ForceMatch']
+      po_item.breakpoints.push('Match')
+    }
     let suggestionlist = []
     sp_items.map((sp_item) => {
       let itemmatch = false
       let itemdetmatch = false
       let sizematch = false
       let materialmatch = false
-      let schedulematch = false
+      let schedclassmatch = false
       let seammatch = false
       let endtypematch = false
       let facematch = false
@@ -815,40 +827,43 @@ export const compareItems = () => async (dispatch) => {
       else if (parseFloat(sp_item.size) === parseFloat(po_item.size)) sizematch = true
       // Check if materials match
       if (po_item.material === sp_item.material) materialmatch = true
-      // Check if schedules/classes match and not 3000, 6000 or 9000
+      // Check if schedules/class match
+      let schedmatch = false
+      let classmatch = false
+      // Check schdules
       if (
-        po_item.schedule === sp_item.schedule &&
-        po_item.schedule !== undefined &&
-        (po_item.class !== '3000' || po_item.class !== '6000' || po_item.class !== '9000')
-      ) {
-        schedulematch = true
-      }
-      // Check if classes match that are 3000, 6000 or 9000
-      else if (po_item.class === sp_item.class && (po_item.class === '3000' || po_item.class === '6000' || po_item.class === '9000')) {
-        schedulematch = true
-      }
-      // Check if classes match and item is lap, slip on or blind flange
+        po_item.schedule === sp_item.schedule ||
+        (po_item.schedule === '40S' && sp_item.schedule === 'STD') ||
+        (po_item.schedule === 'STD' && sp_item.schedule === '40S')
+      )
+        schedmatch = true
+      // Check classes
+      if (po_item.class === sp_item.class) classmatch = true
+      // Stub end flange ( schedule only )
+      if (po_item.item_detail === 'Stub End Flange' && schedmatch) schedclassmatch = true
+      // Flanges that need only classes to match
       else if (
-        po_item.class === sp_item.class &&
-        po_item.class !== undefined &&
-        (po_item.item_detail === 'Lap Joint Flange' || po_item.item_detail === 'Slip On Flange' || po_item.item_detail === 'Blind Flange')
-      ) {
-        schedulematch = true
-      }
-      // Check if 40S and STD matches
+        (po_item.item_detail === 'Lap Joint Flange' ||
+          po_item.item_detail === 'Slip On Flange' ||
+          po_item.item_detail === 'Blind Flange') &&
+        classmatch
+      )
+        schedclassmatch = true
+      // All other flanges need both class and schedule
       else if (
-        parseFloat(po_item.size.split('X')[0]) < 12 &&
-        ((po_item.schedule === '40S' && sp_item.schedule == 'STD') || (po_item.schedule === 'STD' && sp_item.schedule === '40S'))
-      ) {
-        schedulematch = true
-      }
-      // Check if 80S and XS matches
-      else if (
-        parseFloat(po_item.size.split('X')[0]) < 10 &&
-        ((po_item.schedule === '80S' && sp_item.schedule == 'XS') || (po_item.schedule === 'XS' && sp_item.schedule === '80S'))
-      ) {
-        schedulematch = true
-      }
+        po_item.item === 'FLANGES' &&
+        schedmatch &&
+        classmatch &&
+        (po_item.item_detail !== 'Lap Joint Flange' ||
+          po_item.item_detail !== 'Slip On Flange' ||
+          po_item.item_detail !== 'Blind Flange' ||
+          po_item.item_detail !== 'Stub End Flange')
+      )
+        schedclassmatch = true
+      // Classes that are 3000, 6000, or 9000
+      else if (classmatch && (po_item.class === '3000' || po_item.class === '6000' || po_item.class === '9000')) schedclassmatch = true
+      // All other items
+      else if (po_item.item !== 'FLANGES' && schedmatch) schedclassmatch = true
       // Check if seams match
       if (po_item.seam === sp_item.seam) {
         seammatch = true
@@ -862,12 +877,12 @@ export const compareItems = () => async (dispatch) => {
         facematch = true
       }
       // If everything matches, push the tag of the SP item to the po matches array
-      if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && endtypematch && facematch) {
+      if (itemmatch && itemdetmatch && sizematch && materialmatch && schedclassmatch && seammatch && endtypematch && facematch) {
         sp_item.matched = true
         po_item.breakpoints.push('Match')
         if (po_item.matches.includes(sp_item['NEW TAG']) === false) po_item.matches.push(sp_item['NEW TAG'])
         // Breaks at face
-      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && endtypematch && !facematch) {
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedclassmatch && seammatch && endtypematch && !facematch) {
         // If first break, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('Face') === false) {
           po_item.suggestions = []
@@ -878,7 +893,7 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
         // Breaks at end type
-      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && seammatch && !endtypematch) {
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedclassmatch && seammatch && !endtypematch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('End Type') === false) po_item.breakpoints.push('End Type')
         if (po_item.breakpoints.includes('End Type') === false && po_item.breakpoints.includes('Face') === false) {
@@ -890,7 +905,7 @@ export const compareItems = () => async (dispatch) => {
         }
 
         // Breaks at seam
-      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedulematch && !seammatch) {
+      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedclassmatch && !seammatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('Seam') === false) po_item.breakpoints.push('Seam')
         if (
@@ -909,7 +924,7 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
       } // Breaks at schedule/class
-      else if (itemmatch && itemdetmatch && sizematch && materialmatch && !schedulematch) {
+      else if (itemmatch && itemdetmatch && sizematch && materialmatch && !schedclassmatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('Schedule/Class') === false) po_item.breakpoints.push('Schedule/Class')
         if (
