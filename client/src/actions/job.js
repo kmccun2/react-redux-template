@@ -1,13 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
-import {
-  UPDATE_JOB,
-  JOB_ERROR,
-  SET_JOB_LOADING,
-  SET_JOB,
-  DOWNLOAD_JOB,
-  DOWNLOAD_JOB_LOADING,
-} from './types'
+import { UPDATE_JOB, JOB_ERROR, SET_JOB_LOADING, SET_JOB, DOWNLOAD_JOB, DOWNLOAD_JOB_LOADING } from './types'
 
 // SET LOADING TO TRUE
 export const setJobLoading = () => async (dispatch) => {
@@ -103,11 +96,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // FIND HEADERS FROM LINELIST CSV
     let lines = linelist_csv.split('\n')
-    let header = lines.filter(
-      (line) =>
-        line.includes('ISO') ||
-        (line.includes('Iso') && line.includes('Material'))
-    )[0]
+    let header = lines.filter((line) => line.includes('ISO') || (line.includes('Iso') && line.includes('Material')))[0]
     let headers = header.split(',')
 
     // FIND FIRST ROW OF SPOOLS
@@ -120,11 +109,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       }
 
       count += 1
-      if (
-        line.toUpperCase().includes('ISO') &&
-        line.toUpperCase().includes('IN CHECKING') &&
-        line.toUpperCase().includes('IN DETAILING')
-      ) {
+      if (line.toUpperCase().includes('ISO') && line.toUpperCase().includes('IN CHECKING') && line.toUpperCase().includes('IN DETAILING')) {
         first_row = count
       }
       return lines
@@ -158,17 +143,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
         spool_col = count
         // } else if (header === 'Priority Group') {
         //   priority_group_col = count
-      } else if (
-        header === 'PRIORITY #' ||
-        header === 'INDIVIDUAL PRIORITY' ||
-        header === 'PRIORITY'
-      ) {
+      } else if (header === 'PRIORITY #' || header === 'INDIVIDUAL PRIORITY' || header === 'PRIORITY') {
         priority_col = count
-      } else if (
-        header === 'AREA' ||
-        header === 'PHASE' ||
-        header === 'PHASE / JOB NO.'
-      ) {
+      } else if (header === 'AREA' || header === 'PHASE' || header === 'PHASE / JOB NO.') {
         area_col = count
       } else if (header === 'ISO' || header === 'Iso No.') {
         iso_col = count
@@ -185,80 +162,29 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return headers
     })
     // CHECK FOR ERRORS ON COLUMN HEADERS
-    if (piecemark_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Spool Id header should be titled "Spool ID".'
-      )
-    if (material_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Material header should be titled "Material".'
-      )
-    if (issued_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Issued header should be titled "Status".'
-      )
-    if (spool_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Spool/sketch header should be titled SPOOL.'
-      )
+    if (piecemark_col === undefined) alert('Error on ' + jobnum + ' linelist! Spool Id header should be titled "Spool ID".')
+    if (material_col === undefined) alert('Error on ' + jobnum + ' linelist! Material header should be titled "Material".')
+    if (issued_col === undefined) alert('Error on ' + jobnum + ' linelist! Issued header should be titled "Status".')
+    if (spool_col === undefined) alert('Error on ' + jobnum + ' linelist! Spool/sketch header should be titled SPOOL.')
     // if (priority_group_col === undefined)
     //   alert(
     //     'Error on ' +
     //       jobnum +
     //       ' linelist! Priority Group header should be titled "Priority Group".'
     //   )
-    if (priority_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Priority header should be titled "Priority".'
-      )
-    if (area_col === undefined)
-      alert(
-        'Error on ' + jobnum + ' linelist! Area header should be titled "Area".'
-      )
-    if (iso_col === undefined)
-      alert(
-        'Error on ' + jobnum + ' linelist! Iso header should be titled "Iso".'
-      )
-    if (detailing_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! Detailing header should be titled "Detailing".'
-      )
-    if (checking_col === undefined)
-      alert(
-        'Error on ' + jobnum + ' linelist! header should be titled "Checking".'
-      )
-    if (shop_col === undefined)
-      alert(
-        'Error on ' + jobnum + ' linelist! Shop header should be titled "Shop".'
-      )
-    if (on_hold_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' linelist! On hold header should be titled "HOLD".'
-      )
+    if (priority_col === undefined) alert('Error on ' + jobnum + ' linelist! Priority header should be titled "Priority".')
+    if (area_col === undefined) alert('Error on ' + jobnum + ' linelist! Area header should be titled "Area".')
+    if (iso_col === undefined) alert('Error on ' + jobnum + ' linelist! Iso header should be titled "Iso".')
+    if (detailing_col === undefined) alert('Error on ' + jobnum + ' linelist! Detailing header should be titled "Detailing".')
+    if (checking_col === undefined) alert('Error on ' + jobnum + ' linelist! header should be titled "Checking".')
+    if (shop_col === undefined) alert('Error on ' + jobnum + ' linelist! Shop header should be titled "Shop".')
+    if (on_hold_col === undefined) alert('Error on ' + jobnum + ' linelist! On hold header should be titled "HOLD".')
 
     // ADD SPOOLS FROM LINELIST TO JOB
     count = 0
     lines.map((line) => {
       count += 1
-      if (
-        line.split(',')[piecemark_col] !== '' &&
-        line.split(',')[piecemark_col] !== undefined &&
-        count >= first_row
-      ) {
+      if (line.split(',')[piecemark_col] !== '' && line.split(',')[piecemark_col] !== undefined && count >= first_row) {
         if (spools_list.includes(line.split(',')[piecemark_col]) === false) {
           // Rename sketch numbers that were converted to month/day
           let fix_spool = line.split(',')[spool_col]
@@ -332,9 +258,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     lines = status_report_csv.split('\n')
     header = lines.filter(
       (line) =>
-        line.toUpperCase().includes('PCMKIPCMAR') ||
-        line.toUpperCase().includes('PIECE MARK') ||
-        line.toUpperCase().includes('PIECEMARK')
+        line.toUpperCase().includes('PCMKIPCMAR') || line.toUpperCase().includes('PIECE MARK') || line.toUpperCase().includes('PIECEMARK')
     )[0]
     headers = header.split(',')
 
@@ -370,46 +294,21 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     count = 0
     headers.map((header) => {
-      if (
-        header.toUpperCase() === 'PCMKIPCMAR' ||
-        header.toUpperCase() === 'PIECE MARK' ||
-        header.toUpperCase() === 'PIECEMARK'
-      ) {
+      if (header.toUpperCase() === 'PCMKIPCMAR' || header.toUpperCase() === 'PIECE MARK' || header.toUpperCase() === 'PIECEMARK') {
         sr_piecemark_col = count
-      } else if (
-        header.toUpperCase() === 'PULLTRANDA' ||
-        header.toUpperCase() === 'DATE PULL'
-      ) {
+      } else if (header.toUpperCase() === 'PULLTRANDA' || header.toUpperCase() === 'DATE PULL') {
         pulled_col = count
-      } else if (
-        header.toUpperCase() === 'WOUTTRANDA' ||
-        header.toUpperCase() === 'WELD OUT'
-      ) {
+      } else if (header.toUpperCase() === 'WOUTTRANDA' || header.toUpperCase() === 'WELD OUT') {
         weldout_col = count
-      } else if (
-        header.toUpperCase() === 'SHEETSKETC' ||
-        header.toUpperCase() === 'Sheetsketc'
-      ) {
+      } else if (header.toUpperCase() === 'SHEETSKETC' || header.toUpperCase() === 'Sheetsketc') {
         spool_col = count
-      } else if (
-        header.toUpperCase() === 'RTSTRANDAT' ||
-        header.toUpperCase() === 'READY TO SHIP'
-      ) {
+      } else if (header.toUpperCase() === 'RTSTRANDAT' || header.toUpperCase() === 'READY TO SHIP') {
         rts_col = count
-      } else if (
-        header.toUpperCase() === 'RTCTRANDAT' ||
-        header.toUpperCase() === 'READY TO SHIP COATING'
-      ) {
+      } else if (header.toUpperCase() === 'RTCTRANDAT' || header.toUpperCase() === 'READY TO SHIP COATING') {
         rtsc_col = count
-      } else if (
-        header.toUpperCase() === 'STCTRANDAT' ||
-        header.toUpperCase() === 'SHIP TO COATING'
-      ) {
+      } else if (header.toUpperCase() === 'STCTRANDAT' || header.toUpperCase() === 'SHIP TO COATING') {
         stc_col = count
-      } else if (
-        header.toUpperCase() === 'SITETRANDA' ||
-        header.toUpperCase() === 'TO SITE'
-      ) {
+      } else if (header.toUpperCase() === 'SITETRANDA' || header.toUpperCase() === 'TO SITE') {
         delivered_col = count
       } else if (header.toUpperCase() === 'IDFILLOADN') {
         loadno_col = count
@@ -418,48 +317,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return headers
     })
     // CHECK FOR ERRORS ON COLUMN HEADERS
-    if (sr_piecemark_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Piecemark header should be titled "PIECEMARK".'
-      )
-    if (pulled_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Pull header should be titled "DATE PULL".'
-      )
-    if (weldout_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Weld out header should be titled "WELD OUT".'
-      )
-    if (rts_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Ready to ship header should be titled "READY TO SHIP".'
-      )
+    if (sr_piecemark_col === undefined) alert('Error on ' + jobnum + ' status report! Piecemark header should be titled "PIECEMARK".')
+    if (pulled_col === undefined) alert('Error on ' + jobnum + ' status report! Pull header should be titled "DATE PULL".')
+    if (weldout_col === undefined) alert('Error on ' + jobnum + ' status report! Weld out header should be titled "WELD OUT".')
+    if (rts_col === undefined) alert('Error on ' + jobnum + ' status report! Ready to ship header should be titled "READY TO SHIP".')
     if (rtsc_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Ready to ship to coating header should be titled "READY TO SHIP COATING".'
-      )
-    if (stc_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Shipped to coating header should be titled "SHIP TO COATING".'
-      )
-    if (delivered_col === undefined)
-      alert(
-        'Error on ' +
-          jobnum +
-          ' status report! Delivered header should be titled "TO SITE".'
-      )
+      alert('Error on ' + jobnum + ' status report! Ready to ship to coating header should be titled "READY TO SHIP COATING".')
+    if (stc_col === undefined) alert('Error on ' + jobnum + ' status report! Shipped to coating header should be titled "SHIP TO COATING".')
+    if (delivered_col === undefined) alert('Error on ' + jobnum + ' status report! Delivered header should be titled "TO SITE".')
 
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0
@@ -468,11 +333,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     lines.map((line) => {
       count += 1
-      if (
-        line.split(',')[sr_piecemark_col] !== '' &&
-        line.split(',')[sr_piecemark_col] !== undefined &&
-        count >= first_row
-      ) {
+      if (line.split(',')[sr_piecemark_col] !== '' && line.split(',')[sr_piecemark_col] !== undefined && count >= first_row) {
         sr_pms.push({
           piecemark: line.split(',')[sr_piecemark_col],
           pulled: line.split(',')[pulled_col],
@@ -490,10 +351,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // COMPARE SPOOLS AND ADD SCOPE
     job.spools.map((spool) => {
       sr_pms.map((pm) => {
-        if (
-          pm.piecemark.includes(spool.piecemark + ' ') ||
-          pm.piecemark === spool.piecemark
-        ) {
+        if (pm.piecemark.includes(spool.piecemark + ' ') || pm.piecemark === spool.piecemark) {
           spool.pulled = pm.pulled
           spool.weldout = pm.weldout
           spool.rts = pm.rts
@@ -598,11 +456,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // ADD INFORMATION FROM BOM EXPORT TO JOB
     count = lines.map((line) => {
       count += 1
-      if (
-        line.split(',')[be_pm_col] !== '' &&
-        line.split(',')[be_pm_col] !== undefined &&
-        count >= first_row
-      ) {
+      if (line.split(',')[be_pm_col] !== '' && line.split(',')[be_pm_col] !== undefined && count >= first_row) {
         // Find schedule and class
         let itemsched = line.split(',')[be_sched_col]
         let itemclass = line.split(',')[be_class_col]
@@ -631,17 +485,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
         // Slip on
         if (itemdesc.includes('FLG PL')) itemweld = 'SO'
         // Olet
-        if (
-          itemdesc.includes('SOCKOLET') ||
-          itemdesc.includes('THREDOLET') ||
-          itemdesc.includes('FLATOLET')
-        )
-          itemweld = 'OLET'
+        if (itemdesc.includes('SOCKOLET') || itemdesc.includes('THREDOLET') || itemdesc.includes('FLATOLET')) itemweld = 'OLET'
         // Olet by socket weld
         if (itemdesc.includes('WELDOLET')) itemweld = 'OLET X SW'
         // Threaded
-        if (itemdesc.includes('MNPT') || itemdesc.includes('FNPT'))
-          itemweld = 'THR'
+        if (itemdesc.includes('MNPT') || itemdesc.includes('FNPT')) itemweld = 'THR'
         // Socket weld by threaded
         if (
           itemdesc.includes('POE X TOE') ||
@@ -657,8 +505,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
         // Add discrepancy if the item piecemark isn't on the line list
         let bompm = line.split(',')[be_pm_col]
         if (
-          job.spools.filter((spool) => spool.piecemark === bompm).length ===
-            0 &&
+          job.spools.filter((spool) => spool.piecemark === bompm).length === 0 &&
           job.discrepancies.bom_not_line_list.includes(bompm) === false &&
           bompm.includes('SKETCH') === false
         ) {
@@ -671,46 +518,26 @@ export const updateJob = (jobnum) => async (dispatch) => {
             let calcmaterial = ''
             if (spool.material === '' || spool.material === undefined) {
               // Search for material in item
-              if (itemdesc.replace(' ', '').includes('304'))
-                calcmaterial = '304'
-              else if (itemdesc.replace(' ', '').includes('316'))
-                calcmaterial = '316'
-              else if (itemdesc.replace(' ', '').includes('A106'))
-                calcmaterial = 'A106'
-              else if (itemdesc.replace(' ', '').includes('A105'))
-                calcmaterial = 'A105'
-              else if (itemdesc.replace(' ', '').includes('A53'))
-                calcmaterial = 'A53'
-              else if (itemdesc.replace(' ', '').includes('A403'))
-                calcmaterial = 'A403'
-              else if (itemdesc.replace(' ', '').includes('A234'))
-                calcmaterial = 'A234'
-              else if (itemdesc.replace(' ', '').includes('A587'))
-                calcmaterial = 'A587'
-              else if (itemdesc.replace(' ', '').includes('A351'))
-                calcmaterial = 'A351'
-              else if (itemdesc.replace(' ', '').includes('A216'))
-                calcmaterial = 'A216'
-              else if (itemdesc.replace(' ', '').includes('P22'))
-                calcmaterial = 'P22'
-              else if (itemdesc.replace(' ', '').includes('F22'))
-                calcmaterial = 'P22'
-              else if (itemdesc.replace(' ', '').includes('P9'))
-                calcmaterial = 'P9'
-              else if (itemdesc.replace(' ', '').includes('F9'))
-                calcmaterial = 'P9'
-              else if (itemdesc.replace(' ', '').includes('P11'))
-                calcmaterial = 'P11'
-              else if (itemdesc.replace(' ', '').includes('F11'))
-                calcmaterial = 'P11'
-              else if (itemdesc.replace(' ', '').includes('P91'))
-                calcmaterial = 'P91'
-              else if (itemdesc.replace(' ', '').includes('F91'))
-                calcmaterial = 'P91'
-              else if (itemdesc.replace(' ', '').includes('P22'))
-                calcmaterial = 'P22'
-              else if (itemdesc.replace(' ', '').includes('F22'))
-                calcmaterial = 'P22'
+              if (itemdesc.replace(' ', '').includes('304')) calcmaterial = '304'
+              else if (itemdesc.replace(' ', '').includes('316')) calcmaterial = '316'
+              else if (itemdesc.replace(' ', '').includes('A106')) calcmaterial = 'A106'
+              else if (itemdesc.replace(' ', '').includes('A105')) calcmaterial = 'A105'
+              else if (itemdesc.replace(' ', '').includes('A53')) calcmaterial = 'A53'
+              else if (itemdesc.replace(' ', '').includes('A403')) calcmaterial = 'A403'
+              else if (itemdesc.replace(' ', '').includes('A234')) calcmaterial = 'A234'
+              else if (itemdesc.replace(' ', '').includes('A587')) calcmaterial = 'A587'
+              else if (itemdesc.replace(' ', '').includes('A351')) calcmaterial = 'A351'
+              else if (itemdesc.replace(' ', '').includes('A216')) calcmaterial = 'A216'
+              else if (itemdesc.replace(' ', '').includes('P22')) calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('F22')) calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('P9')) calcmaterial = 'P9'
+              else if (itemdesc.replace(' ', '').includes('F9')) calcmaterial = 'P9'
+              else if (itemdesc.replace(' ', '').includes('P11')) calcmaterial = 'P11'
+              else if (itemdesc.replace(' ', '').includes('F11')) calcmaterial = 'P11'
+              else if (itemdesc.replace(' ', '').includes('P91')) calcmaterial = 'P91'
+              else if (itemdesc.replace(' ', '').includes('F91')) calcmaterial = 'P91'
+              else if (itemdesc.replace(' ', '').includes('P22')) calcmaterial = 'P22'
+              else if (itemdesc.replace(' ', '').includes('F22')) calcmaterial = 'P22'
               // Assign item material to spool material
               spool.material = calcmaterial
             } else {
@@ -750,8 +577,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               shop: undefined,
             })
             // Push schedule and class to spool
-            if (line.split(',')[be_sched_col] !== 'None')
-              spool.schedules.push(line.split(',')[be_sched_col])
+            if (line.split(',')[be_sched_col] !== 'None') spool.schedules.push(line.split(',')[be_sched_col])
             if (
               line.split(',')[be_class_col] === '3000' ||
               line.split(',')[be_class_col] === '6000' ||
@@ -831,18 +657,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
     let fc_spools = []
     lines.map((line) => {
       count += 1
-      if (
-        line.split(',')[fc_pm_col] !== '' &&
-        line.split(',')[fc_pm_col] !== undefined &&
-        count >= first_row
-      ) {
+      if (line.split(',')[fc_pm_col] !== '' && line.split(',')[fc_pm_col] !== undefined && count >= first_row) {
         fc_spools.push(line.split(',')[fc_pm_col])
         job.spools.map((spool) => {
           // FIND SPOOL BY MATCHING BOM PATH TO SPOOL NAME
-          if (
-            line.split(',')[fc_pm_col].split('/').slice(-1)[0] ===
-            spool.piecemark
-          ) {
+          if (line.split(',')[fc_pm_col].split('/').slice(-1)[0] === spool.piecemark) {
             // SET SCOPE
             let item_scope = 'Other'
             // 6951
@@ -854,11 +673,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               }
             }
             // 7052, 7114, 7116
-            if (
-              job.number === '7052' ||
-              job.number === '7114' ||
-              job.number === '7116'
-            ) {
+            if (job.number === '7052' || job.number === '7114' || job.number === '7116') {
               if (line.split(',')[item_col].includes('VALVE')) {
                 item_scope = 'Client'
               } else {
@@ -901,17 +716,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 }
               }
               // 7052, 7114, 7116
-              if (
-                job.number === '7052' ||
-                job.number === '7114' ||
-                job.number === '7116'
-              ) {
+              if (job.number === '7052' || job.number === '7114' || job.number === '7116') {
                 if (one.item === 'VALVES / IN-LINE ITEMS') {
                   one.scope = 'Client'
                 } else {
                   one.scope = 'Performance'
                 }
               }
+              return one
             })
 
             // PUSH SHORTS TO JOB
@@ -931,7 +743,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               }
             }
             // Set spools on hold to Not Workable
-            if (spool.on_hold.toUpperCase() == 'HOLD') {
+            if (spool.on_hold.toUpperCase() === 'HOLD') {
               spool.status = 'On Hold'
               spool.workable = false
             }
@@ -954,13 +766,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
         if (short.scope === 'Client') {
           spool.scope = 'Client'
         }
+        return short
       })
       if (fc_spools.includes(spool.piecemark)) {
-        if (
-          spool.issued !== undefined &&
-          spool.issued !== '' &&
-          spool.shorts.length > 0
-        ) {
+        if (spool.issued !== undefined && spool.issued !== '' && spool.shorts.length > 0) {
           job.discrepancies.fc_iss.push({
             spool: spool.spool,
             piecemark: spool.piecemark,
@@ -1105,10 +914,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // ADD AREAS TO MATERIALS
     job.materials.map((material) => {
       job.spools.map((spool) => {
-        if (
-          spool.material === material.material &&
-          material.areas_list.includes(spool.area) === false
-        ) {
+        if (spool.material === material.material && material.areas_list.includes(spool.area) === false) {
           material.areas_list.push(spool.area)
           material.areas.push({
             area: spool.area,
@@ -1161,28 +967,19 @@ export const updateJob = (jobnum) => async (dispatch) => {
       area.not_delivered = area.spools - area.delivered
       area.not_weldout = area.spools - area.weldout
       // WORKABLE PERCENTAGE
-      if (
-        area.workable / area.spools === 1 ||
-        area.workable / area.spools === 0
-      ) {
+      if (area.workable / area.spools === 1 || area.workable / area.spools === 0) {
         area.workable_perc = (area.workable / area.spools) * 100
       } else {
         area.workable_perc = ((area.workable / area.spools) * 100).toFixed(1)
       }
       // WELDOUT PERCENTAGE
-      if (
-        area.weldout / area.spools === 1 ||
-        area.weldout / area.spools === 1
-      ) {
+      if (area.weldout / area.spools === 1 || area.weldout / area.spools === 1) {
         area.weldout_perc = (area.weldout / area.spools) * 100
       } else {
         area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(1)
       }
       // DELIVERED PERCENTAGE
-      if (
-        area.delivered / area.spools === 1 ||
-        area.delivered / area.spools === 1
-      ) {
+      if (area.delivered / area.spools === 1 || area.delivered / area.spools === 1) {
         area.delivered_perc = (area.delivered / area.spools) * 100
       } else {
         area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(1)
@@ -1193,9 +990,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     //ADD INFO TO AREAS FOR EACH MATERIAL
     job.materials.map((material) => {
       material.areas.map((area) => {
-        let newspools = job.spools.filter(
-          (spool) => spool.material === material.material
-        )
+        let newspools = job.spools.filter((spool) => spool.material === material.material)
         newspools.map((spool) => {
           // FIND SPOOLS WITH CERTAIN AREA
           if (spool.area === area.area) {
@@ -1235,33 +1030,22 @@ export const updateJob = (jobnum) => async (dispatch) => {
         area.not_delivered = area.spools - area.delivered
         area.not_weldout = area.spools - area.weldout
         // WORKABLE PERCENTAGE
-        if (
-          area.workable / area.spools === 1 ||
-          area.workable / area.spools === 0
-        ) {
+        if (area.workable / area.spools === 1 || area.workable / area.spools === 0) {
           area.workable_perc = (area.workable / area.spools) * 100
         } else {
           area.workable_perc = ((area.workable / area.spools) * 100).toFixed(1)
         }
         // WELDOUT PERCENTAGE
-        if (
-          area.weldout / area.spools === 1 ||
-          area.weldout / area.spools === 1
-        ) {
+        if (area.weldout / area.spools === 1 || area.weldout / area.spools === 1) {
           area.weldout_perc = (area.weldout / area.spools) * 100
         } else {
           area.weldout_perc = ((area.weldout / area.spools) * 100).toFixed(1)
         }
         // DELIVERED PERCENTAGE
-        if (
-          area.delivered / area.spools === 1 ||
-          area.delivered / area.spools === 1
-        ) {
+        if (area.delivered / area.spools === 1 || area.delivered / area.spools === 1) {
           area.delivered_perc = (area.delivered / area.spools) * 100
         } else {
-          area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(
-            1
-          )
+          area.delivered_perc = ((area.delivered / area.spools) * 100).toFixed(1)
         }
         return area
       })
@@ -1299,14 +1083,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
       // CREATE FORMULA TO CALCULATE THE NUMBER OF DAYS BETWEEN TWO PHASES
       let findDays = (start, finish, phase, coating) => {
         if (coating === true) {
-          if (
-            start !== '' &&
-            finish !== '' &&
-            spool.stc !== '' &&
-            start !== undefined &&
-            finish !== undefined &&
-            spool.stc !== undefined
-          ) {
+          if (start !== '' && finish !== '' && spool.stc !== '' && start !== undefined && finish !== undefined && spool.stc !== undefined) {
             let lf = moment(finish).diff(moment(start), 'days')
             if (lf > -1 && lf < 1000) {
               spool[phase] = moment(finish).diff(moment(start), 'days')
@@ -1326,12 +1103,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             }
           }
         } else {
-          if (
-            start !== '' &&
-            finish !== '' &&
-            start !== undefined &&
-            finish !== undefined
-          ) {
+          if (start !== '' && finish !== '' && start !== undefined && finish !== undefined) {
             let lf = moment(finish).diff(moment(start), 'days')
             if (lf > -1 && lf < 1000) {
               spool[phase] = moment(finish).diff(moment(start), 'days')
@@ -1477,9 +1249,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // OVERALL AVERAGES
     let findAvg = (phase) => {
       if (dormant.overall[phase].spools !== 0) {
-        dormant.overall[phase].avg = (
-          dormant.overall[phase].total / dormant.overall[phase].spools
-        ).toFixed(0)
+        dormant.overall[phase].avg = (dormant.overall[phase].total / dormant.overall[phase].spools).toFixed(0)
       }
       // ADD OVERALL AVERAGES FOR SHOPS
       dormant.shops.map((each) => {
@@ -1512,11 +1282,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // WORKABLE BUT NOT ISSUED
     job.spools.map((spool) => {
-      if (
-        spool.workable === true &&
-        spool.issued.includes('/') === false &&
-        spool.status !== 'On Hold'
-      ) {
+      if (spool.workable === true && spool.issued.includes('/') === false && spool.status !== 'On Hold') {
         job.workable_not_issued += spool.multiplier
       }
       // ISSUED BUT MISSING ITEM
@@ -1524,27 +1290,16 @@ export const updateJob = (jobnum) => async (dispatch) => {
         job.issued_missing_item += spool.multiplier
       }
       // ON HOLD NO SHORTS
-      if (
-        spool.status === 'On Hold' &&
-        spool.shorts.length === 0 &&
-        spool.issued.includes('/') === false
-      ) {
+      if (spool.status === 'On Hold' && spool.shorts.length === 0 && spool.issued.includes('/') === false) {
         job.on_hold_no_shorts += spool.multiplier
       }
       // MISSING VALVE ONLY
       let missing_valves = []
-      let missing_items = spool.items.filter(
-        (item) => item.status !== 'Complete'
-      )
+      let missing_items = spool.items.filter((item) => item.status !== 'Complete')
       if (missing_items.length > 0) {
-        missing_valves = missing_items.filter(
-          (item) => item.item === 'VALVES / IN-LINE ITEMS'
-        )
+        missing_valves = missing_items.filter((item) => item.item === 'VALVES / IN-LINE ITEMS')
       }
-      if (
-        missing_items.length > 0 &&
-        missing_items.length === missing_valves.length
-      ) {
+      if (missing_items.length > 0 && missing_items.length === missing_valves.length) {
         spool.missing_valve_only = true
       } else {
         spool.missing_valve_only = false
@@ -1556,6 +1311,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
       spool.items.map((item) => {
         item.shop = spool.shop
+        return item
       })
       return spool
     })
@@ -1577,12 +1333,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // ASSIGN COLUMN NUMBER TO EACH HEADER
     let pipeline_col = undefined
-    let revision_col = undefined
     let weld_size_col = undefined
-    let weld_no_col = undefined
     let weld_type_col = undefined
     let weld_pipe_spec_col = undefined
-    let weld_spool_col = undefined
     let weld_pm_col = undefined
     let weld_schedule_col = undefined
 
@@ -1592,20 +1345,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
     headers.map((header) => {
       if (header === 'PIPELINE-REFERENCE') {
         pipeline_col = count
-      } else if (header === 'REVISION') {
-        revision_col = count
       } else if (header === 'N_S_') {
         weld_size_col = count
-      } else if (header === 'WELD-NO') {
-        weld_no_col = count
       } else if (header === 'WELD-TYPE') {
         weld_type_col = count
       } else if (header === 'SPOOL-ID') {
         weld_pm_col = count
       } else if (header === 'PIPING-SPEC') {
         weld_pipe_spec_col = count
-      } else if (header === 'SPOOL-DRAWING-SEQUENCE-NUMBER') {
-        weld_spool_col = count
       } else if (header === 'SCHEDULE') {
         weld_schedule_col = count
       }
@@ -1618,17 +1365,10 @@ export const updateJob = (jobnum) => async (dispatch) => {
     count = 0
     lines.map((line) => {
       count += 1
-      if (
-        line.split(',')[pipeline_col] !== '' &&
-        line.split(',')[pipeline_col] !== undefined &&
-        count > first_row
-      ) {
+      if (line.split(',')[pipeline_col] !== '' && line.split(',')[pipeline_col] !== undefined && count > first_row) {
         job.spools.map((spool) => {
           if (spool.piecemark === line.split(',')[weld_pm_col]) {
-            let weld_type = line
-              .split(',')
-              [weld_type_col].replace('SOF', 'SO')
-              .replace('SOB', 'N90')
+            let weld_type = line.split(',')[weld_type_col].replace('SOF', 'SO').replace('SOB', 'N90')
             // Edit sizes to match manhour codes
             let weld_size = line.split(',')[weld_size_col]
             if (weld_size === '4-Mar') {
@@ -1657,13 +1397,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
             // Edit material names to match manhour codes
             let weldmat = spool.material
             if (weldmat.toUpperCase() === 'ALUMINUM') weldmat = 'AL'
-            if (weldmat.includes('304') || weldmat.includes('316'))
-              weldmat = 'SS'
+            if (weldmat.includes('304') || weldmat.includes('316')) weldmat = 'SS'
             if (weldmat.includes('CS')) weldmat = 'CS'
 
             // Spools not in SP
             let jobmanhours = undefined
-            if (spool.items.length == 0) {
+            if (spool.items.length === 0) {
               jobmanhours = 'Not in SP'
             }
 
@@ -1695,6 +1434,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               listscheds.push(each)
               numscheds += 1
             }
+            return spool
           })
           spool.items.map((item) => {
             if (
@@ -1720,11 +1460,13 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 } else {
                   newarray.push(each)
                 }
+                return each
               })
               spool.schedules = newarray
             }
             return item
           })
+          return spool
         })
         return weld
       })
@@ -1741,12 +1483,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
             }
             return one
           })
-          if (
-            spool.piecemark === weld.piecemark &&
-            weld.type === 'SW' &&
-            listclasses.length === 1 &&
-            weld.schedule === undefined
-          ) {
+          if (spool.piecemark === weld.piecemark && weld.type === 'SW' && listclasses.length === 1 && weld.schedule === undefined) {
             // Assign class to weld
             weld.schedule = listclasses[0]
           }
@@ -1768,8 +1505,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               item.weld_type === weld.type &&
               // Material options
               (spool.material === weld.material ||
-                (spool.material.includes('304/304L SS') &&
-                  weld.material === 'SS') ||
+                (spool.material.includes('304/304L SS') && weld.material === 'SS') ||
                 (spool.material === 'A333' && weld.material === 'CS') ||
                 (spool.material === 'ALUMINUM' && weld.material === 'AL')) &&
               item.class !== '' &&
@@ -1789,11 +1525,15 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 } else {
                   newarray.push(each)
                 }
+                return each
               })
               spool.classes = newarray
             }
+            return item
           })
+          return spool
         })
+        return weld
       })
     }
 
@@ -1809,8 +1549,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
               weld.type !== 'N90' &&
               // Material options
               (spool.material === weld.material ||
-                (spool.material.includes('304/304L SS') &&
-                  weld.material === 'SS') ||
+                (spool.material.includes('304/304L SS') && weld.material === 'SS') ||
                 (spool.material === 'A333' && weld.material === 'CS') ||
                 (spool.material === 'ALUMINUM' && weld.material === 'AL')) &&
               item.schedule !== 'None' &&
@@ -1830,12 +1569,15 @@ export const updateJob = (jobnum) => async (dispatch) => {
                 } else {
                   newarray.push(each)
                 }
+                return each
               })
               spool.schedules = newarray
             }
             return item
           })
+          return spool
         })
+        return weld
       })
     }
 
@@ -1852,65 +1594,57 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // Extra calculations
     job.spools.map((spool) => {
-      spool.items.map((item) => {
-        job.welds.map((weld) => {
-          // Match spool and weld and search only welds that are missing a schedule
-          if (spool.piecemark === weld.piecemark) {
-            // Fill in blank socket welds with #6000
-            if (weld.schedule === undefined && weld.type === 'SW') {
-              weld.schedule = '6000'
-            }
-            // Grab schedule of header for olets
-            if (weld.schedule === undefined && weld.type === 'OLET') {
-              let listscheds = []
-              spool.items.map((item) => {
-                if (
-                  listscheds.includes(item.schedule) === false &&
-                  item.schedule !== 'None'
-                ) {
-                  listscheds.push(item.schedule)
-                }
-              })
-              if (listscheds.length === 1) {
-                weld.schedule = listscheds[0]
+      job.welds.map((weld) => {
+        // Match spool and weld and search only welds that are missing a schedule
+        if (spool.piecemark === weld.piecemark) {
+          // Fill in blank socket welds with #6000
+          if (weld.schedule === undefined && weld.type === 'SW') {
+            weld.schedule = '6000'
+          }
+          // Grab schedule of header for olets
+          if (weld.schedule === undefined && weld.type === 'OLET') {
+            let listscheds = []
+            spool.items.map((item) => {
+              if (listscheds.includes(item.schedule) === false && item.schedule !== 'None') {
+                listscheds.push(item.schedule)
               }
-            }
-            // Grab class for SOs
-            if (weld.type === 'SO') {
-              weld.schedule = undefined
-              let listclasses = []
-              spool.items.map((item) => {
-                if (
-                  listclasses.includes(item.class) === false &&
-                  (item.class === '150' ||
-                    item.class === '300' ||
-                    item.class === '400' ||
-                    item.class === '600' ||
-                    item.class === '900')
-                ) {
-                  listclasses.push(item.class)
-                }
-              })
-              if (listclasses.length === 1) {
-                weld.schedule = listclasses[0]
-              }
-            }
-            // Grab schedule for N90s
-            if (weld.type === 'N90' && weld.schedule === undefined) {
-              let maxuse = 0
-              spool.items.map((item) => {
-                if (
-                  item.item === 'PIPE' &&
-                  item.quantity > maxuse &&
-                  item.schedule !== 'None'
-                ) {
-                  weld.schedule = item.schedule
-                }
-              })
+              return item
+            })
+            if (listscheds.length === 1) {
+              weld.schedule = listscheds[0]
             }
           }
-        })
+          // Grab class for SOs
+          if (weld.type === 'SO') {
+            weld.schedule = undefined
+            let listclasses = []
+            spool.items.map((item) => {
+              if (
+                listclasses.includes(item.class) === false &&
+                (item.class === '150' || item.class === '300' || item.class === '400' || item.class === '600' || item.class === '900')
+              ) {
+                listclasses.push(item.class)
+              }
+              return item
+            })
+            if (listclasses.length === 1) {
+              weld.schedule = listclasses[0]
+            }
+          }
+          // Grab schedule for N90s
+          if (weld.type === 'N90' && weld.schedule === undefined) {
+            let maxuse = 0
+            spool.items.map((item) => {
+              if (item.item === 'PIPE' && item.quantity > maxuse && item.schedule !== 'None') {
+                weld.schedule = item.schedule
+              }
+              return item
+            })
+          }
+        }
+        return weld
       })
+      return spool
     })
 
     // Man hour codes
@@ -1933,18 +1667,18 @@ export const updateJob = (jobnum) => async (dispatch) => {
           hours: line.split(',')[5],
         })
       }
+      return line
     })
 
     // Match weld data to man hour codes
     job.welds.map((weld) => {
       mh_codes.map((code) => {
-        if (
-          weld.size + weld.type + weld.material + weld.schedule ===
-          code.code
-        ) {
+        if (weld.size + weld.type + weld.material + weld.schedule === code.code) {
           weld.manhours = parseFloat(code.hours, 2)
         }
+        return code
       })
+      return weld
     })
 
     // Add hours to spool
@@ -1952,35 +1686,27 @@ export const updateJob = (jobnum) => async (dispatch) => {
       job.spools.map((spool) => {
         if (spool.spool === weld.spool) {
           spool.welds += 1
-          if (
-            weld.manhours !== undefined &&
-            weld.manhours !== 'Not in SP' &&
-            weld.schedule !== 'Omit'
-          ) {
+          if (weld.manhours !== undefined && weld.manhours !== 'Not in SP' && weld.schedule !== 'Omit') {
             spool.manhours += weld.manhours
             spool.welds_counted += 1
           }
           // Workable man hours
           if (
-            (spool.status === 'Workable' ||
-              spool.status === 'Issued' ||
-              spool.status === 'Pulled') &&
+            (spool.status === 'Workable' || spool.status === 'Issued' || spool.status === 'Pulled') &&
             weld.manhours !== 'Not in SP' &&
             weld.schedule !== 'Omit'
           ) {
             job.workable_manhours += weld.manhours
-            if (
-              spool.material.includes('304') ||
-              spool.material.includes('316') ||
-              spool.material.toUpperCase().includes('ALUM')
-            ) {
+            if (spool.material.includes('304') || spool.material.includes('316') || spool.material.toUpperCase().includes('ALUM')) {
               job.workable_manhours_ss += weld.manhours
             } else {
               job.workable_manhours_cs += weld.manhours
             }
           }
         }
+        return spool
       })
+      return weld
     })
 
     // ////// //  // ///   /// ///   ///   //   /////  //    //
@@ -2165,10 +1891,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     // CREATE ARRAYS OF MISSINGS SPOOLS BY PRIORITY OF ITEM
     job.shorts.map((each) => {
-      if (
-        spoollist.includes(each.spool) === false &&
-        each.item === 'VALVES / IN-LINE ITEMS'
-      ) {
+      if (spoollist.includes(each.spool) === false && each.item === 'VALVES / IN-LINE ITEMS') {
         spoollist.push(each.spool)
         spools_valves.push(each)
       }
@@ -2189,20 +1912,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return each
     })
     job.shorts.map((each) => {
-      if (
-        spoollist.includes(each.spool) === false &&
-        each.item === 'FITTINGS'
-      ) {
+      if (spoollist.includes(each.spool) === false && each.item === 'FITTINGS') {
         spoollist.push(each.spool)
         spools_fittings.push(each)
       }
       return each
     })
     job.shorts.map((each) => {
-      if (
-        spoollist.includes(each.spool) === false &&
-        each.item === 'SUPPORTS'
-      ) {
+      if (spoollist.includes(each.spool) === false && each.item === 'SUPPORTS') {
         spoollist.push(each.spool)
         spools_supports.push(each)
       }
@@ -2217,59 +1934,29 @@ export const updateJob = (jobnum) => async (dispatch) => {
     }
 
     // VALVES
-    summary.spools_by_scope.valves.performance = countSpools(
-      spools_valves.filter((spool) => spool.scope === 'Performance')
-    )
-    summary.spools_by_scope.valves.client = countSpools(
-      spools_valves.filter((spool) => spool.scope === 'Client')
-    )
-    summary.spools_by_scope.valves.other = countSpools(
-      spools_valves.filter((spool) => spool.scope === 'Other')
-    )
+    summary.spools_by_scope.valves.performance = countSpools(spools_valves.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.valves.client = countSpools(spools_valves.filter((spool) => spool.scope === 'Client'))
+    summary.spools_by_scope.valves.other = countSpools(spools_valves.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.valves.total = countSpools(spools_valves)
     // PIPE
-    summary.spools_by_scope.pipe.performance = countSpools(
-      spools_pipe.filter((spool) => spool.scope === 'Performance')
-    )
-    summary.spools_by_scope.pipe.client = countSpools(
-      spools_pipe.filter((spool) => spool.scope === 'Client')
-    )
-    summary.spools_by_scope.pipe.other = countSpools(
-      spools_pipe.filter((spool) => spool.scope === 'Other')
-    )
+    summary.spools_by_scope.pipe.performance = countSpools(spools_pipe.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.pipe.client = countSpools(spools_pipe.filter((spool) => spool.scope === 'Client'))
+    summary.spools_by_scope.pipe.other = countSpools(spools_pipe.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.pipe.total = countSpools(spools_pipe)
     // FLANGES
-    summary.spools_by_scope.flanges.performance = countSpools(
-      spools_flanges.filter((spool) => spool.scope === 'Performance')
-    )
-    summary.spools_by_scope.flanges.client = countSpools(
-      spools_flanges.filter((spool) => spool.scope === 'Client')
-    )
-    summary.spools_by_scope.flanges.other = countSpools(
-      spools_flanges.filter((spool) => spool.scope === 'Other')
-    )
+    summary.spools_by_scope.flanges.performance = countSpools(spools_flanges.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.flanges.client = countSpools(spools_flanges.filter((spool) => spool.scope === 'Client'))
+    summary.spools_by_scope.flanges.other = countSpools(spools_flanges.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.flanges.total = countSpools(spools_flanges)
     // FITTINGS
-    summary.spools_by_scope.fittings.performance = countSpools(
-      spools_fittings.filter((spool) => spool.scope === 'Performance')
-    )
-    summary.spools_by_scope.fittings.client = countSpools(
-      spools_fittings.filter((spool) => spool.scope === 'Client')
-    )
-    summary.spools_by_scope.fittings.other = countSpools(
-      spools_fittings.filter((spool) => spool.scope === 'Other')
-    )
+    summary.spools_by_scope.fittings.performance = countSpools(spools_fittings.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.fittings.client = countSpools(spools_fittings.filter((spool) => spool.scope === 'Client'))
+    summary.spools_by_scope.fittings.other = countSpools(spools_fittings.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.fittings.total = countSpools(spools_fittings)
     // SUPPORTS
-    summary.spools_by_scope.supports.performance = countSpools(
-      spools_supports.filter((spool) => spool.scope === 'Performance')
-    )
-    summary.spools_by_scope.supports.client = countSpools(
-      spools_supports.filter((spool) => spool.scope === 'Client')
-    )
-    summary.spools_by_scope.supports.other = countSpools(
-      spools_supports.filter((spool) => spool.scope === 'Other')
-    )
+    summary.spools_by_scope.supports.performance = countSpools(spools_supports.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.supports.client = countSpools(spools_supports.filter((spool) => spool.scope === 'Client'))
+    summary.spools_by_scope.supports.other = countSpools(spools_supports.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.supports.total = countSpools(spools_supports)
 
     // COUNT UP DISCREPANCIES
@@ -2287,71 +1974,42 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // NO MATERIAL
     // VALVES
     summary.count_shorts.no_material.valves.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Performance'
     ).length
     summary.count_shorts.no_material.valves.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Client'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Client'
     ).length
     summary.count_shorts.no_material.valves.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Other'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Other'
     ).length
     summary.count_shorts.no_material.valves.total = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'No Material'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material'
     ).length
     // PIPE
     let count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'No Material' &&
-        short.scope === 'Performance'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'No Material' && short.scope === 'Performance') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.no_material.pipe.performance = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.no_material.pipe.performance = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'No Material' &&
-        short.scope === 'Client'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'No Material' && short.scope === 'Client') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.no_material.pipe.client = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.no_material.pipe.client = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'No Material' &&
-        short.scope === 'Other'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'No Material' && short.scope === 'Other') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.no_material.pipe.other = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.no_material.pipe.other = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
       if (short.item === 'PIPE' && short.status === 'No Material') {
@@ -2359,71 +2017,42 @@ export const updateJob = (jobnum) => async (dispatch) => {
       }
       return short
     })
-    summary.count_shorts.no_material.pipe.total = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.no_material.pipe.total = parseFloat(count_pipe.toFixed(1))
     // FLANGES
     summary.count_shorts.no_material.flanges.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'No Material' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'FLANGES' && short.status === 'No Material' && short.scope === 'Performance'
     ).length
     summary.count_shorts.no_material.flanges.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'No Material' &&
-        short.scope === 'Client'
+      (short) => short.item === 'FLANGES' && short.status === 'No Material' && short.scope === 'Client'
     ).length
     summary.count_shorts.no_material.flanges.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'No Material' &&
-        short.scope === 'Other'
+      (short) => short.item === 'FLANGES' && short.status === 'No Material' && short.scope === 'Other'
     ).length
     summary.count_shorts.no_material.flanges.total = summary.shorts.filter(
       (short) => short.item === 'FLANGES' && short.status === 'No Material'
     ).length
     // FITTINGS
     summary.count_shorts.no_material.fittings.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'FITTINGS' && short.status === 'No Material' && short.scope === 'Performance'
     ).length
     summary.count_shorts.no_material.fittings.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Client'
+      (short) => short.item === 'FITTINGS' && short.status === 'No Material' && short.scope === 'Client'
     ).length
     summary.count_shorts.no_material.fittings.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Other'
+      (short) => short.item === 'FITTINGS' && short.status === 'No Material' && short.scope === 'Other'
     ).length
     summary.count_shorts.no_material.fittings.total = summary.shorts.filter(
       (short) => short.item === 'FITTINGS' && short.status === 'No Material'
     ).length
     // SUPPORTS
     summary.count_shorts.no_material.supports.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'SUPPORTS' && short.status === 'No Material' && short.scope === 'Performance'
     ).length
     summary.count_shorts.no_material.supports.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Client'
+      (short) => short.item === 'SUPPORTS' && short.status === 'No Material' && short.scope === 'Client'
     ).length
     summary.count_shorts.no_material.supports.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'No Material' &&
-        short.scope === 'Other'
+      (short) => short.item === 'SUPPORTS' && short.status === 'No Material' && short.scope === 'Other'
     ).length
     summary.count_shorts.no_material.supports.total = summary.shorts.filter(
       (short) => short.item === 'SUPPORTS' && short.status === 'No Material'
@@ -2432,70 +2061,42 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // PURCHASED
     // VALVES
     summary.count_shorts.purchased.valves.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Performance'
     ).length
     summary.count_shorts.purchased.valves.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Client'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Client'
     ).length
     summary.count_shorts.purchased.valves.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Other'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Other'
     ).length
     summary.count_shorts.purchased.valves.total = summary.shorts.filter(
-      (short) =>
-        short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased'
+      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased'
     ).length
     // PIPE
     count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Performance'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'Purchased' && short.scope === 'Performance') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.purchased.pipe.performance = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.purchased.pipe.performance = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Client'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'Purchased' && short.scope === 'Client') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.purchased.pipe.client = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.purchased.pipe.client = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
-      if (
-        short.item === 'PIPE' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Other'
-      ) {
+      if (short.item === 'PIPE' && short.status === 'Purchased' && short.scope === 'Other') {
         count_pipe += parseFloat(short.quantity)
       }
       return short
     })
-    summary.count_shorts.purchased.pipe.other = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.purchased.pipe.other = parseFloat(count_pipe.toFixed(1))
     count_pipe = 0
     summary.shorts.filter((short) => {
       if (short.item === 'PIPE' && short.status === 'Purchased') {
@@ -2503,71 +2104,42 @@ export const updateJob = (jobnum) => async (dispatch) => {
       }
       return short
     })
-    summary.count_shorts.purchased.pipe.total = parseFloat(
-      count_pipe.toFixed(1)
-    )
+    summary.count_shorts.purchased.pipe.total = parseFloat(count_pipe.toFixed(1))
     // FLANGES
     summary.count_shorts.purchased.flanges.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'FLANGES' && short.status === 'Purchased' && short.scope === 'Performance'
     ).length
     summary.count_shorts.purchased.flanges.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Client'
+      (short) => short.item === 'FLANGES' && short.status === 'Purchased' && short.scope === 'Client'
     ).length
     summary.count_shorts.purchased.flanges.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'FLANGES' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Other'
+      (short) => short.item === 'FLANGES' && short.status === 'Purchased' && short.scope === 'Other'
     ).length
     summary.count_shorts.purchased.flanges.total = summary.shorts.filter(
       (short) => short.item === 'FLANGES' && short.status === 'Purchased'
     ).length
     // FITTINGS
     summary.count_shorts.purchased.fittings.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'FITTINGS' && short.status === 'Purchased' && short.scope === 'Performance'
     ).length
     summary.count_shorts.purchased.fittings.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Client'
+      (short) => short.item === 'FITTINGS' && short.status === 'Purchased' && short.scope === 'Client'
     ).length
     summary.count_shorts.purchased.fittings.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'FITTINGS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Other'
+      (short) => short.item === 'FITTINGS' && short.status === 'Purchased' && short.scope === 'Other'
     ).length
     summary.count_shorts.purchased.fittings.total = summary.shorts.filter(
       (short) => short.item === 'FITTINGS' && short.status === 'Purchased'
     ).length
     // SUPPORTS
     summary.count_shorts.purchased.supports.performance = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Performance'
+      (short) => short.item === 'SUPPORTS' && short.status === 'Purchased' && short.scope === 'Performance'
     ).length
     summary.count_shorts.purchased.supports.client = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Client'
+      (short) => short.item === 'SUPPORTS' && short.status === 'Purchased' && short.scope === 'Client'
     ).length
     summary.count_shorts.purchased.supports.other = summary.shorts.filter(
-      (short) =>
-        short.item === 'SUPPORTS' &&
-        short.status === 'Purchased' &&
-        short.scope === 'Other'
+      (short) => short.item === 'SUPPORTS' && short.status === 'Purchased' && short.scope === 'Other'
     ).length
     summary.count_shorts.purchased.supports.total = summary.shorts.filter(
       (short) => short.item === 'SUPPORTS' && short.status === 'Purchased'
@@ -2576,89 +2148,60 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // TOTAL SHORTS
     // PERFORMANCE
     summary.count_shorts.total.valves.performance =
-      summary.count_shorts.no_material.valves.performance +
-      summary.count_shorts.purchased.valves.performance
+      summary.count_shorts.no_material.valves.performance + summary.count_shorts.purchased.valves.performance
 
     summary.count_shorts.total.pipe.performance =
-      summary.count_shorts.no_material.pipe.performance +
-      summary.count_shorts.purchased.pipe.performance
+      summary.count_shorts.no_material.pipe.performance + summary.count_shorts.purchased.pipe.performance
 
     summary.count_shorts.total.flanges.performance =
-      summary.count_shorts.no_material.flanges.performance +
-      summary.count_shorts.purchased.flanges.performance
+      summary.count_shorts.no_material.flanges.performance + summary.count_shorts.purchased.flanges.performance
 
     summary.count_shorts.total.fittings.performance =
-      summary.count_shorts.no_material.fittings.performance +
-      summary.count_shorts.purchased.fittings.performance
+      summary.count_shorts.no_material.fittings.performance + summary.count_shorts.purchased.fittings.performance
 
     summary.count_shorts.total.supports.performance =
-      summary.count_shorts.no_material.supports.performance +
-      summary.count_shorts.purchased.supports.performance
+      summary.count_shorts.no_material.supports.performance + summary.count_shorts.purchased.supports.performance
     // CLIENT
-    summary.count_shorts.total.valves.client =
-      summary.count_shorts.no_material.valves.client +
-      summary.count_shorts.purchased.valves.client
+    summary.count_shorts.total.valves.client = summary.count_shorts.no_material.valves.client + summary.count_shorts.purchased.valves.client
 
-    summary.count_shorts.total.pipe.client =
-      summary.count_shorts.no_material.pipe.client +
-      summary.count_shorts.purchased.pipe.client
+    summary.count_shorts.total.pipe.client = summary.count_shorts.no_material.pipe.client + summary.count_shorts.purchased.pipe.client
 
     summary.count_shorts.total.flanges.client =
-      summary.count_shorts.no_material.flanges.client +
-      summary.count_shorts.purchased.flanges.client
+      summary.count_shorts.no_material.flanges.client + summary.count_shorts.purchased.flanges.client
 
     summary.count_shorts.total.fittings.client =
-      summary.count_shorts.no_material.fittings.client +
-      summary.count_shorts.purchased.fittings.client
+      summary.count_shorts.no_material.fittings.client + summary.count_shorts.purchased.fittings.client
 
     summary.count_shorts.total.supports.client =
-      summary.count_shorts.no_material.supports.client +
-      summary.count_shorts.purchased.supports.client
+      summary.count_shorts.no_material.supports.client + summary.count_shorts.purchased.supports.client
     // OTHER
-    summary.count_shorts.total.valves.other =
-      summary.count_shorts.no_material.valves.other +
-      summary.count_shorts.purchased.valves.other
+    summary.count_shorts.total.valves.other = summary.count_shorts.no_material.valves.other + summary.count_shorts.purchased.valves.other
 
-    summary.count_shorts.total.pipe.other =
-      summary.count_shorts.no_material.pipe.other +
-      summary.count_shorts.purchased.pipe.other
+    summary.count_shorts.total.pipe.other = summary.count_shorts.no_material.pipe.other + summary.count_shorts.purchased.pipe.other
 
-    summary.count_shorts.total.flanges.other =
-      summary.count_shorts.no_material.flanges.other +
-      summary.count_shorts.purchased.flanges.other
+    summary.count_shorts.total.flanges.other = summary.count_shorts.no_material.flanges.other + summary.count_shorts.purchased.flanges.other
 
     summary.count_shorts.total.fittings.other =
-      summary.count_shorts.no_material.fittings.other +
-      summary.count_shorts.purchased.fittings.other
+      summary.count_shorts.no_material.fittings.other + summary.count_shorts.purchased.fittings.other
 
     summary.count_shorts.total.supports.other =
-      summary.count_shorts.no_material.supports.other +
-      summary.count_shorts.purchased.supports.other
+      summary.count_shorts.no_material.supports.other + summary.count_shorts.purchased.supports.other
     // TOTAL
-    summary.count_shorts.total.valves.total =
-      summary.count_shorts.no_material.valves.total +
-      summary.count_shorts.purchased.valves.total
+    summary.count_shorts.total.valves.total = summary.count_shorts.no_material.valves.total + summary.count_shorts.purchased.valves.total
 
-    summary.count_shorts.total.pipe.total =
-      summary.count_shorts.no_material.pipe.total +
-      summary.count_shorts.purchased.pipe.total
+    summary.count_shorts.total.pipe.total = summary.count_shorts.no_material.pipe.total + summary.count_shorts.purchased.pipe.total
 
-    summary.count_shorts.total.flanges.total =
-      summary.count_shorts.no_material.flanges.total +
-      summary.count_shorts.purchased.flanges.total
+    summary.count_shorts.total.flanges.total = summary.count_shorts.no_material.flanges.total + summary.count_shorts.purchased.flanges.total
 
     summary.count_shorts.total.fittings.total =
-      summary.count_shorts.no_material.fittings.total +
-      summary.count_shorts.purchased.fittings.total
+      summary.count_shorts.no_material.fittings.total + summary.count_shorts.purchased.fittings.total
 
     summary.count_shorts.total.supports.total =
-      summary.count_shorts.no_material.supports.total +
-      summary.count_shorts.purchased.supports.total
+      summary.count_shorts.no_material.supports.total + summary.count_shorts.purchased.supports.total
 
     // SPOOL MISSING VALVE ONLY
     summary.count_shorts.missing_valve_only.performance = summary.spools.filter(
-      (spool) =>
-        spool.missing_valve_only === true && spool.scope === 'Performance'
+      (spool) => spool.missing_valve_only === true && spool.scope === 'Performance'
     ).length
     summary.count_shorts.missing_valve_only.client = summary.spools.filter(
       (spool) => spool.missing_valve_only === true && spool.scope === 'Client'
@@ -2666,9 +2209,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.count_shorts.missing_valve_only.other = summary.spools.filter(
       (spool) => spool.missing_valve_only === true && spool.scope === 'Other'
     ).length
-    summary.count_shorts.missing_valve_only.total = summary.spools.filter(
-      (spool) => spool.missing_valve_only === true
-    ).length
+    summary.count_shorts.missing_valve_only.total = summary.spools.filter((spool) => spool.missing_valve_only === true).length
 
     // DOWNLOAD JSON FILE
     let obj = summary
@@ -2693,23 +2234,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     link.setAttribute('href', url)
     link.setAttribute('download', 'data.json')
     let event = document.createEvent('MouseEvents')
-    event.initMouseEvent(
-      'click',
-      true,
-      true,
-      window,
-      1,
-      0,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    )
+    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
     link.dispatchEvent(event)
 
     // DISPATCH TO REDUCER

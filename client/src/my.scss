@@ -702,7 +702,7 @@ body {
 }
 .btns-container {
   width: 100%;
-  padding: 12px;
+  padding: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -752,6 +752,7 @@ body {
 }
 .comp1 {
   width: 250px;
+  min-width: 250px;
   padding-left: 15px;
   text-align: left;
 }
@@ -761,9 +762,10 @@ body {
   flex-grow: 1;
 }
 .comp3 {
-  display: flex;
   align-items: flex-end;
-  padding-right: 10px;
+  width: 250px;
+  display: flex;
+  justify-content: center;
 }
 tr {
   display: flex;
@@ -786,8 +788,8 @@ tr {
   padding: 8px 0;
   cursor: pointer;
   border: 2px solid white;
-  background-color: #f1f1f1;
+  background-color: #f9f3ff;
 }
 .po-suggestion:hover {
-  background-color: #e1e1e1;
+  background-color: #f5edfd;
 }

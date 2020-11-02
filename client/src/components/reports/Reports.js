@@ -1,11 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import {
-  setJobLoading,
-  setJob,
-  downloadReport,
-  downloadLoading,
-} from '../../actions/job'
+import { setJobLoading, setJob, downloadReport, downloadLoading } from '../../actions/job'
 import Areas from './Areas'
 import Loading from '../misc/Loading'
 import Shorts from './Shorts'
@@ -16,15 +11,7 @@ import Discrepancies from '../discrepancies/Discrepancies'
 import Location from '../reports/Location'
 import ManHours from './ManHours'
 
-const Reports = ({
-  match,
-  loading,
-  job,
-  setJob,
-  downloadReport,
-  downloading,
-  downloadLoading,
-}) => {
+const Reports = ({ match, loading, job, setJob, downloadReport, downloading, downloadLoading }) => {
   const [jsActive, setjsActive] = useState(1)
   const [items, setItems] = useState([])
   let jobnum = match.params.job.toString()
@@ -45,7 +32,9 @@ const Reports = ({
       job.spools.map((spool) => {
         spool.items.map((item) => {
           all_items.push(item)
+          return item
         })
+        return spool
       })
       setItems(all_items)
     }
@@ -106,11 +95,7 @@ const Reports = ({
               onClick={() => {
                 setjsActive(2)
               }}
-              className={
-                jsActive === 2
-                  ? 'js-tab js-active js-tab-border'
-                  : 'js-tab js-tab-border'
-              }
+              className={jsActive === 2 ? 'js-tab js-active js-tab-border' : 'js-tab js-tab-border'}
             >
               Shorts
             </div>
@@ -122,27 +107,15 @@ const Reports = ({
             >
               Dormant
             </div>
-            <div
-              onClick={() => setjsActive(4)}
-              className={
-                jsActive === 4
-                  ? 'js-tab js-active js-tab-border'
-                  : 'js-tab js-tab-border'
-              }
-            >
+            <div onClick={() => setjsActive(4)} className={jsActive === 4 ? 'js-tab js-active js-tab-border' : 'js-tab js-tab-border'}>
               Discrepancies
             </div>
-            <div
-              onClick={() => setjsActive(5)}
-              className={jsActive === 5 ? 'js-tab js-active' : 'js-tab'}
-            >
+            <div onClick={() => setjsActive(5)} className={jsActive === 5 ? 'js-tab js-active' : 'js-tab'}>
               Location
             </div>
             <div
               onClick={() => setjsActive(6)}
-              className={
-                jsActive === 6 ? 'js-tab js-active js-tab-border' : 'js-tab'
-              }
+              className={jsActive === 6 ? 'js-tab js-active js-tab-border' : 'js-tab'}
               style={{ borderLeft: '1px solid #dfdfdf' }}
             >
               Man Hours
@@ -156,11 +129,7 @@ const Reports = ({
                 <Areas job={job} header='All Spools' />
                 {/*  FOR EACH MATERIAL */}
                 {job.materials.map((material) => (
-                  <Areas
-                    key={material.material}
-                    job={material}
-                    header={material.material}
-                  />
+                  <Areas key={material.material} job={material} header={material.material} />
                 ))}
               </Fragment>
             )}
@@ -172,21 +141,13 @@ const Reports = ({
                 {/* ENTIRE JOB */}
                 <Shorts shorts={job.count_shorts.total} header='Total Shorts' />
                 {/* TOTAL PURCHASED */}
-                <Shorts
-                  shorts={job.count_shorts.purchased}
-                  header='Total Purchased'
-                />
+                <Shorts shorts={job.count_shorts.purchased} header='Total Purchased' />
                 {/* TOTAL NO MATERIAL */}
-                <Shorts
-                  shorts={job.count_shorts.no_material}
-                  header='Total No Material'
-                />
+                <Shorts shorts={job.count_shorts.no_material} header='Total No Material' />
               </Fragment>
             )}
             {/* DORMANT SUMMARIES */}
-            {jsActive === 3 && (
-              <Dormant manyjobs={false} dormant={job.dormant} />
-            )}
+            {jsActive === 3 && <Dormant manyjobs={false} dormant={job.dormant} />}
             {/* DISCREPANCIES */}
             {jsActive === 4 && <Discrepancies type={'one'} />}
             {/* LOCATiON */}

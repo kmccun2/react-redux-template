@@ -22,11 +22,11 @@ const NewCodes = ({
   // Grab and calculate data on page load
   useEffect(() => {
     compareItems()
-  }, [])
+  }, [compareItems])
 
   // Create an array of po items that don't have any matches
   useEffect(() => {
-    if (po_items.length > 0) setPoItems(po_items.filter((po_item) => po_item.breakpoint !== undefined))
+    if (po_items.length > 0) setPoItems(po_items.filter((po_item) => po_item.breakpoint !== undefined && po_item.suggestions.length > 0))
   }, [po_items])
 
   // Edit the po items and save to a new object in the state
@@ -70,7 +70,7 @@ const NewCodes = ({
             </div>
           </div>
           <div className='unmatched-container'>
-            <div className='unmatched-header'>Unmatched PO Items ({poItems.length} items)</div>
+            <div className='unmatched-header'>Suggested Matches ({poItems.length} items)</div>
             <table>
               <thead>
                 <tr className='compare-header'>
@@ -91,7 +91,7 @@ const NewCodes = ({
                     <tr className='po-item' onClick={() => handleItemClick(poItem)}>
                       <td className='comp1'>{poItem.breakpoint}</td>
                       <td className='comp2'>{poItem.description}</td>
-                      <td className='comp3'>{poItem.suggestions && poItem.suggestions.length} Suggestions</td>
+                      <td className='comp3'>{poItem.suggestions && poItem.suggestions.length}</td>
                     </tr>
                     {poItem.suggestions.map((suggestion) => (
                       <tr
@@ -99,8 +99,9 @@ const NewCodes = ({
                         className={show !== poItem.description + poItem.size ? 'hide' : 'po-suggestion'}
                         onClick={() => handleSuggestionClick(sp_items, po_items, poItem, suggestion)}
                       >
-                        <td className='comp1'>~</td>
+                        <td className='comp1'>{suggestion.sketch}</td>
                         <td className='comp2'>{suggestion.description}</td>
+                        <td className='comp3'>{suggestion['NEW TAG']}</td>
                       </tr>
                     ))}
                   </Fragment>

@@ -1,6 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 
 const Location = ({ job }) => {
   const [data, setData] = useState([])
@@ -47,18 +47,8 @@ const Location = ({ job }) => {
       </div>
       {maxHeight > 0 && (
         <BarChart width={1100} height={400} data={data}>
-          <XAxis
-            angle={-30}
-            dy={27}
-            dataKey='phase'
-            height={100}
-            paddingTop={10}
-            fontWeight='bold'
-          />
-          <YAxis
-            label={{ value: 'Spools', angle: -90, fontWeight: 'bold' }}
-            width={110}
-          />
+          <XAxis angle={-30} dy={27} dataKey='phase' height={100} paddingTop={10} fontWeight='bold' />
+          <YAxis label={{ value: 'Spools', angle: -90, fontWeight: 'bold' }} width={110} />
           <Tooltip />
           <Bar
             dataKey='count'
