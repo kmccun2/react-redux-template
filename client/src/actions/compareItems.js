@@ -62,18 +62,19 @@ export const compareItems = () => async (dispatch) => {
     sp_item.sketch = sp_item.sketch.split('/')[sp_item.sketch.split('/').length - 1]
     // Description
     sp_item.newdesc = sp_item.description
+      .replaceAll(';', ' ')
       .toUpperCase()
       .replaceAll('SCH ', 'S-')
       .replaceAll('STD WT', 'STD')
       .replaceAll(',', ' ')
     // Material
-    if (sp_item.tag.includes('CS-')) sp_item.material = 'CS'
+    if (sp_item.tag.includes('CS-') || sp_item.newdesc.includes(' CS ') || sp_item.newdesc.includes('-CS '))
+      sp_item.material = 'CS'
     if (sp_item.tag.includes('CSW-')) sp_item.material = 'CS'
     if (sp_item.tag.includes('A106-')) sp_item.material = 'A106'
     if (sp_item.tag.includes('A106W-')) sp_item.material = 'A106'
     if (sp_item.tag.includes('A53-')) sp_item.material = 'A53'
     if (sp_item.tag.includes('A53W-')) sp_item.material = 'A53'
-    if (sp_item.newdesc.includes(' CS ') || sp_item.newdesc.includes('-CS ')) sp_item.material = 'CS'
     if (sp_item.newdesc.includes('A105')) sp_item.material = 'A105'
     if (sp_item.newdesc.includes('A53')) sp_item.material = 'A53'
     if (sp_item.newdesc.includes('A403')) sp_item.material = 'A403'
@@ -81,6 +82,8 @@ export const compareItems = () => async (dispatch) => {
     if (sp_item.newdesc.includes('A587')) sp_item.material = 'A587'
     if (sp_item.newdesc.includes('A106')) sp_item.material = 'A106'
     if (sp_item.newdesc.includes('A671')) sp_item.material = 'A671'
+    if (sp_item.newdesc.includes('A350')) sp_item.material = 'A350'
+    if (sp_item.newdesc.includes('A197')) sp_item.material = 'A197'
     if (
       sp_item.newdesc.includes('F22') ||
       sp_item.newdesc.includes('F 22') ||
@@ -115,16 +118,18 @@ export const compareItems = () => async (dispatch) => {
 
     if (sp_item.newdesc.includes('304')) sp_item.material = '304'
     if (sp_item.newdesc.includes('316')) sp_item.material = '316'
+    if (sp_item.newdesc.includes('HDPE')) sp_item.material = 'HDPE'
+    if (sp_item.newdesc.includes(' AL ')) sp_item.material = 'AL'
     if (sp_item.newdesc.includes('A333') || sp_item.newdesc.includes('A420')) sp_item.material = 'LT'
     // Item detail
-    if (
-      sp_item.newdesc.includes(' SW ') ||
-      sp_item.newdesc.includes(' PE,') ||
-      sp_item.newdesc.includes(' PBE ') ||
-      sp_item.newdesc.includes(' SWE ') ||
-      sp_item.newdesc.includes(' PE ')
-    )
-      sp_item.end_type = 'Plain'
+    // if (
+    //   sp_item.newdesc.includes(' SW ') ||
+    //   sp_item.newdesc.includes(' PE,') ||
+    //   sp_item.newdesc.includes(' PBE ') ||
+    //   sp_item.newdesc.includes(' SWE ') ||
+    //   sp_item.newdesc.includes(' PE ')
+    // )
+    sp_item.end_type = 'Plain'
 
     if (
       sp_item.newdesc.includes(' BW ') ||
@@ -134,8 +139,8 @@ export const compareItems = () => async (dispatch) => {
     )
       sp_item.end_type = 'Beveled'
     if (sp_item.newdesc.includes(' BXT') || sp_item.newdesc.includes(' TXB')) sp_item.end_type = 'Beveled x Threaded'
-    if (sp_item.newdesc.includes(' BXP') || sp_item.newdesc.includes(' TBE')) sp_item.end_type = 'Beveled x Plain'
-    if (sp_item.newdesc.includes(' NPT')) sp_item.end_type = 'Threaded'
+    if (sp_item.newdesc.includes(' BXP') || sp_item.newdesc.includes(' PXB')) sp_item.end_type = 'Beveled x Plain'
+    if (sp_item.newdesc.includes(' NPT') || sp_item.newdesc.includes(' TBE')) sp_item.end_type = 'Threaded'
     if (sp_item.newdesc.includes(' PXT') || sp_item.newdesc.includes(' TXP') || sp_item.newdesc.includes('POE/TOE'))
       sp_item.end_type = 'Plain x Threaded'
     // Item detail
@@ -148,17 +153,19 @@ export const compareItems = () => async (dispatch) => {
     // Slip On Flange
     if (sp_item.newdesc.includes('SLIP') || sp_item.newdesc.includes(' SO ')) {
       sp_item.item_detail = 'Slip On Flange'
-      if (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUC'))
-        sp_item.item_detail = 'Reducing Slip On Flange'
     }
     // Lap Joint Flange
     if (sp_item.newdesc.includes(' LAP')) sp_item.item_detail = 'Lap Joint Flange'
     // Threaded Flange
-    if (sp_item.newdesc.includes('THR') && sp_item.newdesc.includes('FL')) sp_item.item_detail = 'Threaded Flange'
+    if ((sp_item.newdesc.includes('THR') || sp_item.newdesc.includes('THD')) && sp_item.newdesc.includes('FL'))
+      sp_item.item_detail = 'Threaded Flange'
     // Socketweld Flange
     if (sp_item.newdesc.includes('SW') && sp_item.newdesc.includes('FL')) sp_item.item_detail = 'Socketweld Flange'
     // Stub End Flange
     if (sp_item.newdesc.includes('STUB')) sp_item.item_detail = 'Stub End Flange'
+    // Plate Flange
+    if (sp_item.newdesc.includes(' PL ') || sp_item.newdesc.includes('FLG') || sp_item.newdesc.includes('FLANGE'))
+      sp_item.item_detail = 'Plate Flange'
     // Sockolet
     if (sp_item.newdesc.includes('SOCKO')) sp_item.item_detail = 'Sockolet'
     // Weldolet
@@ -192,8 +199,12 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.newdesc.includes('SR ') || sp_item.newdesc.includes('SHORT')) {
         sp_item.item_detail = sp_item.item_detail + ' - Short'
       }
-      if (sp_item.newdesc.includes('RED')) sp_item.item_detail = sp_item.item_detail + ' Reducing'
       if (sp_item.newdesc.includes(' 3D ')) sp_item.item_detail = sp_item.item_detail + ' 3D'
+    }
+    // Miter
+    if (sp_item.newdesc.includes('MITER')) {
+      if (sp_item.newdesc.includes('90')) sp_item.item_detail = '90 Degree Miter'
+      if (sp_item.newdesc.includes('45')) sp_item.item_detail = '45 Degree Miter'
     }
     // Nipple
     if (sp_item.newdesc.includes('NIPP')) sp_item.item_detail = 'Nipple'
@@ -213,7 +224,7 @@ export const compareItems = () => async (dispatch) => {
     // Strainer
     if (sp_item.newdesc.includes('STRAIN')) sp_item.item_detail = 'Strainer'
     // Plug
-    if (sp_item.newdesc.includes('PLUG')) sp_item.item_detail = 'Plug'
+    if (sp_item.newdesc.includes('PLUG') || sp_item.newdesc.includes('PLG ')) sp_item.item_detail = 'Plug'
     // Gasket
     if (sp_item.newdesc.includes('GASK')) sp_item.item_detail = 'Gasket'
     // Reinforcment Pad
@@ -222,11 +233,14 @@ export const compareItems = () => async (dispatch) => {
     if (sp_item.newdesc.includes(' INSERT')) sp_item.item_detail = 'Insert'
     // Cross
     if (sp_item.newdesc.includes('CROSS')) sp_item.item_detail = 'Cross'
+    // Eccentric swage niipple
+    if (sp_item.newdesc.includes('SWG NIP ECC')) sp_item.item_detail = 'Eccentric Swage Nipple'
+
     // Pipe
     if (sp_item.newdesc.includes('PIPE ')) sp_item.item_detail = 'Pipe'
     // Seam
     if (sp_item.newdesc.includes('WELDED')) sp_item.seam = 'Welded'
-    if (sp_item.material === '316' && sp_item.end_type === 'Plain') sp_item.seam = 'Welded'
+    if (sp_item.material === '316' && sp_item.end_type === 'Beveled') sp_item.seam = 'Welded'
     if (sp_item.newdesc.includes('ERW')) sp_item.seam = 'Welded'
     if (sp_item.newdesc.includes('ELECTRIC FUSION')) sp_item.seam = 'Welded'
     if (sp_item.newdesc.includes('TYPE W,')) sp_item.seam = 'Welded'
@@ -256,33 +270,21 @@ export const compareItems = () => async (dispatch) => {
       sp_item.size = sp_item.size.split('x')[1] + 'x' + sp_item.size.split('x')[0]
     // Remove repeated size
     if (sp_item.size.split('x')[0] === sp_item.size.split('x')[1]) sp_item.size = sp_item.size.split('x')[0]
-    // Rename tees by size
-    if (sp_item.item_detail === 'Tee') {
-      if (sp_item.size.includes('x')) {
-        if (sp_item.size.split('x')[0] > sp_item.size.split('x')[1]) sp_item.item_detail = 'Reducing Tee'
-        else sp_item.item_detail = 'Equal Tee'
-      } else sp_item.item_detail = 'Equal Tee'
-    }
-    // Rename couplings by size
-    if (sp_item.item_detail === 'Coupling') {
-      if (sp_item.size.includes('x')) {
-        if (sp_item.size.split('x')[0] > sp_item.size.split('x')[1]) sp_item.item_detail = 'Reducing Coupling'
-        if (sp_item.size.split('x')[0] < sp_item.size.split('x')[1]) {
-          sp_item.item_detail = 'Reducing Coupling'
-          sp_item.size = sp_item.size.split('x')[1] + 'x' + sp_item.size.split('x')[0]
-        }
-      }
-    }
-    // Mark all beveled pipe as plain
-    if (sp_item.item_detail === 'Pipe' && sp_item.end_type)
-      sp_item.end_type = sp_item.end_type.replace('Beveled x Plain', 'Plain').replace('Beveled', 'Plain')
-    // Shcedule
+    // Schedule
     //CALC
     if (sp_item.newdesc.includes('CALC,')) sp_item.schedule = 'CALC'
+    //10
+    if (sp_item.newdesc.includes('S-10') || sp_item.newdesc.includes(' 10')) sp_item.schedule = '10'
     //10S
     if (sp_item.newdesc.includes('S-10S') || sp_item.newdesc.includes(' 10S')) sp_item.schedule = '10S'
     //80
     if (sp_item.newdesc.includes('S-80') || sp_item.newdesc.includes(' 80 ')) sp_item.schedule = '80'
+    //80S
+    if (sp_item.newdesc.includes('S-80S') || sp_item.newdesc.includes(' 80S')) sp_item.schedule = '80S'
+    //160
+    if (sp_item.newdesc.includes('S-160') || sp_item.newdesc.includes(' 160')) sp_item.schedule = '160'
+    //160S
+    if (sp_item.newdesc.includes('S-160S') || sp_item.newdesc.includes(' 160S')) sp_item.schedule = '160S'
     //40
     if (sp_item.newdesc.includes('S-40') || sp_item.newdesc.includes(' 40')) sp_item.schedule = '40'
     //40S
@@ -453,6 +455,17 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.material === 'A234' && sp_item.spec === 'ZCSC01') sp_item.seam = undefined
       // Material
       if (sp_item.material !== undefined && sp_item.material === 'A234') sp_item.material = 'CS'
+      // Tags
+      if (sp_item.tag !== undefined)
+        sp_item.tag
+          .replace('CS_', 'CS-')
+          .replace('A53_', 'A53-')
+          .replace('A106-CS', 'CS')
+          .replace('304-/', '304-')
+          .replace('A53/', 'A53-')
+          .replace('A53-/', 'A53-')
+          .replace('X_XS_STDXXS', 'STDXXS')
+          .replace('316WAAEA', '316W-AAEA')
       return sp_item
     })
   }
@@ -503,6 +516,97 @@ export const compareItems = () => async (dispatch) => {
         else sp_item['NEW TAG'] = sp_item.material + '-' + sp_item['NEW TAG']
     }
 
+    // Create tags for new tag system
+    sp_item.newsys_tag = undefined
+    // Material
+    if (sp_item.material !== undefined) {
+      sp_item.newsys_tag = sp_item.material
+      // Seam
+      if (sp_item.seam === 'Welded') sp_item.newsys_tag = sp_item.newsys_tag + 'W-'
+      if (sp_item.seam === 'Welded X-Ray') sp_item.newsys_tag = sp_item.newsys_tag + 'WX-'
+      if (sp_item.seam === undefined) sp_item.newsys_tag = sp_item.newsys_tag + '-'
+      // Item
+      if (sp_item.item_detail === 'Pipe') sp_item.newsys_tag = sp_item.newsys_tag + 'PIPE'
+      if (sp_item.item_detail === 'Blind Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'BLF'
+      if (sp_item.item_detail === 'Slip On Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SOF'
+      if (sp_item.item_detail === 'Weldneck Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'WNF'
+      if (sp_item.item_detail === 'Socketweld Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SWF'
+      if (sp_item.item_detail === 'Lap Joint Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'LJF'
+      if (sp_item.item_detail === 'Threaded Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'THF'
+      if (sp_item.item_detail === 'Weldolet') sp_item.newsys_tag = sp_item.newsys_tag + 'WLET'
+      if (sp_item.item_detail === 'Sockolet') sp_item.newsys_tag = sp_item.newsys_tag + 'SLET'
+      if (sp_item.item_detail === 'Thredolet') sp_item.newsys_tag = sp_item.newsys_tag + 'TLET'
+      if (sp_item.item_detail === 'Elbolet') sp_item.newsys_tag = sp_item.newsys_tag + 'ELET'
+      if (sp_item.item_detail === 'Oriface Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'ORF'
+      if (sp_item.item_detail === '45 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '45'
+      if (sp_item.item_detail === '90 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '90'
+      if (sp_item.item_detail === 'Equal Tee') sp_item.newsys_tag = sp_item.newsys_tag + 'TEE'
+      if (sp_item.item_detail === 'Reducing Tee') sp_item.newsys_tag = sp_item.newsys_tag + 'TEE'
+      if (sp_item.item_detail === 'Coupling') sp_item.newsys_tag = sp_item.newsys_tag + 'CPL'
+      if (sp_item.item_detail === 'Union') sp_item.newsys_tag = sp_item.newsys_tag + 'UNI'
+      if (sp_item.item_detail === 'Cap') sp_item.newsys_tag = sp_item.newsys_tag + 'CAP'
+      if (sp_item.item_detail === 'Insert') sp_item.newsys_tag = sp_item.newsys_tag + 'INS'
+      if (sp_item.item_detail === 'Plug') sp_item.newsys_tag = sp_item.newsys_tag + 'PLG'
+      if (sp_item.item_detail === 'Concentric Reducer') sp_item.newsys_tag = sp_item.newsys_tag + 'CRED'
+      if (sp_item.item_detail === 'Eccentric Reducer') sp_item.newsys_tag = sp_item.newsys_tag + 'ERED'
+      if (sp_item.item_detail === 'Nipple') sp_item.newsys_tag = sp_item.newsys_tag + 'NIP'
+      if (sp_item.item_detail === 'Concentric Swage') sp_item.newsys_tag = sp_item.newsys_tag + 'CSWG'
+      if (sp_item.item_detail === 'Eccentric Swage') sp_item.newsys_tag = sp_item.newsys_tag + 'ESWG'
+      if (sp_item.item_detail === '45 Degree Elbow 3D') sp_item.newsys_tag = sp_item.newsys_tag + '3D45'
+      if (sp_item.item_detail === '90 Degree Elbow 3D') sp_item.newsys_tag = sp_item.newsys_tag + '3D90'
+      if (sp_item.item_detail === 'Stub End Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SEF'
+      if (sp_item.item_detail === 'Reducing Coupling') sp_item.newsys_tag = sp_item.newsys_tag + 'CPL'
+      if (sp_item.item_detail === '90 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '90S'
+      if (sp_item.item_detail === '45 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '45S'
+      if (sp_item.item_detail === '45 Degree Miter') sp_item.newsys_tag = sp_item.newsys_tag + '45MIT'
+      if (sp_item.item_detail === '90 Degree Miter') sp_item.newsys_tag = sp_item.newsys_tag + '90MIT'
+      if (sp_item.item_detail === 'Cross') sp_item.newsys_tag = sp_item.newsys_tag + 'CRS'
+      if (sp_item.item_detail === 'Strainer') sp_item.newsys_tag = sp_item.newsys_tag + 'STR'
+      if (sp_item.item_detail === 'Eccentric Swage Nipple') sp_item.newsys_tag = sp_item.newsys_tag + 'ESWGNIP'
+      if (sp_item.item_detail === 'Plate Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'PLF'
+      // End Type
+      if (sp_item.end_type === 'Plain') sp_item.newsys_tag = sp_item.newsys_tag + 'P'
+      if (sp_item.end_type === 'Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'T'
+      if (sp_item.end_type === 'Beveled') sp_item.newsys_tag = sp_item.newsys_tag + 'B'
+      if (sp_item.end_type === 'Plain x Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'PXT'
+      if (sp_item.end_type === 'Beveled x Plain') sp_item.newsys_tag = sp_item.newsys_tag + 'BXP'
+      if (sp_item.end_type === 'Beveled x Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'BXT'
+      // Face
+      if (sp_item.face === 'Raised') sp_item.newsys_tag = sp_item.newsys_tag + 'R'
+      if (sp_item.face === 'Flat') sp_item.newsys_tag = sp_item.newsys_tag + 'F'
+      // Items with 3000, 6000, or 9000 class
+      if (sp_item.class === '3000' || sp_item.class === '6000' || sp_item.class === '9000')
+        sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.class + '~' + sp_item.origsize
+      // Should have schedule but doesn't
+      else if (sp_item.schedule === undefined)
+        sp_item.newsys_tag = sp_item.newsys_tag + '_~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
+      // Has a schedule
+      else {
+        // Special cases where class should be used with the schedule
+        if (sp_item.item_detail !== undefined)
+          if (sp_item.item_detail === 'Socketweld Flange' || sp_item.item_detail === 'Weldneck Flange')
+            if (sp_item.schedule === undefined)
+              sp_item.newsys_tag =
+                sp_item.newsys_tag + '_:' + sp_item.class + '~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
+            // Has a schedule
+            else if (sp_item.class === undefined)
+              sp_item.newsys_tag =
+                sp_item.newsys_tag + '_' + sp_item.schedule + ':~' + sp_item.origsize + ' (NO CLASS FOUND)'
+            else
+              sp_item.newsys_tag =
+                sp_item.newsys_tag + '_' + sp_item.schedule + ':' + sp_item.class + '~' + sp_item.origsize
+          // Special cases where class should only be used
+          else if (
+            sp_item.item_detail === 'Blind Flange' ||
+            sp_item.item_detail === 'Slip On Flange' ||
+            sp_item.item_detail === 'Lap Joint Flange'
+          )
+            if (sp_item.class === undefined)
+              sp_item.newsys_tag = sp_item.newsys_tag + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
+            else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.class + '~' + sp_item.origsize
+          else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.schedule + '~' + sp_item.origsize
+      }
+    }
     // Add lengths to nipples
     if (sp_item.item_detail === 'Nipple' && sp_item.size.includes('x') === false) {
       if (sp_item['NEW TAG'].includes('J_')) sp_item.size = sp_item.size + 'x2'
@@ -524,11 +628,15 @@ export const compareItems = () => async (dispatch) => {
     if (po_item.newdesc.includes('A106') || po_item.newdesc.includes('A-106')) po_item.material = 'A106'
     if (po_item.newdesc.includes('A234')) po_item.material = 'A234'
     if (po_item.newdesc.includes('CS ')) po_item.material = 'A105'
+    if (po_item.newdesc.includes('A350')) po_item.material = 'A350'
+    if (po_item.newdesc.includes('A197')) po_item.material = 'A197'
     if (po_item.newdesc.includes('A53') || po_item.newdesc.includes('A-53')) po_item.material = 'A53'
     if (po_item.newdesc.includes('304')) po_item.material = '304'
     if (po_item.newdesc.includes('316')) po_item.material = '316'
     if (po_item.newdesc.includes('P11')) po_item.material = 'P11'
     if (po_item.newdesc.includes('P22')) po_item.material = 'P22'
+    if (po_item.newdesc.includes('HDPE')) po_item.material = 'HDPE'
+    if (po_item.newdesc.includes(' AL ')) po_item.material = 'AL'
     if (
       (po_item.newdesc.includes('P9') && po_item.newdesc.includes('F9')) ||
       (po_item.newdesc.includes('P 9') && po_item.newdesc.includes('F 9'))
@@ -583,6 +691,11 @@ export const compareItems = () => async (dispatch) => {
       po_item.item_detail = 'Blind Flange'
       po_item.item = 'FLANGES'
     }
+    // Plate Flange
+    if (po_item.newdesc.includes(' PL ') || po_item.newdesc.includes('FLG') || po_item.newdesc.includes('FLANGE')) {
+      po_item.item_detail = 'Plate Flange'
+      po_item.item = 'FLANGES'
+    }
     // Slip On Flange
     if (po_item.newdesc.includes('FLANGE SLIP ON') || po_item.newdesc.includes('FLANGE SO')) {
       po_item.item_detail = 'Slip On Flange'
@@ -605,6 +718,7 @@ export const compareItems = () => async (dispatch) => {
       po_item.item_detail = 'Socketweld Flange'
       po_item.item = 'FLANGES'
     }
+
     // Stub End Flange
     if (po_item.newdesc.includes('STUB END') || po_item.newdesc.includes('BLD')) {
       po_item.item_detail = 'Stub End Flange'
@@ -660,6 +774,11 @@ export const compareItems = () => async (dispatch) => {
       if (po_item.newdesc.includes('RED')) po_item.item_detail = po_item.item_detail + ' Reducing'
       if (po_item.newdesc.includes(' 3D ')) po_item.item_detail = po_item.item_detail + ' 3D'
       po_item.item = 'FITTINGS'
+    }
+    // Miter
+    if (po_item.newdesc.includes('MITER')) {
+      if (po_item.newdesc.includes('90')) po_item.item_detail = '90 Degree Miter'
+      if (po_item.newdesc.includes('45')) po_item.item_detail = '45 Degree Miter'
     }
     // Nipple
     if (po_item.newdesc.includes('NIPP')) {
@@ -741,10 +860,10 @@ export const compareItems = () => async (dispatch) => {
     if (po_item.newdesc.includes('80S ')) po_item.schedule = '80S'
     if (po_item.newdesc.includes('10S ')) po_item.schedule = '10S'
     if (po_item.newdesc.includes('STD ') || po_item.newdesc.includes('Std ')) po_item.schedule = 'STD'
-    if (po_item.newdesc.includes('S40 ') || po_item.newdesc.includes('SCH 40')) po_item.schedule = '40'
-    if (po_item.newdesc.includes('S80 ') || po_item.newdesc.includes('SCH 80')) po_item.schedule = '80'
-    if (po_item.newdesc.includes('S160 ') || po_item.newdesc.includes('SCH 160')) po_item.schedule = '160'
-    if (po_item.newdesc.includes('S10 ') || po_item.newdesc.includes('SCH 10')) po_item.schedule = '10'
+    if (po_item.newdesc.includes('S40 ') || po_item.newdesc.includes('S-40')) po_item.schedule = '40'
+    if (po_item.newdesc.includes('S80 ') || po_item.newdesc.includes('S-80')) po_item.schedule = '80'
+    if (po_item.newdesc.includes('S160 ') || po_item.newdesc.includes('S-160')) po_item.schedule = '160'
+    if (po_item.newdesc.includes('S10 ') || po_item.newdesc.includes('S-10')) po_item.schedule = '10'
     if (po_item.newdesc.includes('XH ')) po_item.schedule = 'XS'
     if (po_item.newdesc.includes('STD X XH')) po_item.schedule = 'STDXXS'
     if (po_item.newdesc.includes('40S X 10S')) po_item.schedule = '40SX10S'
@@ -779,27 +898,6 @@ export const compareItems = () => async (dispatch) => {
     if (po_item.size.includes('X') && po_item.size.includes('-') === false && po_item.item_detail !== 'Nipple') {
       if (parseFloat(po_item.size.split('X')[0]) < parseFloat(po_item.size.split('X')[1]))
         po_item.size = po_item.size.split('X')[1] + 'X' + po_item.size.split('X')[0]
-    }
-    // Rename tees by size
-    if (po_item.item_detail === 'Tee') {
-      if (po_item.size.includes('X')) {
-        if (po_item.size.split('X')[0] === po_item.size.split('X')[1]) {
-          po_item.item_detail = 'Eqaul Tee'
-          po_item.size = po_item.size.split('X')[0]
-        } else po_item.item_detail = 'Reducing Tee'
-      } else {
-        po_item.item_detail = 'Equal Tee'
-      }
-    }
-    // Rename couplings by size
-    if (po_item.item_detail === 'Coupling') {
-      if (po_item.size.includes('X')) {
-        if (po_item.size.split('X')[0] > po_item.size.split('X')[1]) po_item.item_detail = 'Reducing Coupling'
-        if (po_item.size.split('X')[0] < po_item.size.split('X')[1]) {
-          po_item.item_detail = 'Reducing Coupling'
-          po_item.size = po_item.size.split('X')[1] + 'X' + po_item.size.split('X')[0]
-        }
-      }
     }
     // Mark all beveled pipe as plain
     if (po_item.item_detail === 'Pipe')
@@ -1182,7 +1280,9 @@ export const downloadSP = (sp_items, headers) => async (dispatch) => {
     headersarray.push(header)
     if (header === ' TAG NUMBER' || header === 'ITEM_NUMBER' || header === 'SBBOMPARTN') {
       ws_row['NEW TAG'] = undefined
+      ws_row['newsys_tag'] = undefined
       headersarray.push('NEW TAG')
+      headersarray.push('newsys_tag')
     }
     return header
   })
