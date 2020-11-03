@@ -56,7 +56,7 @@ export const compareItems = () => async (dispatch) => {
       item['SBMATLCLAS'] !== 'CUTPIPE' && item.sketch !== undefined && item.size !== undefined && item.tag !== undefined
   )
 
-  // Iterate input file items and add info
+  // Edit SP items before main edit
   sp_items.map((sp_item) => {
     // Sketch
     sp_item.sketch = sp_item.sketch.split('/')[sp_item.sketch.split('/').length - 1]
@@ -67,187 +67,7 @@ export const compareItems = () => async (dispatch) => {
       .replaceAll('SCH ', 'S-')
       .replaceAll('STD WT', 'STD')
       .replaceAll(',', ' ')
-    // Material
-    if (sp_item.tag.includes('CS-') || sp_item.newdesc.includes(' CS ') || sp_item.newdesc.includes('-CS '))
-      sp_item.material = 'CS'
-    if (sp_item.tag.includes('CSW-')) sp_item.material = 'CS'
-    if (sp_item.tag.includes('A106-')) sp_item.material = 'A106'
-    if (sp_item.tag.includes('A106W-')) sp_item.material = 'A106'
-    if (sp_item.tag.includes('A53-')) sp_item.material = 'A53'
-    if (sp_item.tag.includes('A53W-')) sp_item.material = 'A53'
-    if (sp_item.newdesc.includes('A105')) sp_item.material = 'A105'
-    if (sp_item.newdesc.includes('A53')) sp_item.material = 'A53'
-    if (sp_item.newdesc.includes('A403')) sp_item.material = 'A403'
-    if (sp_item.newdesc.includes('A234')) sp_item.material = 'A234'
-    if (sp_item.newdesc.includes('A587')) sp_item.material = 'A587'
-    if (sp_item.newdesc.includes('A106')) sp_item.material = 'A106'
-    if (sp_item.newdesc.includes('A671')) sp_item.material = 'A671'
-    if (sp_item.newdesc.includes('A350')) sp_item.material = 'A350'
-    if (sp_item.newdesc.includes('A197')) sp_item.material = 'A197'
-    if (
-      sp_item.newdesc.includes('F22') ||
-      sp_item.newdesc.includes('F 22') ||
-      sp_item.newdesc.includes('P22') ||
-      sp_item.newdesc.includes('P 22') ||
-      sp_item.newdesc.includes('WP22')
-    )
-      sp_item.material = 'P22'
-    if (
-      sp_item.newdesc.includes('F11') ||
-      sp_item.newdesc.includes('F 11') ||
-      sp_item.newdesc.includes('P11') ||
-      sp_item.newdesc.includes('P 11') ||
-      sp_item.newdesc.includes('WP11')
-    )
-      sp_item.material = 'P11'
-    if (
-      sp_item.newdesc.includes('P9') ||
-      sp_item.newdesc.includes('P 9') ||
-      sp_item.newdesc.includes('F9') ||
-      sp_item.newdesc.includes('F 9')
-    )
-      sp_item.material = 'P9'
-
-    if (
-      sp_item.newdesc.includes('P91') ||
-      sp_item.newdesc.includes('F 91') ||
-      sp_item.newdesc.includes('P 91') ||
-      sp_item.newdesc.includes('F91')
-    )
-      sp_item.material = 'P91'
-
-    if (sp_item.newdesc.includes('304')) sp_item.material = '304'
-    if (sp_item.newdesc.includes('316')) sp_item.material = '316'
-    if (sp_item.newdesc.includes('HDPE')) sp_item.material = 'HDPE'
-    if (sp_item.newdesc.includes(' AL ')) sp_item.material = 'AL'
-    if (sp_item.newdesc.includes('A333') || sp_item.newdesc.includes('A420')) sp_item.material = 'LT'
-    // Item detail
-    // if (
-    //   sp_item.newdesc.includes(' SW ') ||
-    //   sp_item.newdesc.includes(' PE,') ||
-    //   sp_item.newdesc.includes(' PBE ') ||
-    //   sp_item.newdesc.includes(' SWE ') ||
-    //   sp_item.newdesc.includes(' PE ')
-    // )
-    sp_item.end_type = 'Plain'
-
-    if (
-      sp_item.newdesc.includes(' BW ') ||
-      sp_item.newdesc.includes(' BE,') ||
-      sp_item.newdesc.includes(' BW-') ||
-      sp_item.newdesc.includes(' BE ')
-    )
-      sp_item.end_type = 'Beveled'
-    if (sp_item.newdesc.includes(' BXT') || sp_item.newdesc.includes(' TXB')) sp_item.end_type = 'Beveled x Threaded'
-    if (sp_item.newdesc.includes(' BXP') || sp_item.newdesc.includes(' PXB')) sp_item.end_type = 'Beveled x Plain'
-    if (sp_item.newdesc.includes(' NPT') || sp_item.newdesc.includes(' TBE')) sp_item.end_type = 'Threaded'
-    if (sp_item.newdesc.includes(' PXT') || sp_item.newdesc.includes(' TXP') || sp_item.newdesc.includes('POE/TOE'))
-      sp_item.end_type = 'Plain x Threaded'
-    // Item detail
-    // Weldneck Flange
-    if (sp_item.newdesc.includes('WN ') || sp_item.newdesc.includes('NECK ')) sp_item.item_detail = 'Weldneck Flange'
-    // Oriface Flange
-    if (sp_item.newdesc.includes('OFIF')) sp_item.item_detail = 'Oriface Flange'
-    // Blind Flange
-    if (sp_item.newdesc.includes('BLIND') || sp_item.newdesc.includes('BLD ')) sp_item.item_detail = 'Blind Flange'
-    // Slip On Flange
-    if (sp_item.newdesc.includes('SLIP') || sp_item.newdesc.includes(' SO ')) {
-      sp_item.item_detail = 'Slip On Flange'
-    }
-    // Lap Joint Flange
-    if (sp_item.newdesc.includes(' LAP')) sp_item.item_detail = 'Lap Joint Flange'
-    // Threaded Flange
-    if ((sp_item.newdesc.includes('THR') || sp_item.newdesc.includes('THD')) && sp_item.newdesc.includes('FL'))
-      sp_item.item_detail = 'Threaded Flange'
-    // Socketweld Flange
-    if (sp_item.newdesc.includes('SW') && sp_item.newdesc.includes('FL')) sp_item.item_detail = 'Socketweld Flange'
-    // Stub End Flange
-    if (sp_item.newdesc.includes('STUB')) sp_item.item_detail = 'Stub End Flange'
-    // Plate Flange
-    if (sp_item.newdesc.includes(' PL ') || sp_item.newdesc.includes('FLG') || sp_item.newdesc.includes('FLANGE'))
-      sp_item.item_detail = 'Plate Flange'
-    // Sockolet
-    if (sp_item.newdesc.includes('SOCKO')) sp_item.item_detail = 'Sockolet'
-    // Weldolet
-    if (sp_item.newdesc.includes('WELDO')) sp_item.item_detail = 'Weldolet'
-    // Thredolet
-    if (sp_item.newdesc.includes('THREADO') || sp_item.newdesc.includes('THREDO')) sp_item.item_detail = 'Thredolet'
-    // Flatolet
-    if (sp_item.newdesc.includes('FLATO')) sp_item.item_detail = 'Flatolet'
-    // Elbolet
-    if (sp_item.newdesc.includes('ELBOLET')) sp_item.item_detail = 'Elbolet'
-    // Latrolet
-    if (sp_item.newdesc.includes('LATRO')) sp_item.item_detail = 'Latrolet'
-    // OUTLET
-    if (sp_item.newdesc.includes('OUTLET')) {
-      if (sp_item.newdesc.includes('SW')) sp_item.item_detail = 'Sockolet'
-      if (sp_item.newdesc.includes('BE')) sp_item.item_detail = 'Weldolet'
-    }
-    // Concentric Reducer
-    if (
-      sp_item.newdesc.includes('CONC') ||
-      (sp_item.newdesc.includes('CON ') && (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUCER')))
-    )
-      sp_item.item_detail = 'Concentric Reducer'
-    // Eccentric Reducer
-    if (sp_item.newdesc.includes('ECC') && (sp_item.newdesc.includes('RED ') || sp_item.newdesc.includes('REDUCER')))
-      sp_item.item_detail = 'Eccentric Reducer'
-    // Elbows
-    if (sp_item.newdesc.includes('ELBOW') || sp_item.newdesc.includes('ELL ')) {
-      if (sp_item.newdesc.includes('90')) sp_item.item_detail = '90 Degree Elbow'
-      if (sp_item.newdesc.includes('45')) sp_item.item_detail = '45 Degree Elbow'
-      if (sp_item.newdesc.includes('SR ') || sp_item.newdesc.includes('SHORT')) {
-        sp_item.item_detail = sp_item.item_detail + ' - Short'
-      }
-      if (sp_item.newdesc.includes(' 3D ')) sp_item.item_detail = sp_item.item_detail + ' 3D'
-    }
-    // Miter
-    if (sp_item.newdesc.includes('MITER')) {
-      if (sp_item.newdesc.includes('90')) sp_item.item_detail = '90 Degree Miter'
-      if (sp_item.newdesc.includes('45')) sp_item.item_detail = '45 Degree Miter'
-    }
-    // Nipple
-    if (sp_item.newdesc.includes('NIPP')) sp_item.item_detail = 'Nipple'
-    // Tee
-    if (sp_item.newdesc.includes('TEE')) sp_item.item_detail = 'Tee'
-    // Concentric Swage
-    if (sp_item.newdesc.includes('CON') && sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Concentric Swage'
-    // Eccentric Swage
-    if (sp_item.newdesc.includes('ECC') && sp_item.newdesc.includes('SWAGE')) sp_item.item_detail = 'Eccentric Swage'
-    // Cap
-    if (sp_item.newdesc.includes('CAP ') || sp_item.newdesc.includes('CAP,') || sp_item.newdesc.includes('CAP;'))
-      sp_item.item_detail = 'Cap'
-    // Union
-    if (sp_item.newdesc.includes('UNION')) sp_item.item_detail = 'Union'
-    // Coupling
-    if (sp_item.newdesc.includes('CPLG') || sp_item.newdesc.includes('COUP')) sp_item.item_detail = 'Coupling'
-    // Strainer
-    if (sp_item.newdesc.includes('STRAIN')) sp_item.item_detail = 'Strainer'
-    // Plug
-    if (sp_item.newdesc.includes('PLUG') || sp_item.newdesc.includes('PLG ')) sp_item.item_detail = 'Plug'
-    // Gasket
-    if (sp_item.newdesc.includes('GASK')) sp_item.item_detail = 'Gasket'
-    // Reinforcment Pad
-    if (sp_item.newdesc.includes('REINFORCE')) sp_item.item_detail = 'Reinforcment Pad'
-    // Insert
-    if (sp_item.newdesc.includes(' INSERT')) sp_item.item_detail = 'Insert'
-    // Cross
-    if (sp_item.newdesc.includes('CROSS')) sp_item.item_detail = 'Cross'
-    // Eccentric swage niipple
-    if (sp_item.newdesc.includes('SWG NIP ECC')) sp_item.item_detail = 'Eccentric Swage Nipple'
-
-    // Pipe
-    if (sp_item.newdesc.includes('PIPE ')) sp_item.item_detail = 'Pipe'
-    // Seam
-    if (sp_item.newdesc.includes('WELDED')) sp_item.seam = 'Welded'
-    if (sp_item.material === '316' && sp_item.end_type === 'Beveled') sp_item.seam = 'Welded'
-    if (sp_item.newdesc.includes('ERW')) sp_item.seam = 'Welded'
-    if (sp_item.newdesc.includes('ELECTRIC FUSION')) sp_item.seam = 'Welded'
-    if (sp_item.newdesc.includes('TYPE W,')) sp_item.seam = 'Welded'
-    if (sp_item.newdesc.includes('SMLS OR WELDED')) sp_item.seam = undefined
-    if (sp_item.newdesc.includes('SOCKET WELDED')) sp_item.seam = undefined
-    if (sp_item.newdesc.includes('100% RAD')) sp_item.seam = 'Welded X-Ray'
-    // Size
+    // Sizes
     sp_item.size = sp_item.size
       .replaceAll('X', 'x')
       .replaceAll('"', '')
@@ -261,140 +81,399 @@ export const compareItems = () => async (dispatch) => {
       .replaceAll('1/2', '.5')
       .replaceAll('1/4', '.25')
       .replaceAll('0.', '.')
-    // Reverse swapped sizes
-    if (
-      sp_item.size.includes('x') &&
-      parseFloat(sp_item.size.split('x')[0]) < parseFloat(sp_item.size.split('x')[1]) &&
-      sp_item.item_detail !== 'Nipple'
-    )
-      sp_item.size = sp_item.size.split('x')[1] + 'x' + sp_item.size.split('x')[0]
-    // Remove repeated size
-    if (sp_item.size.split('x')[0] === sp_item.size.split('x')[1]) sp_item.size = sp_item.size.split('x')[0]
-    // Schedule
-    //CALC
-    if (sp_item.newdesc.includes('CALC,')) sp_item.schedule = 'CALC'
-    //10
-    if (sp_item.newdesc.includes('S-10') || sp_item.newdesc.includes(' 10')) sp_item.schedule = '10'
-    //10S
-    if (sp_item.newdesc.includes('S-10S') || sp_item.newdesc.includes(' 10S')) sp_item.schedule = '10S'
-    //80
-    if (sp_item.newdesc.includes('S-80') || sp_item.newdesc.includes(' 80 ')) sp_item.schedule = '80'
-    //80S
-    if (sp_item.newdesc.includes('S-80S') || sp_item.newdesc.includes(' 80S')) sp_item.schedule = '80S'
-    //160
-    if (sp_item.newdesc.includes('S-160') || sp_item.newdesc.includes(' 160')) sp_item.schedule = '160'
-    //160S
-    if (sp_item.newdesc.includes('S-160S') || sp_item.newdesc.includes(' 160S')) sp_item.schedule = '160S'
-    //40
-    if (sp_item.newdesc.includes('S-40') || sp_item.newdesc.includes(' 40')) sp_item.schedule = '40'
-    //40S
-    if (sp_item.newdesc.includes('S-40S') || sp_item.newdesc.includes(' 40S')) sp_item.schedule = '40S'
-    //STD
-    if (sp_item.newdesc.includes(',STD') || sp_item.newdesc.includes(' STD') || sp_item.newdesc.includes('S-STD'))
-      sp_item.schedule = 'STD'
-    //XS
-    if (sp_item.newdesc.includes('S-XS') || sp_item.newdesc.includes(' XS') || sp_item.newdesc.includes(' XH '))
-      sp_item.schedule = 'XS'
-    //STD X XS
-    if (sp_item.newdesc.includes('STD X XS')) sp_item.schedule = 'STDXXS'
-    //40S X 10S
-    if (sp_item.newdesc.includes('40S X 10S') || sp_item.newdesc.includes('S-40S X S-10S')) sp_item.schedule = '40SX10S'
-    //10S X 40S
-    if (sp_item.newdesc.includes('10S X 40S') || sp_item.newdesc.includes('S-10S X S-40S')) sp_item.schedule = '10SX40S'
-    // Class
-    if (
-      sp_item.newdesc.includes('CL150') ||
-      sp_item.newdesc.includes('CLASS 150') ||
-      sp_item.newdesc.includes('150#') ||
-      sp_item.newdesc.includes('150 LBS')
-    )
-      sp_item.class = '150'
-    if (
-      sp_item.newdesc.includes('CL300') ||
-      sp_item.newdesc.includes('CLASS 300') ||
-      sp_item.newdesc.includes('300#') ||
-      sp_item.newdesc.includes('300 LBS')
-    )
-      sp_item.class = '300'
-    if (
-      sp_item.newdesc.includes('CL600') ||
-      sp_item.newdesc.includes('CLASS 600') ||
-      sp_item.newdesc.includes('600#') ||
-      sp_item.newdesc.includes('600 LBS')
-    )
-      sp_item.class = '600'
-    if (
-      sp_item.newdesc.includes('CL800') ||
-      sp_item.newdesc.includes('CLASS 800') ||
-      sp_item.newdesc.includes('800#') ||
-      sp_item.newdesc.includes('800 LBS')
-    )
-      sp_item.class = '800'
-    if (
-      sp_item.newdesc.includes('CL3000') ||
-      sp_item.newdesc.includes('CLASS 3000') ||
-      sp_item.newdesc.includes('3000#') ||
-      sp_item.newdesc.includes(' 3M ') ||
-      sp_item.newdesc.includes('3000 LBS')
-    )
-      sp_item.class = '3000'
-    if (
-      sp_item.newdesc.includes('CL6000') ||
-      sp_item.newdesc.includes('CLASS 6000') ||
-      sp_item.newdesc.includes('6000#') ||
-      sp_item.newdesc.includes(' 6M ') ||
-      sp_item.newdesc.includes('6000 LBS')
-    )
-      sp_item.class = '6000'
-    if (
-      sp_item.newdesc.includes('CL9000') ||
-      sp_item.newdesc.includes('CLASS 9000') ||
-      sp_item.newdesc.includes('9000#') ||
-      sp_item.newdesc.includes(' 9M ') ||
-      sp_item.newdesc.includes('9000 LBS')
-    )
-      sp_item.class = '9000'
-    if (
-      sp_item.newdesc.includes('CL2000') ||
-      sp_item.newdesc.includes('CLASS 2000') ||
-      sp_item.newdesc.includes('2000#') ||
-      sp_item.newdesc.includes('2M') ||
-      sp_item.newdesc.includes('2000 LBS')
-    )
-      sp_item.class = '3000'
-    if (
-      sp_item.newdesc.includes('CL2500') ||
-      sp_item.newdesc.includes('CLASS 2500') ||
-      sp_item.newdesc.includes('2500#') ||
-      sp_item.newdesc.includes('2500 LBS')
-    )
-      sp_item.class = '2500'
-    // Face
-    if (sp_item.newdesc.includes(' RF') || sp_item.newdesc.includes('RAISED_FACE')) sp_item.face = 'Raised'
-    if (sp_item.newdesc.includes(' FF') || sp_item.newdesc.includes('FLAT-FACE')) sp_item.face = 'Flat'
-    // Schedule conversions for 40 and 80
-    if (sp_item.schedule !== undefined)
-      if (sp_item.size.includes('x')) {
-        if (sp_item.size.split('x')[0] < 12 && sp_item.schedule === '40') sp_item.schedule = 'STD'
-        if (sp_item.size.split('x')[0] < 10 && sp_item.schedule === '80') sp_item.schedule = 'XS'
-        if (sp_item.size.split('x')[0] < 12 && sp_item.schedule.includes('40X'))
-          sp_item.schedule = sp_item.schedule.replace('40X', 'STDX')
-        if (sp_item.size.split('x')[0] < 10 && sp_item.schedule.includes('80X'))
-          sp_item.schedule = sp_item.schedule.replace('80X', 'XSX')
-        if (
-          sp_item.size.split('x')[1] < 12 &&
-          sp_item.schedule.includes('X40') &&
-          sp_item.schedule.includes('X40S') === false
-        )
-          sp_item.schedule = sp_item.schedule.replace('X40', 'XSTD')
-        if (sp_item.size.split('x')[1] < 10 && sp_item.schedule.includes('X80'))
-          sp_item.schedule = sp_item.schedule.replace('X80', 'XXS')
-      } else {
-        if (sp_item.size < 12 && sp_item.schedule === '40') sp_item.schedule = 'STD'
-        if (sp_item.size < 10 && sp_item.schedule === '80') sp_item.schedule = 'XS'
-      }
+    // Add material from old tag
+    if (sp_item.tag.includes('CS-') || sp_item.newdesc.includes(' CS ') || sp_item.newdesc.includes('-CS '))
+      sp_item.material = 'CS'
+    if (sp_item.tag.includes('CSW-')) sp_item.material = 'CS'
+    if (sp_item.tag.includes('A106-')) sp_item.material = 'A106'
+    if (sp_item.tag.includes('A106W-')) sp_item.material = 'A106'
+    if (sp_item.tag.includes('A53-')) sp_item.material = 'A53'
+    if (sp_item.tag.includes('A53W-')) sp_item.material = 'A53'
     return sp_item
   })
+
+  // Edit PO items before main edit
+  po_items.map((po_item) => {
+    // Description
+    po_item.description = po_item['Text69'] + ' ' + po_item['ItemDesc']
+    po_item.newdesc = po_item.description.replaceAll(';', ' ')
+    po_item.newdesc = po_item.newdesc.toUpperCase()
+    // Size
+    if (po_item.newdesc.includes('"') === false) po_item.size = 'No Size Found'
+    else {
+      if (po_item.newdesc.split(' ')[po_item.newdesc.split(' ').length - 1].includes('"') === false)
+        po_item.size = po_item.newdesc
+          .split(' ')
+          [po_item.newdesc.split(' ').length - 2].replaceAll('"', '')
+          .replaceAll('flatx', '')
+      else
+        po_item.size = po_item.newdesc
+          .split(' ')
+          [po_item.newdesc.split(' ').length - 1].replaceAll('"', '')
+          .replaceAll('flatx', '')
+    }
+    if (po_item.newdesc.includes('~')) po_item.size = po_item.newdesc.split('~')[1].replace('1-1/2', '1 1/2')
+  })
+
+  // Add info to sp_items and po_items
+  const addInfo = (file_items) => {
+    file_items.map((file_item) => {
+      // Material
+      if (file_item.newdesc.includes('A105')) file_item.material = 'A105'
+      if (file_item.newdesc.includes('A53')) file_item.material = 'A53'
+      if (file_item.newdesc.includes('A403')) file_item.material = 'A403'
+      if (file_item.newdesc.includes('A234')) file_item.material = 'A234'
+      if (file_item.newdesc.includes('A587')) file_item.material = 'A587'
+      if (file_item.newdesc.includes('A106')) file_item.material = 'A106'
+      if (file_item.newdesc.includes('A671')) file_item.material = 'A671'
+      if (file_item.newdesc.includes('A197')) file_item.material = 'A197'
+      if (
+        file_item.newdesc.includes('F22') ||
+        file_item.newdesc.includes('F 22') ||
+        file_item.newdesc.includes('P22') ||
+        file_item.newdesc.includes('P 22') ||
+        file_item.newdesc.includes('WP22')
+      )
+        file_item.material = 'P22'
+      if (
+        file_item.newdesc.includes('F11') ||
+        file_item.newdesc.includes('F 11') ||
+        file_item.newdesc.includes('P11') ||
+        file_item.newdesc.includes('P 11') ||
+        file_item.newdesc.includes('WP11')
+      )
+        file_item.material = 'P11'
+      if (
+        file_item.newdesc.includes('P9') ||
+        file_item.newdesc.includes('P 9') ||
+        file_item.newdesc.includes('F9') ||
+        file_item.newdesc.includes('F 9')
+      )
+        file_item.material = 'P9'
+
+      if (
+        file_item.newdesc.includes('P91') ||
+        file_item.newdesc.includes('F 91') ||
+        file_item.newdesc.includes('P 91') ||
+        file_item.newdesc.includes('F91')
+      )
+        file_item.material = 'P91'
+
+      if (file_item.newdesc.includes('304')) file_item.material = '304'
+      if (file_item.newdesc.includes('316')) file_item.material = '316'
+      if (file_item.newdesc.includes('HDPE')) file_item.material = 'HDPE'
+      if (file_item.newdesc.includes(' AL ')) file_item.material = 'AL'
+      if (
+        file_item.newdesc.includes('A333') ||
+        file_item.newdesc.includes('A420') ||
+        file_item.newdesc.includes('A350')
+      )
+        file_item.material = 'LT'
+      // End type
+      file_item.end_type = 'Plain'
+
+      if (
+        file_item.newdesc.includes(' BW ') ||
+        file_item.newdesc.includes(' BE,') ||
+        file_item.newdesc.includes(' BW-') ||
+        file_item.newdesc.includes(' BE ')
+      )
+        file_item.end_type = 'Beveled'
+      if (file_item.newdesc.includes(' BXT') || file_item.newdesc.includes(' TXB'))
+        file_item.end_type = 'Beveled x Threaded'
+      if (
+        file_item.newdesc.includes(' BXP') ||
+        file_item.newdesc.includes(' PXB') ||
+        file_item.newdesc.includes('BLE X PSE')
+      )
+        file_item.end_type = 'Beveled x Plain'
+      if (file_item.newdesc.includes(' NPT') || file_item.newdesc.includes(' TBE')) file_item.end_type = 'Threaded'
+      if (
+        file_item.newdesc.includes(' PXT') ||
+        file_item.newdesc.includes(' TXP') ||
+        file_item.newdesc.includes('POE/TOE') ||
+        file_item.newdesc.includes('POE X TOE')
+      )
+        file_item.end_type = 'Plain x Threaded'
+      // Item detail
+      // Weldneck Flange
+      if (file_item.newdesc.includes('WN ') || file_item.newdesc.includes('NECK '))
+        file_item.item_detail = 'Weldneck Flange'
+      // Oriface Flange
+      if (file_item.newdesc.includes('OFIF')) file_item.item_detail = 'Oriface Flange'
+      // Blind Flange
+      if (file_item.newdesc.includes('BLIND') || file_item.newdesc.includes('BLD '))
+        file_item.item_detail = 'Blind Flange'
+      // Slip On Flange
+      if (file_item.newdesc.includes('SLIP') || file_item.newdesc.includes(' SO ')) {
+        file_item.item_detail = 'Slip On Flange'
+      }
+      // Lap Joint Flange
+      if (file_item.newdesc.includes(' LAP')) file_item.item_detail = 'Lap Joint Flange'
+      // Threaded Flange
+      if ((file_item.newdesc.includes('THR') || file_item.newdesc.includes('THD')) && file_item.newdesc.includes('FL'))
+        file_item.item_detail = 'Threaded Flange'
+      // Socketweld Flange
+      if (file_item.newdesc.includes('SW') && file_item.newdesc.includes('FL'))
+        file_item.item_detail = 'Socketweld Flange'
+      // Stub End Flange
+      if (file_item.newdesc.includes('STUB')) file_item.item_detail = 'Stub End Flange'
+      // Plate Flange
+      if (
+        file_item.newdesc.includes(' PL ') ||
+        file_item.newdesc.includes('FLG') ||
+        file_item.newdesc.includes('FLANGE')
+      )
+        file_item.item_detail = 'Plate Flange'
+      // Sockolet
+      if (file_item.newdesc.includes('SOCKO')) file_item.item_detail = 'Sockolet'
+      // Weldolet
+      if (file_item.newdesc.includes('WELDO')) file_item.item_detail = 'Weldolet'
+      // Thredolet
+      if (file_item.newdesc.includes('THREADO') || file_item.newdesc.includes('THREDO'))
+        file_item.item_detail = 'Thredolet'
+      // Flatolet
+      if (file_item.newdesc.includes('FLATO')) file_item.item_detail = 'Flatolet'
+      // Elbolet
+      if (file_item.newdesc.includes('ELBOLET')) file_item.item_detail = 'Elbolet'
+      // Latrolet
+      if (file_item.newdesc.includes('LATRO')) file_item.item_detail = 'Latrolet'
+      // OUTLET
+      if (file_item.newdesc.includes('OUTLET')) {
+        if (file_item.newdesc.includes('SW')) file_item.item_detail = 'Sockolet'
+        if (file_item.newdesc.includes('BE')) file_item.item_detail = 'Weldolet'
+      }
+      // Concentric Reducer
+      if (
+        file_item.newdesc.includes('CONC') ||
+        (file_item.newdesc.includes('CON ') &&
+          (file_item.newdesc.includes('RED ') || file_item.newdesc.includes('REDUCER')))
+      )
+        file_item.item_detail = 'Concentric Reducer'
+      // Eccentric Reducer
+      if (
+        file_item.newdesc.includes('ECC') &&
+        (file_item.newdesc.includes('RED ') || file_item.newdesc.includes('REDUCER'))
+      )
+        file_item.item_detail = 'Eccentric Reducer'
+      // Elbows
+      if (file_item.newdesc.includes('ELBOW') || file_item.newdesc.includes('ELL ')) {
+        if (file_item.newdesc.includes('90')) file_item.item_detail = '90 Degree Elbow'
+        if (file_item.newdesc.includes('45')) file_item.item_detail = '45 Degree Elbow'
+        if (file_item.newdesc.includes('SR ') || file_item.newdesc.includes('SHORT')) {
+          file_item.item_detail = file_item.item_detail + ' - Short'
+        }
+        if (file_item.newdesc.includes(' 3D ')) file_item.item_detail = file_item.item_detail + ' 3D'
+      }
+      // Miter
+      if (file_item.newdesc.includes('MITER')) {
+        if (file_item.newdesc.includes('90')) file_item.item_detail = '90 Degree Miter'
+        if (file_item.newdesc.includes('45')) file_item.item_detail = '45 Degree Miter'
+      }
+      // Nipple
+      if (file_item.newdesc.includes('NIPP')) file_item.item_detail = 'Nipple'
+      // Tee
+      if (file_item.newdesc.includes('TEE')) file_item.item_detail = 'Tee'
+      // Concentric Swage
+      if (file_item.newdesc.includes('CON') && file_item.newdesc.includes('SWAGE'))
+        file_item.item_detail = 'Concentric Swage'
+      // Eccentric Swage
+      if (file_item.newdesc.includes('ECC') && file_item.newdesc.includes('SWAGE'))
+        file_item.item_detail = 'Eccentric Swage'
+      // Cap
+      if (
+        file_item.newdesc.includes('CAP ') ||
+        file_item.newdesc.includes('CAP,') ||
+        file_item.newdesc.includes('CAP;')
+      )
+        file_item.item_detail = 'Cap'
+      // Union
+      if (file_item.newdesc.includes('UNION')) file_item.item_detail = 'Union'
+      // Coupling
+      if (file_item.newdesc.includes('CPLG') || file_item.newdesc.includes('COUP')) file_item.item_detail = 'Coupling'
+      // Strainer
+      if (file_item.newdesc.includes('STRAIN')) file_item.item_detail = 'Strainer'
+      // Plug
+      if (file_item.newdesc.includes('PLUG') || file_item.newdesc.includes('PLG ')) file_item.item_detail = 'Plug'
+      // Gasket
+      if (file_item.newdesc.includes('GASK')) file_item.item_detail = 'Gasket'
+      // Reinforcment Pad
+      if (file_item.newdesc.includes('REINFORCE')) file_item.item_detail = 'Reinforcment Pad'
+      // Insert
+      if (file_item.newdesc.includes(' INSERT')) file_item.item_detail = 'Insert'
+      // Cross
+      if (file_item.newdesc.includes('CROSS')) file_item.item_detail = 'Cross'
+      // Eccentric swage niipple
+      if (file_item.newdesc.includes('SWG NIP ECC')) file_item.item_detail = 'Eccentric Swage Nipple'
+      // Pipe
+      if (file_item.newdesc.includes('PIPE ')) file_item.item_detail = 'Pipe'
+      // Seam
+      if (file_item.newdesc.includes('WELDED')) file_item.seam = 'Welded'
+      if (file_item.material === '316' && file_item.end_type === 'Beveled') file_item.seam = 'Welded'
+      if (file_item.newdesc.includes('ERW')) file_item.seam = 'Welded'
+      if (file_item.newdesc.includes('ELECTRIC FUSION')) file_item.seam = 'Welded'
+      if (file_item.newdesc.includes('TYPE W,')) file_item.seam = 'Welded'
+      if (file_item.newdesc.includes('SMLS OR WELDED')) file_item.seam = undefined
+      if (file_item.newdesc.includes('SOCKET WELDED')) file_item.seam = undefined
+      if (file_item.newdesc.includes('100% RAD')) file_item.seam = 'Welded X-Ray'
+      // Reverse swapped sizes
+      if (
+        file_item.size.includes('x') &&
+        parseFloat(file_item.size.split('x')[0]) < parseFloat(file_item.size.split('x')[1]) &&
+        file_item.item_detail !== 'Nipple'
+      )
+        file_item.size = file_item.size.split('x')[1] + 'x' + file_item.size.split('x')[0]
+      // Remove repeated size
+      if (file_item.size.split('x')[0] === file_item.size.split('x')[1]) file_item.size = file_item.size.split('x')[0]
+      // Schedule
+      //CALC
+      if (file_item.newdesc.includes('CALC,')) file_item.schedule = 'CALC'
+      //10
+      if (file_item.newdesc.includes('S-10') || file_item.newdesc.includes(' 10')) file_item.schedule = '10'
+      //10S
+      if (file_item.newdesc.includes('S-10S') || file_item.newdesc.includes(' 10S')) file_item.schedule = '10S'
+      //80
+      if (file_item.newdesc.includes('S-80') || file_item.newdesc.includes(' 80 ')) file_item.schedule = '80'
+      //80S
+      if (file_item.newdesc.includes('S-80S') || file_item.newdesc.includes(' 80S')) file_item.schedule = '80S'
+      //160
+      if (file_item.newdesc.includes('S-160') || file_item.newdesc.includes(' 160')) file_item.schedule = '160'
+      //160S
+      if (file_item.newdesc.includes('S-160S') || file_item.newdesc.includes(' 160S')) file_item.schedule = '160S'
+      //40
+      if (file_item.newdesc.includes('S-40') || file_item.newdesc.includes(' 40')) file_item.schedule = '40'
+      //40S
+      if (file_item.newdesc.includes('S-40S') || file_item.newdesc.includes(' 40S')) file_item.schedule = '40S'
+      //STD
+      if (
+        file_item.newdesc.includes(',STD') ||
+        file_item.newdesc.includes(' STD') ||
+        file_item.newdesc.includes('S-STD')
+      )
+        file_item.schedule = 'STD'
+      //XS
+      if (file_item.newdesc.includes('S-XS') || file_item.newdesc.includes(' XS') || file_item.newdesc.includes(' XH '))
+        file_item.schedule = 'XS'
+      //STD X XS
+      if (file_item.newdesc.includes('STD X XS')) file_item.schedule = 'STDXXS'
+      //XS X 160
+      if (file_item.newdesc.includes('XS X 160')) file_item.schedule = 'XSX160'
+      //40S X 10S
+      if (file_item.newdesc.includes('40S X 10S') || file_item.newdesc.includes('S-40S X S-10S'))
+        file_item.schedule = '40SX10S'
+      //40S X 80S
+      if (file_item.newdesc.includes('40S X 80S') || file_item.newdesc.includes('S-40S X S-80S'))
+        file_item.schedule = '40SX80S'
+      //10S X 40S
+      if (file_item.newdesc.includes('10S X 40S') || file_item.newdesc.includes('S-10S X S-40S'))
+        file_item.schedule = '10SX40S'
+      // Class
+      if (
+        file_item.newdesc.includes('CL150') ||
+        file_item.newdesc.includes('CL 150') ||
+        file_item.newdesc.includes('CLASS 150') ||
+        file_item.newdesc.includes('150#') ||
+        file_item.newdesc.includes('150 LBS')
+      )
+        file_item.class = '150'
+      if (
+        file_item.newdesc.includes('CL300') ||
+        file_item.newdesc.includes('CL 300') ||
+        file_item.newdesc.includes('CLASS 300') ||
+        file_item.newdesc.includes('300#') ||
+        file_item.newdesc.includes('300 LBS')
+      )
+        file_item.class = '300'
+      if (
+        file_item.newdesc.includes('CL600') ||
+        file_item.newdesc.includes('CL 600') ||
+        file_item.newdesc.includes('CLASS 600') ||
+        file_item.newdesc.includes('600#') ||
+        file_item.newdesc.includes('600 LBS')
+      )
+        file_item.class = '600'
+      if (
+        file_item.newdesc.includes('CL800') ||
+        file_item.newdesc.includes('CL 800') ||
+        file_item.newdesc.includes('CLASS 800') ||
+        file_item.newdesc.includes('800#') ||
+        file_item.newdesc.includes('800 LBS')
+      )
+        file_item.class = '800'
+      if (
+        file_item.newdesc.includes('CL3000') ||
+        file_item.newdesc.includes('CL 3000') ||
+        file_item.newdesc.includes('CLASS 3000') ||
+        file_item.newdesc.includes('3000#') ||
+        file_item.newdesc.includes(' 3M ') ||
+        file_item.newdesc.includes('3000 LBS')
+      )
+        file_item.class = '3000'
+      if (
+        file_item.newdesc.includes('CL6000') ||
+        file_item.newdesc.includes('CL 6000') ||
+        file_item.newdesc.includes('CLASS 6000') ||
+        file_item.newdesc.includes('6000#') ||
+        file_item.newdesc.includes(' 6M ') ||
+        file_item.newdesc.includes('6000 LBS')
+      )
+        file_item.class = '6000'
+      if (
+        file_item.newdesc.includes('CL9000') ||
+        file_item.newdesc.includes('CL 9000') ||
+        file_item.newdesc.includes('CLASS 9000') ||
+        file_item.newdesc.includes('9000#') ||
+        file_item.newdesc.includes(' 9M ') ||
+        file_item.newdesc.includes('9000 LBS')
+      )
+        file_item.class = '9000'
+      if (
+        file_item.newdesc.includes('CL2000') ||
+        file_item.newdesc.includes('CL 2000') ||
+        file_item.newdesc.includes('CLASS 2000') ||
+        file_item.newdesc.includes('2000#') ||
+        file_item.newdesc.includes('2M') ||
+        file_item.newdesc.includes('2000 LBS')
+      )
+        file_item.class = '3000'
+      if (
+        file_item.newdesc.includes('CL2500') ||
+        file_item.newdesc.includes('CL 2500') ||
+        file_item.newdesc.includes('CLASS 2500') ||
+        file_item.newdesc.includes('2500#') ||
+        file_item.newdesc.includes('2500 LBS')
+      )
+        file_item.class = '2500'
+      // Face
+      if (file_item.newdesc.includes(' RF') || file_item.newdesc.includes('RAISED_FACE')) file_item.face = 'Raised'
+      if (file_item.newdesc.includes(' FF') || file_item.newdesc.includes('FLAT-FACE')) file_item.face = 'Flat'
+      // Schedule conversions for 40 and 80
+      if (file_item.schedule !== undefined)
+        if (file_item.size.includes('x')) {
+          if (file_item.size.split('x')[0] < 12 && file_item.schedule === '40') file_item.schedule = 'STD'
+          if (file_item.size.split('x')[0] < 10 && file_item.schedule === '80') file_item.schedule = 'XS'
+          if (file_item.size.split('x')[0] < 12 && file_item.schedule.includes('40X'))
+            file_item.schedule = file_item.schedule.replace('40X', 'STDX')
+          if (file_item.size.split('x')[0] < 10 && file_item.schedule.includes('80X'))
+            file_item.schedule = file_item.schedule.replace('80X', 'XSX')
+          if (
+            file_item.size.split('x')[1] < 12 &&
+            file_item.schedule.includes('X40') &&
+            file_item.schedule.includes('X40S') === false
+          )
+            file_item.schedule = file_item.schedule.replace('X40', 'XSTD')
+          if (file_item.size.split('x')[1] < 10 && file_item.schedule.includes('X80'))
+            file_item.schedule = file_item.schedule.replace('X80', 'XXS')
+        } else {
+          if (file_item.size < 12 && file_item.schedule === '40') file_item.schedule = 'STD'
+          if (file_item.size < 10 && file_item.schedule === '80') file_item.schedule = 'XS'
+        }
+      return file_item
+    })
+  }
+  // Add info from SP data sheet and PO reciept
+  addInfo(sp_items)
+  addInfo(po_items)
 
   // Edits for 7114
   if (type !== 'CVC') {
@@ -403,7 +482,8 @@ export const compareItems = () => async (dispatch) => {
       (item) => item.item.includes('FITTING') || item.item.includes('PIPE') || item.item.includes('FLANGE')
     )
   }
-  // Iterete for edits
+
+  // Additional edits
   sp_items.map((sp_item) => {
     // Description
     sp_item.newdesc = sp_item.description.replaceAll('TRIMMED ', '').replaceAll('W/BRANCH.CONN ', '')
@@ -416,7 +496,7 @@ export const compareItems = () => async (dispatch) => {
     //Material
     if (sp_item.material === 'A587') sp_item.material = 'A106'
     // Size
-    sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
+    sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375').replace('X')
     // Change all A material that isn't pipe to CS
     if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
       sp_item.material = sp_item.material
@@ -440,40 +520,8 @@ export const compareItems = () => async (dispatch) => {
     return sp_item
   })
 
-  // Edits for 7116
-  if (type !== 'CVC') {
-    sp_items = sp_items.filter(
-      (item) => item.item.includes('FITTING') || item.item.includes('PIPE') || item.item.includes('FLANGE')
-    )
-    // Iterate items for edits
-    sp_items.map((sp_item) => {
-      // Size
-      sp_item.size.replaceAll('3 1/8', '3').replaceAll('13/16', '3/4').replaceAll('1 15/16', '2')
-      // Sketch
-      sp_item.sketch = sp_item.sketch.replace('-1', '-A').replace('-2', '-B').replace('-3', '-C').replace('-4', '-D')
-      // Seam
-      if (sp_item.material === 'A234' && sp_item.spec === 'ZCSC01') sp_item.seam = undefined
-      // Material
-      if (sp_item.material !== undefined && sp_item.material === 'A234') sp_item.material = 'CS'
-      // Tags
-      if (sp_item.tag !== undefined)
-        sp_item.tag
-          .replace('CS_', 'CS-')
-          .replace('A53_', 'A53-')
-          .replace('A106-CS', 'CS')
-          .replace('304-/', '304-')
-          .replace('A53/', 'A53-')
-          .replace('A53-/', 'A53-')
-          .replace('X_XS_STDXXS', 'STDXXS')
-          .replace('316WAAEA', '316W-AAEA')
-      return sp_item
-    })
-  }
-
-  // Create new tags for all jobs
+  // Create new tags
   sp_items.map((sp_item) => {
-    // Grab size and schedules from code on BOM
-
     // Find abreviated code
     let abrcode = sp_item.tag.split('~')[0]
     if (abrcode.includes('-')) abrcode = abrcode.replace(abrcode.split('-')[0], '').replace('-', '')
@@ -618,323 +666,6 @@ export const compareItems = () => async (dispatch) => {
     return sp_item
   })
 
-  // // Iterate PO file items and add info
-  po_items.map((po_item) => {
-    po_item.description = po_item['Text69'] + ' ' + po_item['ItemDesc']
-    po_item.newdesc = po_item.description
-    po_item.newdesc = po_item.newdesc.toUpperCase()
-    // Material
-    if (po_item.newdesc.includes('A105')) po_item.material = 'A105'
-    if (po_item.newdesc.includes('A106') || po_item.newdesc.includes('A-106')) po_item.material = 'A106'
-    if (po_item.newdesc.includes('A234')) po_item.material = 'A234'
-    if (po_item.newdesc.includes('CS ')) po_item.material = 'A105'
-    if (po_item.newdesc.includes('A350')) po_item.material = 'A350'
-    if (po_item.newdesc.includes('A197')) po_item.material = 'A197'
-    if (po_item.newdesc.includes('A53') || po_item.newdesc.includes('A-53')) po_item.material = 'A53'
-    if (po_item.newdesc.includes('304')) po_item.material = '304'
-    if (po_item.newdesc.includes('316')) po_item.material = '316'
-    if (po_item.newdesc.includes('P11')) po_item.material = 'P11'
-    if (po_item.newdesc.includes('P22')) po_item.material = 'P22'
-    if (po_item.newdesc.includes('HDPE')) po_item.material = 'HDPE'
-    if (po_item.newdesc.includes(' AL ')) po_item.material = 'AL'
-    if (
-      (po_item.newdesc.includes('P9') && po_item.newdesc.includes('F9')) ||
-      (po_item.newdesc.includes('P 9') && po_item.newdesc.includes('F 9'))
-    )
-      po_item.material = 'P9'
-    if (
-      (po_item.newdesc.includes('P91') && po_item.newdesc.includes('F91')) ||
-      (po_item.newdesc.includes('P 91') && po_item.newdesc.includes('F 91'))
-    )
-      po_item.material = 'P91'
-    if (po_item.newdesc.includes('A333') || po_item.newdesc.includes('A420')) po_item.material = 'LT'
-    // Seam
-    if (
-      po_item.newdesc.includes('-W') ||
-      po_item.newdesc.includes(' ERW') ||
-      po_item.newdesc.includes(' EFW') ||
-      po_item.newdesc.includes(' W ') ||
-      (po_item.newdesc.includes('WELD') &&
-        po_item.newdesc.includes('BUTT WELD') === false &&
-        po_item.newdesc.includes('SOCK') === false)
-    )
-      po_item.seam = 'Welded'
-    if (po_item.newdesc.includes('WP-X') || po_item.newdesc.includes(' WX ')) po_item.seam = 'Welded X-Ray'
-    // End type
-    if (
-      po_item.newdesc.includes('SOCKET') ||
-      po_item.newdesc.includes('PBE') ||
-      po_item.newdesc.includes(' SW') ||
-      po_item.newdesc.includes('SWAGE') === false
-    )
-      po_item.end_type = 'Plain'
-    if (po_item.newdesc.includes('BUTT') || po_item.newdesc.includes('BW')) po_item.end_type = 'Beveled'
-
-    if (po_item.newdesc.includes('TBE') || po_item.newdesc.includes('NPT') || po_item.newdesc.includes('THR '))
-      po_item.end_type = 'Threaded'
-    if (po_item.newdesc.includes(' PXT') || po_item.newdesc.includes('SWXTHR')) po_item.end_type = 'Plain x Threaded'
-    if (po_item.newdesc.includes('TXB') || po_item.newdesc.includes('BXT')) po_item.end_type = 'Beveled x Threaded'
-    if (po_item.newdesc.includes('BXP') || po_item.newdesc.includes('PXB')) po_item.end_type = 'Beveled x Plain'
-    // Item Detail
-    // Weldneck Flange
-    if (po_item.newdesc.includes('WN ') || po_item.newdesc.includes('NECK')) {
-      po_item.item_detail = 'Weldneck Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Oriface Flange
-    if (po_item.newdesc.includes('ORI') && (po_item.newdesc.includes('FLG') || po_item.newdesc.includes('FLANGE'))) {
-      po_item.item_detail = 'Oriface Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Blind Flange
-    if (po_item.newdesc.includes('BLIND') || po_item.newdesc.includes('BLD')) {
-      po_item.item_detail = 'Blind Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Plate Flange
-    if (po_item.newdesc.includes(' PL ') || po_item.newdesc.includes('FLG') || po_item.newdesc.includes('FLANGE')) {
-      po_item.item_detail = 'Plate Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Slip On Flange
-    if (po_item.newdesc.includes('FLANGE SLIP ON') || po_item.newdesc.includes('FLANGE SO')) {
-      po_item.item_detail = 'Slip On Flange'
-      po_item.item = 'FLANGES'
-      if (po_item.newdesc.includes('RED ') || po_item.newdesc.includes('REDUC'))
-        po_item.item_detail = 'Reducing Slip On FLange'
-    }
-    // Lap Joint Flange
-    if (po_item.newdesc.includes('FLANGE') && po_item.newdesc.includes('LAP')) {
-      po_item.item_detail = 'Lap Joint Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Threaded Flange
-    if (po_item.newdesc.includes('FLANGE THR')) {
-      po_item.item_detail = 'Threaded Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Socketweld Flange
-    if (po_item.newdesc.includes('SW FL') || (po_item.newdesc.includes('SW ') && po_item.newdesc.includes('FLANGE'))) {
-      po_item.item_detail = 'Socketweld Flange'
-      po_item.item = 'FLANGES'
-    }
-
-    // Stub End Flange
-    if (po_item.newdesc.includes('STUB END') || po_item.newdesc.includes('BLD')) {
-      po_item.item_detail = 'Stub End Flange'
-      po_item.item = 'FLANGES'
-    }
-    // Sockolet
-    if (po_item.newdesc.includes('SOCKO') || (po_item.newdesc.includes('OUTLET') && po_item.newdesc.includes('SW;'))) {
-      po_item.item_detail = 'Sockolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Weldolet
-    if (po_item.newdesc.includes('WELDO') || (po_item.newdesc.includes('OUTLET') && po_item.newdesc.includes('BW;'))) {
-      po_item.item_detail = 'Weldolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Thredolet
-    if (po_item.newdesc.includes('THREDO') || po_item.newdesc.includes('THREADO')) {
-      po_item.item_detail = 'Thredolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Flatolet
-    if (po_item.newdesc.includes('FLATO')) {
-      po_item.item_detail = 'Flatolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Elbolet
-    if (po_item.newdesc.includes('ELBOLET')) {
-      po_item.item_detail = 'Elbolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Latrolet
-    if (po_item.newdesc.includes('LATRO')) {
-      po_item.item_detail = 'Latrolet'
-      po_item.item = 'FITTINGS'
-    }
-    // Concentric Reducer
-    if ((po_item.newdesc.includes('CONC') || po_item.newdesc.includes('CON ')) && po_item.newdesc.includes('RED')) {
-      po_item.item_detail = 'Concentric Reducer'
-      po_item.item = 'FITTINGS'
-    }
-    // Eccentric Reducer
-    if (po_item.newdesc.includes('ECC') && po_item.newdesc.includes('RED')) {
-      po_item.item_detail = 'Eccentric Reducer'
-      po_item.item = 'FITTINGS'
-    }
-    // Elbows
-    if (po_item.newdesc.includes('ELBOW') || po_item.newdesc.includes('ELL ')) {
-      if (po_item.newdesc.includes('90')) po_item.item_detail = '90 Degree Elbow'
-      if (po_item.newdesc.includes('45')) po_item.item_detail = '45 Degree Elbow'
-      if (po_item.newdesc.includes('SR ') || po_item.newdesc.includes('SHORT')) {
-        po_item.item_detail = po_item.item_detail + ' - Short'
-      }
-      if (po_item.newdesc.includes('RED')) po_item.item_detail = po_item.item_detail + ' Reducing'
-      if (po_item.newdesc.includes(' 3D ')) po_item.item_detail = po_item.item_detail + ' 3D'
-      po_item.item = 'FITTINGS'
-    }
-    // Miter
-    if (po_item.newdesc.includes('MITER')) {
-      if (po_item.newdesc.includes('90')) po_item.item_detail = '90 Degree Miter'
-      if (po_item.newdesc.includes('45')) po_item.item_detail = '45 Degree Miter'
-    }
-    // Nipple
-    if (po_item.newdesc.includes('NIPP')) {
-      po_item.item_detail = 'Nipple'
-      po_item.item = 'FITTINGS'
-    }
-    // Tee
-    if (po_item.newdesc.includes('TEE,') || po_item.newdesc.includes('TEE ') || po_item.newdesc.includes('TEE:')) {
-      po_item.item_detail = 'Tee'
-      po_item.item = 'FITTINGS'
-    }
-    // Nipple
-    if (po_item.newdesc.includes('NIPP')) {
-      po_item.item_detail = 'Nipple'
-      po_item.item = 'FITTINGS'
-    }
-    // Concentric Swage
-    if (po_item.newdesc.includes('CON') && po_item.newdesc.includes('SWAGE')) {
-      po_item.item_detail = 'Concentric Swage'
-      po_item.item = 'FITTINGS'
-    }
-    // Eccentric Swage
-    if (po_item.newdesc.includes('ECC') && po_item.newdesc.includes('SWAGE')) {
-      po_item.item_detail = 'Eccentric Swage'
-      po_item.item = 'FITTINGS'
-    }
-    // Cap
-    if (po_item.newdesc.includes('CAP,') || po_item.newdesc.includes('CAP ') || po_item.newdesc.includes('CAP:')) {
-      po_item.item_detail = 'Cap'
-      po_item.item = 'FITTINGS'
-    }
-    // Union
-    if (po_item.newdesc.includes('UNION')) {
-      po_item.item_detail = 'Union'
-      po_item.item = 'FITTINGS'
-    }
-    // Coupling
-    if (po_item.newdesc.includes('COUPL') || po_item.newdesc.includes('CPLG')) {
-      po_item.item_detail = 'Coupling'
-      po_item.item = 'FITTINGS'
-    }
-    // Strainer
-    if (po_item.newdesc.includes('STRAINER')) {
-      po_item.item_detail = 'Strainer'
-      po_item.item = 'FITTINGS'
-    }
-    // Plug
-    if (po_item.newdesc.includes('PLUG')) {
-      po_item.item_detail = 'Plug'
-      po_item.item = 'FITTINGS'
-    }
-    // Gasket
-    if (po_item.newdesc.includes('GASK')) {
-      po_item.item_detail = 'Gasket'
-      po_item.item = 'FITTINGS'
-    }
-    // Reinforcemnet Pad
-    if (po_item.newdesc.includes('REINFORCEMENT PAD')) {
-      po_item.item_detail = 'Reinforcemnet Pad'
-      po_item.item = 'FITTINGS'
-    }
-    // Insert
-    if (po_item.newdesc.includes('INSERT')) {
-      po_item.item_detail = 'Insert'
-      po_item.item = 'FITTINGS'
-    }
-    // Cross
-    if (po_item.newdesc.includes('CROSS')) {
-      po_item.item_detail = 'Cross'
-      po_item.item = 'FITTINGS'
-    }
-    // Pipe
-    if (po_item.newdesc.includes('PIPE ')) {
-      po_item.item_detail = 'Pipe'
-      po_item.item = 'PIPE'
-    }
-    // Schedule/Class
-    if (po_item.newdesc.includes('40S ')) po_item.schedule = '40S'
-    if (po_item.newdesc.includes('80S ')) po_item.schedule = '80S'
-    if (po_item.newdesc.includes('10S ')) po_item.schedule = '10S'
-    if (po_item.newdesc.includes('STD ') || po_item.newdesc.includes('Std ')) po_item.schedule = 'STD'
-    if (po_item.newdesc.includes('S40 ') || po_item.newdesc.includes('S-40')) po_item.schedule = '40'
-    if (po_item.newdesc.includes('S80 ') || po_item.newdesc.includes('S-80')) po_item.schedule = '80'
-    if (po_item.newdesc.includes('S160 ') || po_item.newdesc.includes('S-160')) po_item.schedule = '160'
-    if (po_item.newdesc.includes('S10 ') || po_item.newdesc.includes('S-10')) po_item.schedule = '10'
-    if (po_item.newdesc.includes('XH ')) po_item.schedule = 'XS'
-    if (po_item.newdesc.includes('STD X XH')) po_item.schedule = 'STDXXS'
-    if (po_item.newdesc.includes('40S X 10S')) po_item.schedule = '40SX10S'
-    if (po_item.newdesc.includes('150#')) po_item.class = '150'
-    if (po_item.newdesc.includes('300#')) po_item.class = '300'
-    if (po_item.newdesc.includes('600#')) po_item.class = '600'
-    if (po_item.newdesc.includes('900#')) po_item.class = '900'
-    if (po_item.newdesc.includes('1500#')) po_item.class = '1500'
-    if (po_item.newdesc.includes('3000#') || po_item.newdesc.includes('3M ')) po_item.class = '3000'
-    if (po_item.newdesc.includes('6000#')) po_item.class = '6000'
-    if (po_item.newdesc.includes('9000#')) po_item.class = '9000'
-    if (po_item.newdesc.includes('2500#')) po_item.class = '2500'
-    if (po_item.newdesc.includes('2000#')) po_item.class = '3000'
-    // Face
-    if (po_item.newdesc.includes(' RF')) po_item.face = 'Raised'
-    if (po_item.newdesc.includes(' FF')) po_item.face = 'Flat'
-    // Size
-    if (po_item.newdesc.includes('"') === false) po_item.size = 'No Size Found'
-    else {
-      if (po_item.newdesc.split(' ')[po_item.newdesc.split(' ').length - 1].includes('"') === false)
-        po_item.size = po_item.newdesc
-          .split(' ')
-          [po_item.newdesc.split(' ').length - 2].replaceAll('"', '')
-          .replaceAll('flatx', '')
-      else
-        po_item.size = po_item.newdesc
-          .split(' ')
-          [po_item.newdesc.split(' ').length - 1].replaceAll('"', '')
-          .replaceAll('flatx', '')
-    }
-    // Fix reversed sizes
-    if (po_item.size.includes('X') && po_item.size.includes('-') === false && po_item.item_detail !== 'Nipple') {
-      if (parseFloat(po_item.size.split('X')[0]) < parseFloat(po_item.size.split('X')[1]))
-        po_item.size = po_item.size.split('X')[1] + 'X' + po_item.size.split('X')[0]
-    }
-    // Mark all beveled pipe as plain
-    if (po_item.item_detail === 'Pipe')
-      po_item.end_type = po_item.end_type.replace('Beveled x Plain', 'Plain').replace('Beveled', 'Plain')
-    // Convert sizes to decimals
-    po_item.size = po_item.size
-      .replaceAll('1 1/2', '1.5')
-      .replaceAll('1 1/4', '1.25')
-      .replaceAll('2 1/2', '2,5')
-      .replaceAll('3/4', '.75')
-      .replaceAll('1/2', '.5')
-      .replaceAll('3/8', '.375')
-      .replaceAll('1/4', '.25')
-      .replaceAll('0.', '.')
-    // Schedules by size
-    let usesize = 100
-    if (
-      po_item.size.includes('-') === false &&
-      po_item.size.includes('flat') === false &&
-      po_item.size.includes('taps') === false &&
-      po_item.size !== 'No Size Found'
-    ) {
-      if (po_item.size.includes('X')) {
-        usesize = parseFloat(po_item.size.split('X')[0])
-      } else {
-        usesize = parseFloat(po_item.size)
-      }
-    }
-    if (usesize < 12 && po_item.schedule === '40') po_item.schedule = 'STD'
-    if (usesize < 10 && po_item.schedule === '80') po_item.schedule = 'XS'
-    // Change material for 7114
-    if (jobnum === 7114 && po_item.material === 'A105') po_item.material = 'CS'
-    // For front end  purposes
-    po_item.hide = true
-    return po_item
-  })
-
   //   // ////// ////// ////// //  // ////// //////
   /// /// //  //   //   //     //  // //     //
   // / // //////   //   //     ////// ////// //////
@@ -969,6 +700,8 @@ export const compareItems = () => async (dispatch) => {
       let seammatch = false
       let endtypematch = false
       let facematch = false
+      let schedmatch = false
+      let classmatch = false
       // Check item match
       if (po_item.item === sp_item.item) itemmatch = true
       // Check item details match
@@ -977,8 +710,8 @@ export const compareItems = () => async (dispatch) => {
       if (po_item.size.includes('-') && po_item.size.includes('X')) {
         // Check if size falls within a size range
         if (
-          parseFloat(sp_item.size.split('x')[0]) < parseFloat(po_item.size.split('X')[0].split('-')[0]) &&
-          parseFloat(sp_item.size.split('x')[0]) > parseFloat(po_item.size.split('X')[0].split('-')[1]) &&
+          parseFloat(sp_item.size.split('x')[0]) <= parseFloat(po_item.size.split('X')[0].split('-')[0]) &&
+          parseFloat(sp_item.size.split('x')[0]) >= parseFloat(po_item.size.split('X')[0].split('-')[1]) &&
           parseFloat(sp_item.size.split('x')[1]) === parseFloat(po_item.size.split('X')[1])
         ) {
           sizematch = true
@@ -991,13 +724,11 @@ export const compareItems = () => async (dispatch) => {
         )
           sizematch = true
       }
-      // If no reange or X, just check size straight up
-      else if (parseFloat(sp_item.size) === parseFloat(po_item.size)) sizematch = true
+      // If no range or X, just check size straight up
+      else if (sp_item.size === po_item.size) sizematch = true
       // Check if materials match
       if (po_item.material === sp_item.material) materialmatch = true
       // Check if schedules/class match
-      let schedmatch = false
-      let classmatch = false
       // Check schdules
       if (
         po_item.schedule === sp_item.schedule ||
@@ -1032,7 +763,7 @@ export const compareItems = () => async (dispatch) => {
       else if (classmatch && (po_item.class === '3000' || po_item.class === '6000' || po_item.class === '9000'))
         schedclassmatch = true
       // All other items
-      else if (po_item.item !== 'FLANGES' && schedmatch) schedclassmatch = true
+      else if (po_item.item !== 'FLANGES' && schedmatch && classmatch) schedclassmatch = true
       // Check if seams match
       if (po_item.seam === sp_item.seam) {
         seammatch = true
@@ -1145,7 +876,6 @@ export const compareItems = () => async (dispatch) => {
       } // Breaks at material
       else if (itemmatch && itemdetmatch && sizematch && !materialmatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
-
         if (
           po_item.breakpoints.includes('Material') === false &&
           po_item.breakpoints.includes('Schedule/Class') === false &&
@@ -1249,6 +979,7 @@ export const compareItems = () => async (dispatch) => {
     { type: 'Total', value: po_items.length },
   ]
 
+  // Send to the Redux Store
   dispatch({
     type: COMPARE_ITEMS,
     payload: {

@@ -762,8 +762,9 @@ body {
   flex-grow: 1;
 }
 .comp3 {
-  align-items: flex-end;
+  align-items: flex-start;
   width: 250px;
+  min-width: 250px;
   display: flex;
   justify-content: center;
 }
