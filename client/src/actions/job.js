@@ -109,7 +109,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
       }
 
       count += 1
-      if (line.toUpperCase().includes('ISO') && line.toUpperCase().includes('IN CHECKING') && line.toUpperCase().includes('IN DETAILING')) {
+      if (
+        line.toUpperCase().includes('ISO') &&
+        line.toUpperCase().includes('IN CHECKING') &&
+        line.toUpperCase().includes('IN DETAILING')
+      ) {
         first_row = count
       }
       return lines
@@ -133,37 +137,27 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     headers.map((header) => {
       header = header.toUpperCase()
-      if (header === 'SPOOL ID' || header === 'Spool Tag') {
-        piecemark_col = count
-      } else if (header === 'MATERIAL') {
-        material_col = count
-      } else if (header === 'STATUS' || header === 'DATE ISSUED') {
-        issued_col = count
-      } else if (header === 'SPOOL' || header === 'SKETCH NO.') {
-        spool_col = count
-        // } else if (header === 'Priority Group') {
-        //   priority_group_col = count
-      } else if (header === 'PRIORITY #' || header === 'INDIVIDUAL PRIORITY' || header === 'PRIORITY') {
+      if (header === 'SPOOL ID' || header === 'Spool Tag') piecemark_col = count
+      else if (header === 'MATERIAL') material_col = count
+      else if (header === 'STATUS' || header === 'DATE ISSUED') issued_col = count
+      else if (header === 'SPOOL' || header === 'SKETCH NO.') spool_col = count
+      else if (header === 'PRIORITY #' || header === 'INDIVIDUAL PRIORITY' || header === 'PRIORITY')
         priority_col = count
-      } else if (header === 'AREA' || header === 'PHASE' || header === 'PHASE / JOB NO.') {
-        area_col = count
-      } else if (header === 'ISO' || header === 'Iso No.') {
-        iso_col = count
-      } else if (header === 'IN DETAILING' || header === 'DETAILING') {
-        detailing_col = count
-      } else if (header === 'IN CHECKING' || header === 'CHECKING') {
-        checking_col = count
-      } else if (header === 'SHOP' || header === 'FAB. LOCATION') {
-        shop_col = count
-      } else if (header === 'HOLD' || header === 'HOLD STATUS') {
-        on_hold_col = count
-      }
+      else if (header === 'AREA' || header === 'PHASE' || header === 'PHASE / JOB NO.') area_col = count
+      else if (header === 'ISO' || header === 'Iso No.') iso_col = count
+      else if (header === 'IN DETAILING' || header === 'DETAILING') detailing_col = count
+      else if (header === 'IN CHECKING' || header === 'CHECKING') checking_col = count
+      else if (header === 'SHOP' || header === 'FAB. LOCATION') shop_col = count
+      else if (header === 'HOLD' || header === 'HOLD STATUS') on_hold_col = count
+
       count += 1
       return headers
     })
     // CHECK FOR ERRORS ON COLUMN HEADERS
-    if (piecemark_col === undefined) alert('Error on ' + jobnum + ' linelist! Spool Id header should be titled "Spool ID".')
-    if (material_col === undefined) alert('Error on ' + jobnum + ' linelist! Material header should be titled "Material".')
+    if (piecemark_col === undefined)
+      alert('Error on ' + jobnum + ' linelist! Spool Id header should be titled "Spool ID".')
+    if (material_col === undefined)
+      alert('Error on ' + jobnum + ' linelist! Material header should be titled "Material".')
     if (issued_col === undefined) alert('Error on ' + jobnum + ' linelist! Issued header should be titled "Status".')
     if (spool_col === undefined) alert('Error on ' + jobnum + ' linelist! Spool/sketch header should be titled SPOOL.')
     // if (priority_group_col === undefined)
@@ -172,10 +166,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
     //       jobnum +
     //       ' linelist! Priority Group header should be titled "Priority Group".'
     //   )
-    if (priority_col === undefined) alert('Error on ' + jobnum + ' linelist! Priority header should be titled "Priority".')
+    if (priority_col === undefined)
+      alert('Error on ' + jobnum + ' linelist! Priority header should be titled "Priority".')
     if (area_col === undefined) alert('Error on ' + jobnum + ' linelist! Area header should be titled "Area".')
     if (iso_col === undefined) alert('Error on ' + jobnum + ' linelist! Iso header should be titled "Iso".')
-    if (detailing_col === undefined) alert('Error on ' + jobnum + ' linelist! Detailing header should be titled "Detailing".')
+    if (detailing_col === undefined)
+      alert('Error on ' + jobnum + ' linelist! Detailing header should be titled "Detailing".')
     if (checking_col === undefined) alert('Error on ' + jobnum + ' linelist! header should be titled "Checking".')
     if (shop_col === undefined) alert('Error on ' + jobnum + ' linelist! Shop header should be titled "Shop".')
     if (on_hold_col === undefined) alert('Error on ' + jobnum + ' linelist! On hold header should be titled "HOLD".')
@@ -258,7 +254,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
     lines = status_report_csv.split('\n')
     header = lines.filter(
       (line) =>
-        line.toUpperCase().includes('PCMKIPCMAR') || line.toUpperCase().includes('PIECE MARK') || line.toUpperCase().includes('PIECEMARK')
+        line.toUpperCase().includes('PCMKIPCMAR') ||
+        line.toUpperCase().includes('PIECE MARK') ||
+        line.toUpperCase().includes('PIECEMARK')
     )[0]
     headers = header.split(',')
 
@@ -294,7 +292,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     count = 0
     headers.map((header) => {
-      if (header.toUpperCase() === 'PCMKIPCMAR' || header.toUpperCase() === 'PIECE MARK' || header.toUpperCase() === 'PIECEMARK') {
+      if (
+        header.toUpperCase() === 'PCMKIPCMAR' ||
+        header.toUpperCase() === 'PIECE MARK' ||
+        header.toUpperCase() === 'PIECEMARK'
+      ) {
         sr_piecemark_col = count
       } else if (header.toUpperCase() === 'PULLTRANDA' || header.toUpperCase() === 'DATE PULL') {
         pulled_col = count
@@ -317,14 +319,24 @@ export const updateJob = (jobnum) => async (dispatch) => {
       return headers
     })
     // CHECK FOR ERRORS ON COLUMN HEADERS
-    if (sr_piecemark_col === undefined) alert('Error on ' + jobnum + ' status report! Piecemark header should be titled "PIECEMARK".')
-    if (pulled_col === undefined) alert('Error on ' + jobnum + ' status report! Pull header should be titled "DATE PULL".')
-    if (weldout_col === undefined) alert('Error on ' + jobnum + ' status report! Weld out header should be titled "WELD OUT".')
-    if (rts_col === undefined) alert('Error on ' + jobnum + ' status report! Ready to ship header should be titled "READY TO SHIP".')
+    if (sr_piecemark_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Piecemark header should be titled "PIECEMARK".')
+    if (pulled_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Pull header should be titled "DATE PULL".')
+    if (weldout_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Weld out header should be titled "WELD OUT".')
+    if (rts_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Ready to ship header should be titled "READY TO SHIP".')
     if (rtsc_col === undefined)
-      alert('Error on ' + jobnum + ' status report! Ready to ship to coating header should be titled "READY TO SHIP COATING".')
-    if (stc_col === undefined) alert('Error on ' + jobnum + ' status report! Shipped to coating header should be titled "SHIP TO COATING".')
-    if (delivered_col === undefined) alert('Error on ' + jobnum + ' status report! Delivered header should be titled "TO SITE".')
+      alert(
+        'Error on ' +
+          jobnum +
+          ' status report! Ready to ship to coating header should be titled "READY TO SHIP COATING".'
+      )
+    if (stc_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Shipped to coating header should be titled "SHIP TO COATING".')
+    if (delivered_col === undefined)
+      alert('Error on ' + jobnum + ' status report! Delivered header should be titled "TO SITE".')
 
     // ADD INFORMATION FROM STATUS REPORT TO JOB
     count = 0
@@ -333,7 +345,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
 
     lines.map((line) => {
       count += 1
-      if (line.split(',')[sr_piecemark_col] !== '' && line.split(',')[sr_piecemark_col] !== undefined && count >= first_row) {
+      if (
+        line.split(',')[sr_piecemark_col] !== '' &&
+        line.split(',')[sr_piecemark_col] !== undefined &&
+        count >= first_row
+      ) {
         sr_pms.push({
           piecemark: line.split(',')[sr_piecemark_col],
           pulled: line.split(',')[pulled_col],
@@ -374,7 +390,7 @@ export const updateJob = (jobnum) => async (dispatch) => {
     })
 
     sr_pms.map((pm) => {
-      if (ll_pms.includes(pm.piecemark) === false) {
+      if (job.spools.filter((spool) => spool.piecemark === pm.piecemark).length === 0) {
         job.discrepancies.sr_not_ll.push({
           piecemark: pm.piecemark,
           spool: undefined,
@@ -485,7 +501,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
         // Slip on
         if (itemdesc.includes('FLG PL')) itemweld = 'SO'
         // Olet
-        if (itemdesc.includes('SOCKOLET') || itemdesc.includes('THREDOLET') || itemdesc.includes('FLATOLET')) itemweld = 'OLET'
+        if (itemdesc.includes('SOCKOLET') || itemdesc.includes('THREDOLET') || itemdesc.includes('FLATOLET'))
+          itemweld = 'OLET'
         // Olet by socket weld
         if (itemdesc.includes('WELDOLET')) itemweld = 'OLET X SW'
         // Threaded
@@ -1083,7 +1100,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
       // CREATE FORMULA TO CALCULATE THE NUMBER OF DAYS BETWEEN TWO PHASES
       let findDays = (start, finish, phase, coating) => {
         if (coating === true) {
-          if (start !== '' && finish !== '' && spool.stc !== '' && start !== undefined && finish !== undefined && spool.stc !== undefined) {
+          if (
+            start !== '' &&
+            finish !== '' &&
+            spool.stc !== '' &&
+            start !== undefined &&
+            finish !== undefined &&
+            spool.stc !== undefined
+          ) {
             let lf = moment(finish).diff(moment(start), 'days')
             if (lf > -1 && lf < 1000) {
               spool[phase] = moment(finish).diff(moment(start), 'days')
@@ -1483,7 +1507,12 @@ export const updateJob = (jobnum) => async (dispatch) => {
             }
             return one
           })
-          if (spool.piecemark === weld.piecemark && weld.type === 'SW' && listclasses.length === 1 && weld.schedule === undefined) {
+          if (
+            spool.piecemark === weld.piecemark &&
+            weld.type === 'SW' &&
+            listclasses.length === 1 &&
+            weld.schedule === undefined
+          ) {
             // Assign class to weld
             weld.schedule = listclasses[0]
           }
@@ -1621,7 +1650,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
             spool.items.map((item) => {
               if (
                 listclasses.includes(item.class) === false &&
-                (item.class === '150' || item.class === '300' || item.class === '400' || item.class === '600' || item.class === '900')
+                (item.class === '150' ||
+                  item.class === '300' ||
+                  item.class === '400' ||
+                  item.class === '600' ||
+                  item.class === '900')
               ) {
                 listclasses.push(item.class)
               }
@@ -1697,7 +1730,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
             weld.schedule !== 'Omit'
           ) {
             job.workable_manhours += weld.manhours
-            if (spool.material.includes('304') || spool.material.includes('316') || spool.material.toUpperCase().includes('ALUM')) {
+            if (
+              spool.material.includes('304') ||
+              spool.material.includes('316') ||
+              spool.material.toUpperCase().includes('ALUM')
+            ) {
               job.workable_manhours_ss += weld.manhours
             } else {
               job.workable_manhours_cs += weld.manhours
@@ -1934,7 +1971,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
     }
 
     // VALVES
-    summary.spools_by_scope.valves.performance = countSpools(spools_valves.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.valves.performance = countSpools(
+      spools_valves.filter((spool) => spool.scope === 'Performance')
+    )
     summary.spools_by_scope.valves.client = countSpools(spools_valves.filter((spool) => spool.scope === 'Client'))
     summary.spools_by_scope.valves.other = countSpools(spools_valves.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.valves.total = countSpools(spools_valves)
@@ -1944,17 +1983,23 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.spools_by_scope.pipe.other = countSpools(spools_pipe.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.pipe.total = countSpools(spools_pipe)
     // FLANGES
-    summary.spools_by_scope.flanges.performance = countSpools(spools_flanges.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.flanges.performance = countSpools(
+      spools_flanges.filter((spool) => spool.scope === 'Performance')
+    )
     summary.spools_by_scope.flanges.client = countSpools(spools_flanges.filter((spool) => spool.scope === 'Client'))
     summary.spools_by_scope.flanges.other = countSpools(spools_flanges.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.flanges.total = countSpools(spools_flanges)
     // FITTINGS
-    summary.spools_by_scope.fittings.performance = countSpools(spools_fittings.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.fittings.performance = countSpools(
+      spools_fittings.filter((spool) => spool.scope === 'Performance')
+    )
     summary.spools_by_scope.fittings.client = countSpools(spools_fittings.filter((spool) => spool.scope === 'Client'))
     summary.spools_by_scope.fittings.other = countSpools(spools_fittings.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.fittings.total = countSpools(spools_fittings)
     // SUPPORTS
-    summary.spools_by_scope.supports.performance = countSpools(spools_supports.filter((spool) => spool.scope === 'Performance'))
+    summary.spools_by_scope.supports.performance = countSpools(
+      spools_supports.filter((spool) => spool.scope === 'Performance')
+    )
     summary.spools_by_scope.supports.client = countSpools(spools_supports.filter((spool) => spool.scope === 'Client'))
     summary.spools_by_scope.supports.other = countSpools(spools_supports.filter((spool) => spool.scope === 'Other'))
     summary.spools_by_scope.supports.total = countSpools(spools_supports)
@@ -1974,7 +2019,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // NO MATERIAL
     // VALVES
     summary.count_shorts.no_material.valves.performance = summary.shorts.filter(
-      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Performance'
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Performance'
     ).length
     summary.count_shorts.no_material.valves.client = summary.shorts.filter(
       (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'No Material' && short.scope === 'Client'
@@ -2061,7 +2107,8 @@ export const updateJob = (jobnum) => async (dispatch) => {
     // PURCHASED
     // VALVES
     summary.count_shorts.purchased.valves.performance = summary.shorts.filter(
-      (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Performance'
+      (short) =>
+        short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Performance'
     ).length
     summary.count_shorts.purchased.valves.client = summary.shorts.filter(
       (short) => short.item === 'VALVES / IN-LINE ITEMS' && short.status === 'Purchased' && short.scope === 'Client'
@@ -2162,9 +2209,11 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.count_shorts.total.supports.performance =
       summary.count_shorts.no_material.supports.performance + summary.count_shorts.purchased.supports.performance
     // CLIENT
-    summary.count_shorts.total.valves.client = summary.count_shorts.no_material.valves.client + summary.count_shorts.purchased.valves.client
+    summary.count_shorts.total.valves.client =
+      summary.count_shorts.no_material.valves.client + summary.count_shorts.purchased.valves.client
 
-    summary.count_shorts.total.pipe.client = summary.count_shorts.no_material.pipe.client + summary.count_shorts.purchased.pipe.client
+    summary.count_shorts.total.pipe.client =
+      summary.count_shorts.no_material.pipe.client + summary.count_shorts.purchased.pipe.client
 
     summary.count_shorts.total.flanges.client =
       summary.count_shorts.no_material.flanges.client + summary.count_shorts.purchased.flanges.client
@@ -2175,11 +2224,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.count_shorts.total.supports.client =
       summary.count_shorts.no_material.supports.client + summary.count_shorts.purchased.supports.client
     // OTHER
-    summary.count_shorts.total.valves.other = summary.count_shorts.no_material.valves.other + summary.count_shorts.purchased.valves.other
+    summary.count_shorts.total.valves.other =
+      summary.count_shorts.no_material.valves.other + summary.count_shorts.purchased.valves.other
 
-    summary.count_shorts.total.pipe.other = summary.count_shorts.no_material.pipe.other + summary.count_shorts.purchased.pipe.other
+    summary.count_shorts.total.pipe.other =
+      summary.count_shorts.no_material.pipe.other + summary.count_shorts.purchased.pipe.other
 
-    summary.count_shorts.total.flanges.other = summary.count_shorts.no_material.flanges.other + summary.count_shorts.purchased.flanges.other
+    summary.count_shorts.total.flanges.other =
+      summary.count_shorts.no_material.flanges.other + summary.count_shorts.purchased.flanges.other
 
     summary.count_shorts.total.fittings.other =
       summary.count_shorts.no_material.fittings.other + summary.count_shorts.purchased.fittings.other
@@ -2187,11 +2239,14 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.count_shorts.total.supports.other =
       summary.count_shorts.no_material.supports.other + summary.count_shorts.purchased.supports.other
     // TOTAL
-    summary.count_shorts.total.valves.total = summary.count_shorts.no_material.valves.total + summary.count_shorts.purchased.valves.total
+    summary.count_shorts.total.valves.total =
+      summary.count_shorts.no_material.valves.total + summary.count_shorts.purchased.valves.total
 
-    summary.count_shorts.total.pipe.total = summary.count_shorts.no_material.pipe.total + summary.count_shorts.purchased.pipe.total
+    summary.count_shorts.total.pipe.total =
+      summary.count_shorts.no_material.pipe.total + summary.count_shorts.purchased.pipe.total
 
-    summary.count_shorts.total.flanges.total = summary.count_shorts.no_material.flanges.total + summary.count_shorts.purchased.flanges.total
+    summary.count_shorts.total.flanges.total =
+      summary.count_shorts.no_material.flanges.total + summary.count_shorts.purchased.flanges.total
 
     summary.count_shorts.total.fittings.total =
       summary.count_shorts.no_material.fittings.total + summary.count_shorts.purchased.fittings.total
@@ -2209,7 +2264,9 @@ export const updateJob = (jobnum) => async (dispatch) => {
     summary.count_shorts.missing_valve_only.other = summary.spools.filter(
       (spool) => spool.missing_valve_only === true && spool.scope === 'Other'
     ).length
-    summary.count_shorts.missing_valve_only.total = summary.spools.filter((spool) => spool.missing_valve_only === true).length
+    summary.count_shorts.missing_valve_only.total = summary.spools.filter(
+      (spool) => spool.missing_valve_only === true
+    ).length
 
     // DOWNLOAD JSON FILE
     let obj = summary

@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { compareItems, downloadSP, downloadPO, downloadCompare, setMatch } from '../../../actions/compareItems'
 import { connect } from 'react-redux'
 import _ from 'lodash'
+import StackedBar from '../Visuals/StackedBar'
 
 const NewCodes = ({
   compareItems,
@@ -19,14 +20,15 @@ const NewCodes = ({
   const [show, setShow] = useState('')
   const [desc, setDesc] = useState(false)
 
-  // Grab and calculate data on page load
+  // Grab and calculate data on page load if not already loaded
   useEffect(() => {
-    compareItems()
-  }, [compareItems])
+    if (sp_items.length === 0) compareItems()
+  }, [compareItems, sp_items])
 
   // Create an array of po items that don't have any matches
   useEffect(() => {
-    if (po_items.length > 0) setPoItems(po_items.filter((po_item) => po_item.breakpoint !== undefined && po_item.suggestions.length > 0))
+    if (po_items.length > 0)
+      setPoItems(po_items.filter((po_item) => po_item.breakpoint !== undefined && po_item.suggestions.length > 0))
   }, [po_items])
 
   // Edit the po items and save to a new object in the state
@@ -54,7 +56,7 @@ const NewCodes = ({
   }
 
   return (
-    <div className={'compare-container'}>
+    <div className={'page-container'}>
       {sp_items.length > 0 ? (
         // Download buttons
         <Fragment>
@@ -70,7 +72,8 @@ const NewCodes = ({
             </div>
           </div>
           <div className='unmatched-container'>
-            <div className='unmatched-header'>Suggested Matches ({poItems.length} items)</div>
+            <StackedBar po_items={po_items} />
+            <div className='page-header'>Suggested Matches ({poItems.length} items)</div>
             <table>
               <thead>
                 <tr className='compare-header'>

@@ -61,15 +61,16 @@ export const compareItems = () => async (dispatch) => {
     // Sketch
     sp_item.sketch = sp_item.sketch.split('/')[sp_item.sketch.split('/').length - 1]
     // Description
-    sp_item.newdesc = sp_item.description
-      .replaceAll(';', ' ')
-      .toUpperCase()
-      .replaceAll('SCH ', 'S-')
-      .replaceAll('STD WT', 'STD')
-      .replaceAll(',', ' ')
+    sp_item.newdesc =
+      ' ' +
+      sp_item.description
+        .replaceAll(';', ' ')
+        .toUpperCase()
+        .replaceAll('SCH ', 'S-')
+        .replaceAll('STD WT', 'STD')
+        .replaceAll(',', ' ')
     // Sizes
     sp_item.size = sp_item.size
-      .replaceAll('X', 'x')
       .replaceAll('"', '')
       .replaceAll('0.', '.')
       .replaceAll('1 1/2', '1.5')
@@ -82,8 +83,9 @@ export const compareItems = () => async (dispatch) => {
       .replaceAll('1/4', '.25')
       .replaceAll('0.', '.')
     // Add material from old tag
-    if (sp_item.tag.includes('CS-') || sp_item.newdesc.includes(' CS ') || sp_item.newdesc.includes('-CS '))
+    if (sp_item.tag.includes('CS-') || sp_item.tag.includes(' CS ') || sp_item.tag.includes('-CS ')) {
       sp_item.material = 'CS'
+    }
     if (sp_item.tag.includes('CSW-')) sp_item.material = 'CS'
     if (sp_item.tag.includes('A106-')) sp_item.material = 'A106'
     if (sp_item.tag.includes('A106W-')) sp_item.material = 'A106'
@@ -95,7 +97,7 @@ export const compareItems = () => async (dispatch) => {
   // Edit PO items before main edit
   po_items.map((po_item) => {
     // Description
-    po_item.description = po_item['Text69'] + ' ' + po_item['ItemDesc']
+    po_item.description = ' ' + po_item['Text69'] + ' ' + po_item['ItemDesc']
     po_item.newdesc = po_item.description.replaceAll(';', ' ')
     po_item.newdesc = po_item.newdesc.toUpperCase()
     // Size
@@ -113,20 +115,28 @@ export const compareItems = () => async (dispatch) => {
           .replaceAll('flatx', '')
     }
     if (po_item.newdesc.includes('~')) po_item.size = po_item.newdesc.split('~')[1].replace('1-1/2', '1 1/2')
+    return po_item
   })
 
   // Add info to sp_items and po_items
   const addInfo = (file_items) => {
     file_items.map((file_item) => {
       // Material
-      if (file_item.newdesc.includes('A105')) file_item.material = 'A105'
-      if (file_item.newdesc.includes('A53')) file_item.material = 'A53'
-      if (file_item.newdesc.includes('A403')) file_item.material = 'A403'
-      if (file_item.newdesc.includes('A234')) file_item.material = 'A234'
-      if (file_item.newdesc.includes('A587')) file_item.material = 'A587'
-      if (file_item.newdesc.includes('A106')) file_item.material = 'A106'
-      if (file_item.newdesc.includes('A671')) file_item.material = 'A671'
-      if (file_item.newdesc.includes('A197')) file_item.material = 'A197'
+      if (
+        file_item.newdesc.includes('CS-') ||
+        file_item.newdesc.includes(' CS ') ||
+        file_item.newdesc.includes('-CS ')
+      ) {
+        file_item.material = 'CS'
+      }
+      if (file_item.newdesc.includes('A105') || file_item.newdesc.includes('A-105')) file_item.material = 'A105'
+      if (file_item.newdesc.includes('A53') || file_item.newdesc.includes('A-53')) file_item.material = 'A53'
+      if (file_item.newdesc.includes('A403') || file_item.newdesc.includes('A-403')) file_item.material = 'A403'
+      if (file_item.newdesc.includes('A234') || file_item.newdesc.includes('A-234')) file_item.material = 'A234'
+      if (file_item.newdesc.includes('A587') || file_item.newdesc.includes('A-587')) file_item.material = 'A587'
+      if (file_item.newdesc.includes('A106') || file_item.newdesc.includes('A-106')) file_item.material = 'A106'
+      if (file_item.newdesc.includes('A671') || file_item.newdesc.includes('A-671')) file_item.material = 'A671'
+      if (file_item.newdesc.includes('A197') || file_item.newdesc.includes('A-197')) file_item.material = 'A197'
       if (
         file_item.newdesc.includes('F22') ||
         file_item.newdesc.includes('F 22') ||
@@ -162,13 +172,17 @@ export const compareItems = () => async (dispatch) => {
       if (file_item.newdesc.includes('304')) file_item.material = '304'
       if (file_item.newdesc.includes('316')) file_item.material = '316'
       if (file_item.newdesc.includes('HDPE')) file_item.material = 'HDPE'
-      if (file_item.newdesc.includes(' AL ')) file_item.material = 'AL'
+      if (file_item.newdesc.includes(' AL ') || file_item.newdesc.includes('Alum ')) file_item.material = 'AL'
       if (
         file_item.newdesc.includes('A333') ||
         file_item.newdesc.includes('A420') ||
         file_item.newdesc.includes('A350')
       )
         file_item.material = 'LT'
+      if (file_item.newdesc.includes('GAL ') || file_item.newdesc.includes('GALV')) file_item.material = 'GALV'
+      // Rename CS materials
+      if (file_item.material)
+        file_item.material = file_item.material.replace('A234', 'CS').replace('A105', 'CS').replace('A587', 'A106')
       // End type
       file_item.end_type = 'Plain'
 
@@ -220,17 +234,20 @@ export const compareItems = () => async (dispatch) => {
       if (file_item.newdesc.includes('STUB')) file_item.item_detail = 'Stub End Flange'
       // Plate Flange
       if (
-        file_item.newdesc.includes(' PL ') ||
-        file_item.newdesc.includes('FLG') ||
-        file_item.newdesc.includes('FLANGE')
+        file_item.newdesc.includes(' PL ') &&
+        (file_item.newdesc.includes('FLG') || file_item.newdesc.includes('FLANGE'))
       )
         file_item.item_detail = 'Plate Flange'
       // Sockolet
-      if (file_item.newdesc.includes('SOCKO')) file_item.item_detail = 'Sockolet'
+      if (file_item.newdesc.includes('SOCKO') || file_item.newdesc.includes(' SOL ')) file_item.item_detail = 'Sockolet'
       // Weldolet
       if (file_item.newdesc.includes('WELDO')) file_item.item_detail = 'Weldolet'
       // Thredolet
-      if (file_item.newdesc.includes('THREADO') || file_item.newdesc.includes('THREDO'))
+      if (
+        file_item.newdesc.includes('THREADO') ||
+        file_item.newdesc.includes('THREDO') ||
+        file_item.newdesc.includes(' TOL ')
+      )
         file_item.item_detail = 'Thredolet'
       // Flatolet
       if (file_item.newdesc.includes('FLATO')) file_item.item_detail = 'Flatolet'
@@ -318,32 +335,60 @@ export const compareItems = () => async (dispatch) => {
       if (file_item.newdesc.includes('100% RAD')) file_item.seam = 'Welded X-Ray'
       // Reverse swapped sizes
       if (
-        file_item.size.includes('x') &&
-        parseFloat(file_item.size.split('x')[0]) < parseFloat(file_item.size.split('x')[1]) &&
+        file_item.size.includes('X') &&
+        parseFloat(file_item.size.split('X')[0]) < parseFloat(file_item.size.split('X')[1]) &&
         file_item.item_detail !== 'Nipple'
       )
-        file_item.size = file_item.size.split('x')[1] + 'x' + file_item.size.split('x')[0]
+        file_item.size = file_item.size.split('X')[1] + 'X' + file_item.size.split('X')[0]
       // Remove repeated size
-      if (file_item.size.split('x')[0] === file_item.size.split('x')[1]) file_item.size = file_item.size.split('x')[0]
+      if (file_item.size.split('X')[0] === file_item.size.split('X')[1]) file_item.size = file_item.size.split('X')[0]
       // Schedule
       //CALC
       if (file_item.newdesc.includes('CALC,')) file_item.schedule = 'CALC'
       //10
-      if (file_item.newdesc.includes('S-10') || file_item.newdesc.includes(' 10')) file_item.schedule = '10'
+      if (file_item.newdesc.includes('S-10') || file_item.newdesc.includes(' 10') || file_item.newdesc.includes('S10'))
+        file_item.schedule = '10'
       //10S
-      if (file_item.newdesc.includes('S-10S') || file_item.newdesc.includes(' 10S')) file_item.schedule = '10S'
+      if (
+        file_item.newdesc.includes('S-10S') ||
+        file_item.newdesc.includes(' 10S') ||
+        file_item.newdesc.includes('S10S')
+      )
+        file_item.schedule = '10S'
       //80
-      if (file_item.newdesc.includes('S-80') || file_item.newdesc.includes(' 80 ')) file_item.schedule = '80'
+      if (file_item.newdesc.includes('S-80') || file_item.newdesc.includes(' 80 ') || file_item.newdesc.includes('S80'))
+        file_item.schedule = '80'
       //80S
-      if (file_item.newdesc.includes('S-80S') || file_item.newdesc.includes(' 80S')) file_item.schedule = '80S'
+      if (
+        file_item.newdesc.includes('S-80S') ||
+        file_item.newdesc.includes(' 80S') ||
+        file_item.newdesc.includes('S80S')
+      )
+        file_item.schedule = '80S'
       //160
-      if (file_item.newdesc.includes('S-160') || file_item.newdesc.includes(' 160')) file_item.schedule = '160'
+      if (
+        file_item.newdesc.includes('S-160') ||
+        file_item.newdesc.includes(' 160') ||
+        file_item.newdesc.includes('S160')
+      )
+        file_item.schedule = '160'
       //160S
-      if (file_item.newdesc.includes('S-160S') || file_item.newdesc.includes(' 160S')) file_item.schedule = '160S'
+      if (
+        file_item.newdesc.includes('S-160S') ||
+        file_item.newdesc.includes(' 160S') ||
+        file_item.newdesc.includes('S160S')
+      )
+        file_item.schedule = '160S'
       //40
-      if (file_item.newdesc.includes('S-40') || file_item.newdesc.includes(' 40')) file_item.schedule = '40'
+      if (file_item.newdesc.includes('S-40') || file_item.newdesc.includes(' 40') || file_item.newdesc.includes('S40'))
+        file_item.schedule = '40'
       //40S
-      if (file_item.newdesc.includes('S-40S') || file_item.newdesc.includes(' 40S')) file_item.schedule = '40S'
+      if (
+        file_item.newdesc.includes('S-40S') ||
+        file_item.newdesc.includes(' 40S') ||
+        file_item.newdesc.includes('S40S')
+      )
+        file_item.schedule = '40S'
       //STD
       if (
         file_item.newdesc.includes(',STD') ||
@@ -359,21 +404,43 @@ export const compareItems = () => async (dispatch) => {
       //XS X 160
       if (file_item.newdesc.includes('XS X 160')) file_item.schedule = 'XSX160'
       //40S X 10S
-      if (file_item.newdesc.includes('40S X 10S') || file_item.newdesc.includes('S-40S X S-10S'))
+      if (
+        file_item.newdesc.includes('40S X 10S') ||
+        file_item.newdesc.includes('S-40S X S-10S') ||
+        file_item.newdesc.includes('10SX40S')
+      )
         file_item.schedule = '40SX10S'
       //40S X 80S
-      if (file_item.newdesc.includes('40S X 80S') || file_item.newdesc.includes('S-40S X S-80S'))
+      if (
+        file_item.newdesc.includes('40S X 80S') ||
+        file_item.newdesc.includes('S-40S X S-80S') ||
+        file_item.newdesc.includes('40SX80S')
+      )
         file_item.schedule = '40SX80S'
       //10S X 40S
-      if (file_item.newdesc.includes('10S X 40S') || file_item.newdesc.includes('S-10S X S-40S'))
+      if (
+        file_item.newdesc.includes('10S X 40S') ||
+        file_item.newdesc.includes('S-10S X S-40S') ||
+        file_item.newdesc.includes('10SX40S')
+      )
         file_item.schedule = '10SX40S'
       // Class
+      if (
+        file_item.newdesc.includes('CL125') ||
+        file_item.newdesc.includes('CL 125') ||
+        file_item.newdesc.includes('CLASS 125') ||
+        file_item.newdesc.includes('125#') ||
+        file_item.newdesc.includes('125 LBS') ||
+        file_item.newdesc.includes(' 125 ')
+      )
+        file_item.class = '125'
       if (
         file_item.newdesc.includes('CL150') ||
         file_item.newdesc.includes('CL 150') ||
         file_item.newdesc.includes('CLASS 150') ||
         file_item.newdesc.includes('150#') ||
-        file_item.newdesc.includes('150 LBS')
+        file_item.newdesc.includes('150 LBS') ||
+        file_item.newdesc.includes(' 150 ')
       )
         file_item.class = '150'
       if (
@@ -381,7 +448,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CL 300') ||
         file_item.newdesc.includes('CLASS 300') ||
         file_item.newdesc.includes('300#') ||
-        file_item.newdesc.includes('300 LBS')
+        file_item.newdesc.includes('300 LBS') ||
+        file_item.newdesc.includes(' 300 ')
       )
         file_item.class = '300'
       if (
@@ -389,7 +457,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CL 600') ||
         file_item.newdesc.includes('CLASS 600') ||
         file_item.newdesc.includes('600#') ||
-        file_item.newdesc.includes('600 LBS')
+        file_item.newdesc.includes('600 LBS') ||
+        file_item.newdesc.includes(' 600 ')
       )
         file_item.class = '600'
       if (
@@ -397,7 +466,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CL 800') ||
         file_item.newdesc.includes('CLASS 800') ||
         file_item.newdesc.includes('800#') ||
-        file_item.newdesc.includes('800 LBS')
+        file_item.newdesc.includes('800 LBS') ||
+        file_item.newdesc.includes(' 800 ')
       )
         file_item.class = '800'
       if (
@@ -406,7 +476,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CLASS 3000') ||
         file_item.newdesc.includes('3000#') ||
         file_item.newdesc.includes(' 3M ') ||
-        file_item.newdesc.includes('3000 LBS')
+        file_item.newdesc.includes('3000 LBS') ||
+        file_item.newdesc.includes(' 3000 ')
       )
         file_item.class = '3000'
       if (
@@ -415,7 +486,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CLASS 6000') ||
         file_item.newdesc.includes('6000#') ||
         file_item.newdesc.includes(' 6M ') ||
-        file_item.newdesc.includes('6000 LBS')
+        file_item.newdesc.includes('6000 LBS') ||
+        file_item.newdesc.includes(' 6000 ')
       )
         file_item.class = '6000'
       if (
@@ -424,7 +496,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CLASS 9000') ||
         file_item.newdesc.includes('9000#') ||
         file_item.newdesc.includes(' 9M ') ||
-        file_item.newdesc.includes('9000 LBS')
+        file_item.newdesc.includes('9000 LBS') ||
+        file_item.newdesc.includes(' 9000 ')
       )
         file_item.class = '9000'
       if (
@@ -433,7 +506,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CLASS 2000') ||
         file_item.newdesc.includes('2000#') ||
         file_item.newdesc.includes('2M') ||
-        file_item.newdesc.includes('2000 LBS')
+        file_item.newdesc.includes('2000 LBS') ||
+        file_item.newdesc.includes(' 3000 ')
       )
         file_item.class = '3000'
       if (
@@ -441,7 +515,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('CL 2500') ||
         file_item.newdesc.includes('CLASS 2500') ||
         file_item.newdesc.includes('2500#') ||
-        file_item.newdesc.includes('2500 LBS')
+        file_item.newdesc.includes('2500 LBS') ||
+        file_item.newdesc.includes(' 2500 ')
       )
         file_item.class = '2500'
       // Face
@@ -449,25 +524,47 @@ export const compareItems = () => async (dispatch) => {
       if (file_item.newdesc.includes(' FF') || file_item.newdesc.includes('FLAT-FACE')) file_item.face = 'Flat'
       // Schedule conversions for 40 and 80
       if (file_item.schedule !== undefined)
-        if (file_item.size.includes('x')) {
-          if (file_item.size.split('x')[0] < 12 && file_item.schedule === '40') file_item.schedule = 'STD'
-          if (file_item.size.split('x')[0] < 10 && file_item.schedule === '80') file_item.schedule = 'XS'
-          if (file_item.size.split('x')[0] < 12 && file_item.schedule.includes('40X'))
+        if (file_item.size.includes('X')) {
+          if (file_item.size.split('X')[0] < 12 && file_item.schedule === '40') file_item.schedule = 'STD'
+          if (file_item.size.split('X')[0] < 10 && file_item.schedule === '80') file_item.schedule = 'XS'
+          if (file_item.size.split('X')[0] < 12 && file_item.schedule.includes('40X'))
             file_item.schedule = file_item.schedule.replace('40X', 'STDX')
-          if (file_item.size.split('x')[0] < 10 && file_item.schedule.includes('80X'))
+          if (file_item.size.split('X')[0] < 10 && file_item.schedule.includes('80X'))
             file_item.schedule = file_item.schedule.replace('80X', 'XSX')
           if (
-            file_item.size.split('x')[1] < 12 &&
+            file_item.size.split('X')[1] < 12 &&
             file_item.schedule.includes('X40') &&
             file_item.schedule.includes('X40S') === false
           )
             file_item.schedule = file_item.schedule.replace('X40', 'XSTD')
-          if (file_item.size.split('x')[1] < 10 && file_item.schedule.includes('X80'))
+          if (
+            file_item.size.split('X')[1] < 10 &&
+            file_item.schedule.includes('X80') &&
+            file_item.schedule.includes('X80S') === false
+          )
             file_item.schedule = file_item.schedule.replace('X80', 'XXS')
         } else {
           if (file_item.size < 12 && file_item.schedule === '40') file_item.schedule = 'STD'
           if (file_item.size < 10 && file_item.schedule === '80') file_item.schedule = 'XS'
         }
+      // Find item lengths (Nipples/Couplings)
+      if (file_item.item_detail === 'Nipple') {
+        // Nipples with 'LONG' in description
+        let length_search = file_item.newdesc
+          .replace(' LONG', 'LONG')
+          .split(' ')
+          .filter((each) => each.includes('LONG'))
+        if (length_search.length === 1) file_item.long = length_search[0].replace('"LONG', '').replace('LONG', '')
+        // Nipples in PO descriptions
+        length_search = file_item.newdesc.split(' ').filter((each) => each.includes('"') && each.includes('X'))
+        if (length_search.length === 1 && file_item.long === undefined)
+          file_item.long = length_search[0].split('X')[1].replace('"', '')
+        // Add lengths to nipples
+        if (file_item.item_detail === 'Nipple' && file_item.size.includes('X') === false) {
+          if (file_item.long) file_item.size = file_item.size + 'X' + file_item.long
+          else file_item.size = file_item.size + ' (NO LENGTH FOUND)'
+        }
+      }
       return file_item
     })
   }
@@ -475,7 +572,7 @@ export const compareItems = () => async (dispatch) => {
   addInfo(sp_items)
   addInfo(po_items)
 
-  // Edits for 7114
+  // Remove valves and supports from cvc
   if (type !== 'CVC') {
     // Filter by material
     sp_items = sp_items.filter(
@@ -485,36 +582,34 @@ export const compareItems = () => async (dispatch) => {
 
   // Additional edits
   sp_items.map((sp_item) => {
-    // Description
-    sp_item.newdesc = sp_item.description.replaceAll('TRIMMED ', '').replaceAll('W/BRANCH.CONN ', '')
-    // Tag
-    sp_item.tag = sp_item.tag
-      .replaceAll('AAEA20T', 'AAEA200')
-      .replaceAll('AAEA2TB', 'AAEA200')
-      .replaceAll('AAEA20A', 'AAEA200')
-      .replaceAll('A0EH200', 'AAEA200')
-    //Material
-    if (sp_item.material === 'A587') sp_item.material = 'A106'
-    // Size
-    sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375').replace('X')
-    // Change all A material that isn't pipe to CS
-    if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
-      sp_item.material = sp_item.material
-        .replace('A105', 'CS')
-        .replace('A53', 'CS')
-        .replace('A234', 'CS')
-        .replace('A106', 'CS')
-    // Change all A106 pipe to seamless
-    if (
-      sp_item.item_detail === 'Pipe' &&
-      sp_item.material === 'A106' &&
-      (parseFloat(sp_item.size.split('x')[0]) < 2 ||
-        (parseFloat(sp_item.size.split('x')[0]) === 2 && sp_item.schedule === 'XS'))
-    ) {
-      sp_item.seam = undefined
-    } else {
-      if (sp_item.newdesc.includes('SMLS OR WELDED')) {
-        sp_item.seam = 'Welded'
+    // Edits for 7114
+    if (jobnum === 7114) {
+      // Description
+      sp_item.newdesc = sp_item.description.replaceAll('TRIMMED ', '').replaceAll('W/BRANCH.CONN ', '')
+      // Tag
+      sp_item.tag = sp_item.tag
+        .replaceAll('AAEA20T', 'AAEA200')
+        .replaceAll('AAEA2TB', 'AAEA200')
+        .replaceAll('AAEA20A', 'AAEA200')
+        .replaceAll('A0EH200', 'AAEA200')
+      // Change all A material that isn't pipe to CS
+      if (sp_item.material !== undefined && sp_item.item_detail !== 'Pipe')
+        sp_item.material = sp_item.material.replace('A53', 'CS').replace('A106', 'CS')
+      // Size
+      sp_item.size = sp_item.size.replaceAll('13/16', '.8125').replaceAll('3/8', '.375')
+
+      // Change all A106 pipe to seamless
+      if (
+        sp_item.item_detail === 'Pipe' &&
+        sp_item.material === 'A106' &&
+        (parseFloat(sp_item.size.split('X')[0]) < 2 ||
+          (parseFloat(sp_item.size.split('X')[0]) === 2 && sp_item.schedule === 'XS'))
+      ) {
+        sp_item.seam = undefined
+      } else {
+        if (sp_item.newdesc.includes('SMLS OR WELDED')) {
+          sp_item.seam = 'Welded'
+        }
       }
     }
     return sp_item
@@ -553,7 +648,8 @@ export const compareItems = () => async (dispatch) => {
           else if (
             sp_item.item_detail === 'Blind Flange' ||
             sp_item.item_detail === 'Slip On Flange' ||
-            sp_item.item_detail === 'Lap Joint Flange'
+            sp_item.item_detail === 'Lap Joint Flange' ||
+            sp_item.item_detail === 'Plate Flange'
           )
             if (sp_item.class === undefined) sp_item['NEW TAG'] = abrcode + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
             else sp_item['NEW TAG'] = abrcode + '_' + sp_item.class + '~' + sp_item.origsize
@@ -573,11 +669,16 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.seam === 'Welded') sp_item.newsys_tag = sp_item.newsys_tag + 'W-'
       if (sp_item.seam === 'Welded X-Ray') sp_item.newsys_tag = sp_item.newsys_tag + 'WX-'
       if (sp_item.seam === undefined) sp_item.newsys_tag = sp_item.newsys_tag + '-'
+      // Face
+      if (sp_item.face === 'Raised') sp_item.newsys_tag = sp_item.newsys_tag + 'RF'
+      if (sp_item.face === 'Flat') sp_item.newsys_tag = sp_item.newsys_tag + 'FF'
       // Item
-      if (sp_item.item_detail === 'Pipe') sp_item.newsys_tag = sp_item.newsys_tag + 'PIPE'
+      if (sp_item.item_detail === 'Pipe') sp_item.newsys_tag = sp_item.newsys_tag + 'PIP'
       if (sp_item.item_detail === 'Blind Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'BLF'
+      if (sp_item.item_detail === 'Plate Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'PLF'
       if (sp_item.item_detail === 'Slip On Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SOF'
       if (sp_item.item_detail === 'Weldneck Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'WNF'
+      if (sp_item.item_detail === 'Oriface Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'ORF'
       if (sp_item.item_detail === 'Socketweld Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SWF'
       if (sp_item.item_detail === 'Lap Joint Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'LJF'
       if (sp_item.item_detail === 'Threaded Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'THF'
@@ -585,11 +686,7 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.item_detail === 'Sockolet') sp_item.newsys_tag = sp_item.newsys_tag + 'SLET'
       if (sp_item.item_detail === 'Thredolet') sp_item.newsys_tag = sp_item.newsys_tag + 'TLET'
       if (sp_item.item_detail === 'Elbolet') sp_item.newsys_tag = sp_item.newsys_tag + 'ELET'
-      if (sp_item.item_detail === 'Oriface Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'ORF'
-      if (sp_item.item_detail === '45 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '45'
-      if (sp_item.item_detail === '90 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '90'
-      if (sp_item.item_detail === 'Equal Tee') sp_item.newsys_tag = sp_item.newsys_tag + 'TEE'
-      if (sp_item.item_detail === 'Reducing Tee') sp_item.newsys_tag = sp_item.newsys_tag + 'TEE'
+      if (sp_item.item_detail === 'Tee') sp_item.newsys_tag = sp_item.newsys_tag + 'TEE'
       if (sp_item.item_detail === 'Coupling') sp_item.newsys_tag = sp_item.newsys_tag + 'CPL'
       if (sp_item.item_detail === 'Union') sp_item.newsys_tag = sp_item.newsys_tag + 'UNI'
       if (sp_item.item_detail === 'Cap') sp_item.newsys_tag = sp_item.newsys_tag + 'CAP'
@@ -600,18 +697,22 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.item_detail === 'Nipple') sp_item.newsys_tag = sp_item.newsys_tag + 'NIP'
       if (sp_item.item_detail === 'Concentric Swage') sp_item.newsys_tag = sp_item.newsys_tag + 'CSWG'
       if (sp_item.item_detail === 'Eccentric Swage') sp_item.newsys_tag = sp_item.newsys_tag + 'ESWG'
+      if (sp_item.item_detail === '45 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '45'
+      if (sp_item.item_detail === '90 Degree Elbow') sp_item.newsys_tag = sp_item.newsys_tag + '90'
       if (sp_item.item_detail === '45 Degree Elbow 3D') sp_item.newsys_tag = sp_item.newsys_tag + '3D45'
       if (sp_item.item_detail === '90 Degree Elbow 3D') sp_item.newsys_tag = sp_item.newsys_tag + '3D90'
+      if (sp_item.item_detail === '90 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '90SR'
+      if (sp_item.item_detail === '45 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '45SR'
       if (sp_item.item_detail === 'Stub End Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'SEF'
       if (sp_item.item_detail === 'Reducing Coupling') sp_item.newsys_tag = sp_item.newsys_tag + 'CPL'
-      if (sp_item.item_detail === '90 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '90S'
-      if (sp_item.item_detail === '45 Degree Elbow - Short') sp_item.newsys_tag = sp_item.newsys_tag + '45S'
       if (sp_item.item_detail === '45 Degree Miter') sp_item.newsys_tag = sp_item.newsys_tag + '45MIT'
       if (sp_item.item_detail === '90 Degree Miter') sp_item.newsys_tag = sp_item.newsys_tag + '90MIT'
-      if (sp_item.item_detail === 'Cross') sp_item.newsys_tag = sp_item.newsys_tag + 'CRS'
+      if (sp_item.item_detail === 'Cross') sp_item.newsys_tag = sp_item.newsys_tag + 'CROS'
       if (sp_item.item_detail === 'Strainer') sp_item.newsys_tag = sp_item.newsys_tag + 'STR'
       if (sp_item.item_detail === 'Eccentric Swage Nipple') sp_item.newsys_tag = sp_item.newsys_tag + 'ESWGNIP'
-      if (sp_item.item_detail === 'Plate Flange') sp_item.newsys_tag = sp_item.newsys_tag + 'PLF'
+      // Nipple/Coupling Length
+      if (sp_item.long !== undefined) sp_item.newsys_tag = sp_item.newsys_tag + sp_item.long + 'L'
+      else if (sp_item.item_detail === 'Nipple') sp_item.newsys_tag = sp_item.newsys_tag + '(NO LENGTH FOUND)'
       // End Type
       if (sp_item.end_type === 'Plain') sp_item.newsys_tag = sp_item.newsys_tag + 'P'
       if (sp_item.end_type === 'Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'T'
@@ -619,49 +720,37 @@ export const compareItems = () => async (dispatch) => {
       if (sp_item.end_type === 'Plain x Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'PXT'
       if (sp_item.end_type === 'Beveled x Plain') sp_item.newsys_tag = sp_item.newsys_tag + 'BXP'
       if (sp_item.end_type === 'Beveled x Threaded') sp_item.newsys_tag = sp_item.newsys_tag + 'BXT'
-      // Face
-      if (sp_item.face === 'Raised') sp_item.newsys_tag = sp_item.newsys_tag + 'R'
-      if (sp_item.face === 'Flat') sp_item.newsys_tag = sp_item.newsys_tag + 'F'
       // Items with 3000, 6000, or 9000 class
       if (sp_item.class === '3000' || sp_item.class === '6000' || sp_item.class === '9000')
         sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.class + '~' + sp_item.origsize
-      // Should have schedule but doesn't
+      // Special cases where both schedule and class is used
+      else if (sp_item.item_detail === 'Socketweld Flange' || sp_item.item_detail === 'Weldneck Flange')
+        if (sp_item.schedule === undefined)
+          // If no schedule is found
+          sp_item.newsys_tag =
+            sp_item.newsys_tag + '_:' + sp_item.class + '~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
+        // If no class is found
+        else if (sp_item.class === undefined)
+          sp_item.newsys_tag =
+            sp_item.newsys_tag + '_' + sp_item.schedule + ':~' + sp_item.origsize + ' (NO CLASS FOUND)'
+        // Class and schedule is found
+        else
+          sp_item.newsys_tag =
+            sp_item.newsys_tag + '_' + sp_item.schedule + ':' + sp_item.class + '~' + sp_item.origsize
+      // Special cases where class should only be used
+      else if (
+        sp_item.item_detail === 'Blind Flange' ||
+        sp_item.item_detail === 'Slip On Flange' ||
+        sp_item.item_detail === 'Plate Flange' ||
+        sp_item.item_detail === 'Lap Joint Flange'
+      )
+        if (sp_item.class === undefined)
+          sp_item.newsys_tag = sp_item.newsys_tag + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
+        else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.class + '~' + sp_item.origsize
+      // All other items where only schedule is to be used
       else if (sp_item.schedule === undefined)
         sp_item.newsys_tag = sp_item.newsys_tag + '_~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
-      // Has a schedule
-      else {
-        // Special cases where class should be used with the schedule
-        if (sp_item.item_detail !== undefined)
-          if (sp_item.item_detail === 'Socketweld Flange' || sp_item.item_detail === 'Weldneck Flange')
-            if (sp_item.schedule === undefined)
-              sp_item.newsys_tag =
-                sp_item.newsys_tag + '_:' + sp_item.class + '~' + sp_item.origsize + ' (NO SCHEDULE FOUND)'
-            // Has a schedule
-            else if (sp_item.class === undefined)
-              sp_item.newsys_tag =
-                sp_item.newsys_tag + '_' + sp_item.schedule + ':~' + sp_item.origsize + ' (NO CLASS FOUND)'
-            else
-              sp_item.newsys_tag =
-                sp_item.newsys_tag + '_' + sp_item.schedule + ':' + sp_item.class + '~' + sp_item.origsize
-          // Special cases where class should only be used
-          else if (
-            sp_item.item_detail === 'Blind Flange' ||
-            sp_item.item_detail === 'Slip On Flange' ||
-            sp_item.item_detail === 'Lap Joint Flange'
-          )
-            if (sp_item.class === undefined)
-              sp_item.newsys_tag = sp_item.newsys_tag + '~' + sp_item.origsize + ' (NO CLASS FOUND)'
-            else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.class + '~' + sp_item.origsize
-          else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.schedule + '~' + sp_item.origsize
-      }
-    }
-    // Add lengths to nipples
-    if (sp_item.item_detail === 'Nipple' && sp_item.size.includes('x') === false) {
-      if (sp_item['NEW TAG'].includes('J_')) sp_item.size = sp_item.size + 'x2'
-      if (sp_item['NEW TAG'].includes('L_')) sp_item.size = sp_item.size + 'x3'
-      if (sp_item['NEW TAG'].includes('N_')) sp_item.size = sp_item.size + 'x4'
-      if (sp_item['NEW TAG'].includes('R_')) sp_item.size = sp_item.size + 'x6'
-      if (sp_item['NEW TAG'].includes('R_')) sp_item.size = sp_item.size + 'x9'
+      else sp_item.newsys_tag = sp_item.newsys_tag + '_' + sp_item.schedule + '~' + sp_item.origsize
     }
     return sp_item
   })
@@ -692,7 +781,6 @@ export const compareItems = () => async (dispatch) => {
     }
     let suggestionlist = []
     sp_items.map((sp_item) => {
-      let itemmatch = false
       let itemdetmatch = false
       let sizematch = false
       let materialmatch = false
@@ -702,25 +790,23 @@ export const compareItems = () => async (dispatch) => {
       let facematch = false
       let schedmatch = false
       let classmatch = false
-      // Check item match
-      if (po_item.item === sp_item.item) itemmatch = true
       // Check item details match
       if (po_item.item_detail === sp_item.item_detail) itemdetmatch = true
       // Check size match
       if (po_item.size.includes('-') && po_item.size.includes('X')) {
         // Check if size falls within a size range
         if (
-          parseFloat(sp_item.size.split('x')[0]) <= parseFloat(po_item.size.split('X')[0].split('-')[0]) &&
-          parseFloat(sp_item.size.split('x')[0]) >= parseFloat(po_item.size.split('X')[0].split('-')[1]) &&
-          parseFloat(sp_item.size.split('x')[1]) === parseFloat(po_item.size.split('X')[1])
+          parseFloat(sp_item.size.split('X')[0]) <= parseFloat(po_item.size.split('X')[0].split('-')[0]) &&
+          parseFloat(sp_item.size.split('X')[0]) >= parseFloat(po_item.size.split('X')[0].split('-')[1]) &&
+          parseFloat(sp_item.size.split('X')[1]) === parseFloat(po_item.size.split('X')[1])
         ) {
           sizematch = true
         }
         // Check if sizes with X match
       } else if (po_item.size.includes('X')) {
         if (
-          parseFloat(sp_item.size.split('x')[0]) === parseFloat(po_item.size.split('X')[0]) &&
-          parseFloat(sp_item.size.split('x')[1]) === parseFloat(po_item.size.split('X')[1])
+          parseFloat(sp_item.size.split('X')[0]) === parseFloat(po_item.size.split('X')[0]) &&
+          parseFloat(sp_item.size.split('X')[1]) === parseFloat(po_item.size.split('X')[1])
         )
           sizematch = true
       }
@@ -731,9 +817,10 @@ export const compareItems = () => async (dispatch) => {
       // Check if schedules/class match
       // Check schdules
       if (
-        po_item.schedule === sp_item.schedule ||
-        (po_item.schedule === '40S' && sp_item.schedule === 'STD') ||
-        (po_item.schedule === 'STD' && sp_item.schedule === '40S')
+        (po_item.schedule === sp_item.schedule ||
+          (po_item.schedule === '40S' && sp_item.schedule === 'STD') ||
+          (po_item.schedule === 'STD' && sp_item.schedule === '40S')) &&
+        sp_item.schedule !== undefined
       )
         schedmatch = true
       // Check classes
@@ -777,22 +864,12 @@ export const compareItems = () => async (dispatch) => {
         facematch = true
       }
       // If everything matches, push the tag of the SP item to the po matches array
-      if (
-        itemmatch &&
-        itemdetmatch &&
-        sizematch &&
-        materialmatch &&
-        schedclassmatch &&
-        seammatch &&
-        endtypematch &&
-        facematch
-      ) {
+      if (itemdetmatch && sizematch && materialmatch && schedclassmatch && seammatch && endtypematch && facematch) {
         sp_item.matched = true
         if (po_item.breakpoints.includes('Match') === false) po_item.breakpoints.push('Match')
         if (po_item.matches.includes(sp_item['NEW TAG']) === false) po_item.matches.push(sp_item['NEW TAG'])
         // Breaks at face
       } else if (
-        itemmatch &&
         itemdetmatch &&
         sizematch &&
         materialmatch &&
@@ -811,15 +888,7 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
         // Breaks at end type
-      } else if (
-        itemmatch &&
-        itemdetmatch &&
-        sizematch &&
-        materialmatch &&
-        schedclassmatch &&
-        seammatch &&
-        !endtypematch
-      ) {
+      } else if (itemdetmatch && sizematch && materialmatch && schedclassmatch && seammatch && !endtypematch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('End Type') === false && po_item.breakpoints.includes('Face') === false) {
           po_item.suggestions = []
@@ -832,7 +901,7 @@ export const compareItems = () => async (dispatch) => {
         }
 
         // Breaks at seam
-      } else if (itemmatch && itemdetmatch && sizematch && materialmatch && schedclassmatch && !seammatch) {
+      } else if (itemdetmatch && sizematch && materialmatch && schedclassmatch && !seammatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (
           po_item.breakpoints.includes('Seam') === false &&
@@ -852,7 +921,7 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
       } // Breaks at schedule/class
-      else if (itemmatch && itemdetmatch && sizematch && materialmatch && !schedclassmatch) {
+      else if (itemdetmatch && sizematch && materialmatch && !schedclassmatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (
           po_item.breakpoints.includes('Schedule/Class') === false &&
@@ -874,7 +943,7 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
       } // Breaks at material
-      else if (itemmatch && itemdetmatch && sizematch && !materialmatch) {
+      else if (itemdetmatch && sizematch && !materialmatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (
           po_item.breakpoints.includes('Material') === false &&
@@ -898,20 +967,14 @@ export const compareItems = () => async (dispatch) => {
           po_item.suggestions.push(sp_item)
         }
       } // Breaks at size
-      else if (itemmatch && itemdetmatch && !sizematch) {
+      else if (itemdetmatch && !sizematch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('Size') === false) po_item.breakpoints.push('Size')
         // Breaks at item detail
-      } else if (itemmatch && !itemdetmatch) {
+      } else if (!itemdetmatch) {
         // If first break this late in checking, clear suggestion and add to breakpoints
         if (po_item.breakpoints.includes('Item Detail') === false) po_item.breakpoints.push('Item Detail')
-        // Breaks at item
-      } else if (!itemmatch) {
-        // If first break this late in checking, clear suggestion and add to breakpoints
-        if (po_item.breakpoints.includes('Item') === false) po_item.breakpoints.push('Item')
       }
-      // Error check formulas
-      // if (po_item.item_detail === '45 Degree Elbow' && itemdetmatch && sizematch) console.log(sp_item.size, po_item.size)
       return po_item
     })
     // Decide breakpoint for each item
@@ -923,9 +986,6 @@ export const compareItems = () => async (dispatch) => {
     else if (po_item.breakpoints.includes('Material')) po_item.breakpoint = 'Material'
     else if (po_item.breakpoints.includes('Size')) po_item.breakpoint = 'Size'
     else if (po_item.breakpoints.includes('Item Detail')) po_item.breakpoint = 'Item Detail'
-    else if (po_item.breakpoints.includes('Item')) {
-      po_item.breakpoint = 'Item'
-    }
     return po_item
   })
 
@@ -1117,7 +1177,6 @@ export const downloadCompare = (sp_items, po_items, discrepancies) => async (dis
   let sp_ws_data = []
   let sp_ws_row = {}
   let headersarray = [
-    'item',
     'item_detail',
     'size',
     'material',
@@ -1153,7 +1212,6 @@ export const downloadCompare = (sp_items, po_items, discrepancies) => async (dis
   let po_ws_data = []
   let po_ws_row = {}
   headersarray = [
-    'item',
     'item_detail',
     'size',
     'material',

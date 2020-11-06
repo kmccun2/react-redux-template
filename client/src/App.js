@@ -9,6 +9,9 @@ import './my.scss'
 import { FaTruck } from 'react-icons/fa'
 import Search from './components/search/Search'
 import Navlinks from './components/misc/Navlinks'
+// DevExtreme
+import 'devextreme/dist/css/dx.common.css'
+import 'devextreme/dist/css/dx.light.css'
 
 const App = () => {
   return (
@@ -18,14 +21,8 @@ const App = () => {
           <div className='my-container'>
             <div className='my-header'>
               <Link to='/'>
-                <FaTruck
-                  color='white'
-                  size={30}
-                  style={{ marginRight: 13, marginTop: -9 }}
-                />
-                <span className='header-item company-name'>
-                  Performance Hub
-                </span>
+                <FaTruck color='white' size={30} style={{ marginRight: 13, marginTop: -9 }} />
+                <span className='header-item company-name'>Performance Hub</span>
               </Link>
               <Search />
             </div>

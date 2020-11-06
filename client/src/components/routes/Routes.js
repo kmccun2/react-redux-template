@@ -10,7 +10,6 @@ import Download from '../misc/Download'
 import { updateJobs } from '../../actions/jobs'
 import { connect } from 'react-redux'
 import Discrepancies from '../discrepancies/Discrepancies'
-import CompareTags from '../reports/Comparisons/CompareTags'
 import CompareSpools from '../reports/Comparisons/CompareSpools'
 import CompareItems from '../reports/Comparisons/CompareItems'
 import NewCodes from '../reports/Comparisons/CompareItems'
@@ -29,7 +28,6 @@ const Routes = ({ jobnums, updateJobs, jobs }) => {
         <Route exact path='/filters' component={Filters} />
         <Route exact path='/download' component={Download} />
         <Route exact path='/discrepancies' component={Discrepancies} />
-        <Route exact path='/compare_tags' component={CompareTags} />
         <Route exact path='/compare_spools' component={CompareSpools} />
         <Route exact path='/compare_items' component={CompareItems} />
         <Route exact path='/new_codes' component={NewCodes} />

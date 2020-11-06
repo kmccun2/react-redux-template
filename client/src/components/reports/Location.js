@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 
 const Location = ({ job }) => {
   const [data, setData] = useState([])
@@ -45,29 +44,6 @@ const Location = ({ job }) => {
       <div className='table-label' style={{ marginBottom: 50 }}>
         Spool Location
       </div>
-      {maxHeight > 0 && (
-        <BarChart width={1100} height={400} data={data}>
-          <XAxis angle={-30} dy={27} dataKey='phase' height={100} paddingTop={10} fontWeight='bold' />
-          <YAxis label={{ value: 'Spools', angle: -90, fontWeight: 'bold' }} width={110} />
-          <Tooltip />
-          <Bar
-            dataKey='count'
-            width={30}
-            fill={'red'}
-            shape={({ background, color, count }) => (
-              <g>
-                <rect
-                  x={background.x + 15}
-                  y={background.height * (1 - count / maxHeight) + 5}
-                  width={background.width - 30}
-                  height={background.height * (count / maxHeight)}
-                  fill={color}
-                />
-              </g>
-            )}
-          />
-        </BarChart>
-      )}
     </div>
   )
 }

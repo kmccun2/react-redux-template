@@ -687,7 +687,7 @@ body {
 .no-discrepancies {
   width: 100%;
   text-align: center;
-  padding: 40px;
+  padding: 40px 20px;
 }
 // LOCATION
 .location-chart {
@@ -696,7 +696,7 @@ body {
 }
 
 // COMPARE ITEMS
-.compare-container {
+.page-container {
   width: 100%;
   padding: 0 25px;
 }
@@ -726,7 +726,7 @@ body {
   flex-direction: column;
   justify-content: center;
 }
-.unmatched-header {
+.page-header {
   width: 100%;
   display: flex;
   height: 40px;
