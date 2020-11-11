@@ -4,8 +4,6 @@ import { connect } from 'react-redux'
 const Location = ({ job }) => {
   const [data, setData] = useState([])
 
-  const [maxHeight, setMaxHeight] = useState(0)
-
   useEffect(() => {
     if (job) {
       setData([
@@ -35,7 +33,6 @@ const Location = ({ job }) => {
         }
         return each
       })
-      setMaxHeight(max_height)
     }
   }, [data])
 

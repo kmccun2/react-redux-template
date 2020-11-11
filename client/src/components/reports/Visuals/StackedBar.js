@@ -1,86 +1,176 @@
-import React, { Fragment, useEffect, useState } from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import { Stack, Animation, EventTracker } from '@devexpress/dx-react-chart'
-import { Chart, BarSeries, ArgumentAxis, ValueAxis, Legend, Tooltip } from '@devexpress/dx-react-chart-material-ui'
-import _ from 'lodash'
+import React, { useRef, useState, useEffect } from 'react'
+import { select, axisBottom, scaleLinear, axisLeft, scaleBand, stack, max, transition } from 'd3'
+import { useResizeObserver } from '../../../actions/useResizeObserver'
 
 const StackedBar = ({ po_items }) => {
-  const [data, setData] = useState([
-    {
-      type: 'USA',
-      matched: 59.8,
-      unmatched: 937.6,
-    },
-    {
-      type: 'China',
-      matched: 74.2,
-      unmatched: 308.6,
-    },
-    {
-      type: 'Russia',
-      matched: 40,
-      unmatched: 128.5,
-    },
-    {
-      type: 'Japan',
-      matched: 22.6,
-      unmatched: 241.5,
-    },
+  const svgRef = useRef()
+  const wrapperRef = useRef()
+  const dimensions = useResizeObserver(wrapperRef)
+  const [data, setData] = useState([])
+  const [filters, setFilters] = useState([])
+  const [keyshown, setKeyShown] = useState('item_detail')
+  const [options, setOptions] = useState([
+    { key: 'material', name: 'Material' },
+    { key: 'size', name: 'Size' },
+    { key: 'schedule', name: 'Schedule' },
+    { key: 'seam', name: 'Seam' },
+    { key: 'face', name: 'Face' },
   ])
+
+  // Function to create data object
+  const getData = (po_items, keyshown, filters, options) => {
+    // Find all items on job
+    let keyvaluelist = []
+    po_items.map((po_item) => {
+      if (po_item[keyshown] === undefined) po_item[keyshown] = ' NOT LABELED'
+      if (keyvaluelist.includes(po_item[keyshown]) === false) keyvaluelist.push(po_item[keyshown])
+    })
+
+    // Remove items based on filters
+    filters.map((filter) => {
+      po_items = po_items.filter((po_item) => po_item[filter.key] === filter.value)
+    })
+
+    // Create an object for each item with number of matches and unmatches
+    let bars = []
+    keyvaluelist = keyvaluelist.sort()
+    keyvaluelist.map((each) => {
+      bars.push({
+        bar: each,
+        matched: po_items.filter((po_item) => po_item[keyshown] === each && po_item.matches.length > 0).length,
+        unmatched: po_items.filter((po_item) => po_item[keyshown] === each && po_item.matches.length === 0).length,
+      })
+    })
+    return bars
+  }
 
   // Create data object
   useEffect(() => {
-    const bars = []
-    const unique = []
-    const unique2 = []
-    po_items.map((po_item) => {
-      if (unique.includes(po_item.item_detail) === false) {
-        unique.push(po_item.item_detail)
-        bars.push({
-          type: po_item.item_detail,
-          matched: po_items.filter((item) => item.item_detail === po_item.item_detail && item.matches.length > 0)
-            .length,
-          unmatched: po_items.filter((item) => item.item_detail === po_item.item_detail && item.matches.length === 0)
-            .length,
-        })
-      }
-      return po_item
-    })
-    setData(_.orderBy(bars, 'type', 'desc'))
-  }, [])
+    setData(getData(po_items, keyshown, filters, options))
+  }, [keyshown, po_items, filters, options])
 
-  // Creating the legend
-  const legendStyles = () => ({
-    root: {
-      display: 'flex',
-      margin: 'auto',
-      flexDirection: 'row',
-    },
-  })
-  const legendRootBase = ({ classes, ...restProps }) => <Legend.Root {...restProps} className={classes.root} />
-  const Root = withStyles(legendStyles, { name: 'LegendRoot' })(legendRootBase)
-  const legendLabelStyles = () => ({
-    label: {
-      whiteSpace: 'nowrap',
-    },
-  })
-  const legendLabelBase = ({ classes, ...restProps }) => <Legend.Label className={classes.label} {...restProps} />
-  const Label = withStyles(legendLabelStyles, { name: 'LegendLabel' })(legendLabelBase)
+  // Create chart
+  useEffect(() => {
+    // Colors for bars
+    let colors = {
+      matched: '#7ecd7e',
+      unmatched: '#e86262',
+    }
+
+    // Reference the svg and set width, height form useResizeObserver to make responsive
+    const svg = select(svgRef.current)
+    const wrapper = select(wrapperRef.current)
+    // const tooltip = select(tooltipRef.current)
+    const { width, height } = dimensions || wrapperRef.current.getBoundingClientRect()
+
+    // Generate stacks from data
+    const stackGenerator = stack().keys(['matched', 'unmatched'])
+    const layers = stackGenerator(data)
+    const extent = [0, max(layers, (layer) => max(layer, (seq) => seq[1])) + 10]
+
+    var tooltip = wrapper
+      .append('div')
+      .attr('class', 'mytooltip')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('visibility', 'hidden')
+
+    var optionitems = wrapper
+      .append('div')
+      .attr('class', 'option-items')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('visibility', 'hidden')
+    // Add option items
+    optionitems
+      .selectAll('div')
+      .data(options)
+      .join('div')
+      .attr('class', 'option-item')
+      .html((option) => option.name)
+      // Click event for each item in options menu
+      .on('click', (e, d) => {
+        optionitems.style('visibility', 'hidden')
+        setKeyShown(d.key)
+      })
+
+    // X scale
+    const xScale = scaleBand()
+      .domain(data.map((d) => d.bar))
+      .range([0, width])
+      .padding(0.2)
+    // X axis
+    const xAxis = axisBottom(xScale)
+    // Add to chart
+    svg
+      .select('.x-axis')
+      .attr('transform', `translate(0, ${height})`)
+      .call(xAxis)
+      .selectAll('text')
+      .style('text-anchor', 'end')
+      .attr('dx', '-.8em')
+      .attr('dy', '.15em')
+      .attr('transform', 'rotate(-60)')
+
+    // Y scale
+    const yScale = scaleLinear().domain(extent).range([height, 0])
+    // Y axis
+    const yAxis = axisLeft(yScale)
+    // Add to chart
+    svg.select('.y-axis').call(yAxis)
+
+    // Add bars to chart
+    svg
+      // Entire layer
+      .selectAll('.layer')
+      .data(layers)
+      .join('g')
+      .attr('fill', (layer) => colors[layer.key])
+      .style('cursor', 'pointer')
+      .attr('class', 'layer')
+      // Single bar layer
+      .selectAll('rect')
+      .data((layer) => layer)
+      .join('rect')
+      .attr('x', (seq) => xScale(seq.data.bar))
+      .attr('width', xScale.bandwidth())
+      .attr('y', (seq) => yScale(seq[1]))
+      .attr('height', (seq) => yScale(seq[0]) - yScale(seq[1]))
+      // Mouse over/move/leave events
+      .on('mouseover', (e, d) => {
+        select(e.target).style('opacity', 0.8)
+        tooltip.style('visibility', 'visible')
+      })
+      .on('mousemove', (e, d) => {
+        // Find out if hovered bar is matched or unmatched
+        let matchtype = ''
+        if (d[1] - d[0] === d.data.matched) matchtype = 'Matched'
+        else if (d[1] - d[0] === d.data.unmatched) matchtype = 'Unmatched'
+        // Apply styling for tooltip
+        tooltip
+          .style('top', e.pageY - 30 + 'px')
+          .style('left', e.pageX + 15 + 'px')
+          .html(`${d[1] - d[0]} ${matchtype} Items`)
+      })
+      .on('mouseleave', (e) => {
+        select(e.target).style('opacity', 1)
+        tooltip.style('visibility', 'hidden')
+      })
+      .on('click', (e, d) => {
+        optionitems
+          .style('visibility', 'visible')
+          .style('top', e.pageY - 40 + 'px')
+          .style('left', e.pageX - 210 + 'px')
+      })
+  }, [data, dimensions])
 
   return (
-    <Fragment>
-      <Chart data={data} rotated={true} height={750}>
-        <ArgumentAxis />
-        <ValueAxis max={2400} />
-        <BarSeries name='Matched' valueField='matched' argumentField='type' color={'#2ecc71'} />
-        <BarSeries name='Unmatched' valueField='unmatched' argumentField='type' color={'#e74c3c'} />
-        <Animation />
-        <Legend position='bottom' rootComponent={Root} labelComponent={Label} />
-        <Stack stacks={[{ series: ['Matched', 'Unmatched'] }]} />
-        <EventTracker />
-        <Tooltip />
-      </Chart>
-    </Fragment>
+    <div ref={wrapperRef} style={{ marginBottom: 175 }}>
+      <svg ref={svgRef} className='items-sb'>
+        <g className='x-axis'></g>
+        <g className='y-axis'></g>
+      </svg>
+    </div>
   )
 }
 

@@ -146,7 +146,7 @@ body {
   cursor: pointer;
   width: -moz-fit-content;
   width: fit-content;
-  min-width: 125px;
+  min-width: 95px;
   margin-right: 15px;
   font-size: 16px;
   text-align: center;
@@ -722,6 +722,7 @@ body {
 }
 .unmatched-container {
   width: 100%;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -793,4 +794,66 @@ tr {
 }
 .po-suggestion:hover {
   background-color: #f5edfd;
+}
+
+// ITEMS STACKED BAR CHART
+.matches-header {
+  width: 100%;
+  display: flex;
+  height: 40px;
+  font-weight: bold;
+  justify-content: space-around;
+  align-items: center;
+}
+.items-sb {
+  width: 100%;
+  height: 500px;
+  overflow: visible;
+  background-color: #ebebeb;
+}
+.x-axis {
+  font-size: 14px;
+}
+.mytooltip {
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  padding: 4px;
+  font-family: sans-serif;
+  font-size: 12px;
+  background: #fffac0;
+  border: 0px;
+  border-radius: 3px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.option-items {
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  background-color: #fbfbfb;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px 0px grey;
+  padding: 3px 0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.option-item {
+  height: 40px;
+  width: 200px;
+  background-color: #fbfbfb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.option-item:hover {
+  background-color: #ebebeb;
 }

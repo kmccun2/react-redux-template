@@ -59,6 +59,7 @@ export const compareItems = () => async (dispatch) => {
   // Edit SP items before main edit
   sp_items.map((sp_item) => {
     // Sketch
+    sp_item.sketch = sp_item.sketch.toString()
     sp_item.sketch = sp_item.sketch.split('/')[sp_item.sketch.split('/').length - 1]
     // Description
     sp_item.newdesc =
@@ -91,6 +92,8 @@ export const compareItems = () => async (dispatch) => {
     if (sp_item.tag.includes('A106W-')) sp_item.material = 'A106'
     if (sp_item.tag.includes('A53-')) sp_item.material = 'A53'
     if (sp_item.tag.includes('A53W-')) sp_item.material = 'A53'
+    // Edit tags
+    if (sp_item.tag.includes('STD_X_XS')) sp_item.tag = sp_item.tag.replace('STD_X_XS', 'STDXXS')
     return sp_item
   })
 
@@ -179,7 +182,8 @@ export const compareItems = () => async (dispatch) => {
         file_item.newdesc.includes('A350')
       )
         file_item.material = 'LT'
-      if (file_item.newdesc.includes('GAL ') || file_item.newdesc.includes('GALV')) file_item.material = 'GALV'
+      if (file_item.newdesc.includes('GAL ') || (file_item.newdesc.includes('GALV') && jobnum !== 7114))
+        file_item.material = 'GALV'
       // Rename CS materials
       if (file_item.material)
         file_item.material = file_item.material.replace('A234', 'CS').replace('A105', 'CS').replace('A587', 'A106')
@@ -232,6 +236,9 @@ export const compareItems = () => async (dispatch) => {
         file_item.item_detail = 'Socketweld Flange'
       // Stub End Flange
       if (file_item.newdesc.includes('STUB')) file_item.item_detail = 'Stub End Flange'
+      // Rolled Angle Flange
+      if (file_item.newdesc.includes('ANGLE') && file_item.newdesc.includes('FLANGE'))
+        file_item.item_detail = 'Rolled Angle Flange'
       // Plate Flange
       if (
         file_item.newdesc.includes(' PL ') &&
@@ -307,7 +314,10 @@ export const compareItems = () => async (dispatch) => {
       // Union
       if (file_item.newdesc.includes('UNION')) file_item.item_detail = 'Union'
       // Coupling
-      if (file_item.newdesc.includes('CPLG') || file_item.newdesc.includes('COUP')) file_item.item_detail = 'Coupling'
+      if (file_item.newdesc.includes('CPLG') || file_item.newdesc.includes('COUP')) {
+        file_item.item_detail = 'Coupling'
+        if (file_item.newdesc.includes('HALF')) file_item.item_detail = 'Half Coupling'
+      }
       // Strainer
       if (file_item.newdesc.includes('STRAIN')) file_item.item_detail = 'Strainer'
       // Plug
@@ -345,9 +355,14 @@ export const compareItems = () => async (dispatch) => {
       // Schedule
       //CALC
       if (file_item.newdesc.includes('CALC,')) file_item.schedule = 'CALC'
+      //5
+      if (file_item.newdesc.includes('S-5')) file_item.schedule = '5'
+      //5S
+      if (file_item.newdesc.includes('S-5S') || file_item.newdesc.includes(' 5S') || file_item.newdesc.includes('S5S'))
+        file_item.schedule = '5S'
+
       //10
-      if (file_item.newdesc.includes('S-10') || file_item.newdesc.includes(' 10') || file_item.newdesc.includes('S10'))
-        file_item.schedule = '10'
+      if (file_item.newdesc.includes('S-10') || file_item.newdesc.includes('S10')) file_item.schedule = '10'
       //10S
       if (
         file_item.newdesc.includes('S-10S') ||

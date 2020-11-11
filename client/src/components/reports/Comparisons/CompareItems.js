@@ -72,6 +72,11 @@ const NewCodes = ({
             </div>
           </div>
           <div className='unmatched-container'>
+            <div className='matches-header'>
+              <div>{po_items.length} Total Items</div>
+              <div>{po_items.filter((item) => item.matches.length > 0).length} Matched Items</div>
+              <div>{po_items.filter((item) => item.matches.length === 0).length} Unmatched Items</div>
+            </div>
             <StackedBar po_items={po_items} />
             <div className='page-header'>Suggested Matches ({poItems.length} items)</div>
             <table>
