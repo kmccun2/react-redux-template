@@ -1,18 +1,27 @@
-# TEMPLATE FOR REACT-REDUX APP (SERVER AND CLIENT SIDE)
+# react-redux-template
 
-# Install dependencies
+A react-redux template that includes server/client side functionality and stock action, reducer and api files.
+
+## Installation
+
+Use the package manager [npm](https://www.npmjs.com/get-npm) to install server side (root) and client side dependencies.
+
+```bash
 npm install
-cd client
-npm install client
+cd client npm install
 cd ..
+```
 
-# RUN APPLICATION
+## Run application using
+
+```
 npm run dev
+```
 
-# DEPENDENCIES INCLUDED 
-axios
-concurrently
-nodemon
-express
-node-sass
-react and redux dependencies
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
