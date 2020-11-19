@@ -16,10 +16,7 @@ app.use(
 )
 
 // Define Routes
-app.use('/api/csvs', require('./routes/api/csvs'))
-app.use('/api/json', require('./routes/api/json'))
-app.use('/api/summary', require('./routes/api/summary'))
-app.use('/api/xlsx', require('./routes/api/xlsx'))
+app.use('/api/stock', require('./routes/api/stock'))
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

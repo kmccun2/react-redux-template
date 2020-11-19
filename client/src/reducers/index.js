@@ -1,10 +1,6 @@
 import { combineReducers } from 'redux'
-import jobs from './jobs'
-import job from './job'
-import compareItems from './compareItems'
+import stock from './stock'
 
 export default combineReducers({
-  jobs,
-  job,
-  compareItems,
+  stock,
 })

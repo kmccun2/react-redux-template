@@ -1,3 +1,4 @@
+// Used to make SVGs responsive when using d3.js
 import { useEffect, useState } from 'react'
 
 export const useResizeObserver = (ref) => {
